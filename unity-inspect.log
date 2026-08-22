@@ -1,0 +1,22 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-engmh" at "2026-08-09T19:09:26.5981569Z"
+Built from '6000.5/staging' branch; Version is '6000.5.7f1 (017862109af0) revision 96354'; Using compiler version '194234433'; Build Type 'Release'
+OS: 'Windows 11  (10.0.26200) Professional' Language: 'en' Physical Memory: 32368 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-08-09T19:09:26Z
+
+COMMAND LINE ARGUMENTS:
+D:\Program Files\Editor\6000.5.7f1\Editor\Unity.exe
+-batchmode
+-projectPath
+D:\game\game-client
+-executeMethod
+CharacterPackInspector.Inspect
+-quit
+-logFile
+D:\game\unity-inspect.log
+Successfully changed project path to: D:\game\game-client
+D:/game/game-client
+Exiting without the bug reporter. Application will terminate with return code 1

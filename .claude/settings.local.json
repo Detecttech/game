@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(where unity *)",
+      "Bash(where \"Unity.exe\")",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Program Files/Unity/Hub/**)",
+      "Bash(npm run *)",
+      "Bash(curl -s http://localhost:7777/api/server/info)",
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(curl -s http://localhost:7777/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:7777/assets/index-BsQ0p-Sf.js)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //F //PID 68548)",
+      "Bash(taskkill //F //PID 70424)"
+    ]
+  }
+}
