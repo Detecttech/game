@@ -27,7 +27,7 @@ matchRoutes.get("/matches", (req: AuthedRequest, res) => {
 });
 
 matchRoutes.post("/matches", (req: AuthedRequest, res) => {
-  const { classRosterId, questionBankId, mode } = req.body ?? {};
+  const { classRosterId, questionBankId, mode, timerSeconds } = req.body ?? {};
   const roster = findClassRosterById(Number(classRosterId));
   if (!roster || roster.teacher_id !== req.teacherId) {
     res.status(404).json({ code: "not_found", message: "Class not found" });
@@ -39,7 +39,8 @@ matchRoutes.post("/matches", (req: AuthedRequest, res) => {
     return;
   }
   const matchMode: MatchMode = mode === "teams" ? "teams" : "ffa";
-  const match = createMatch(roster.id, bank.id, matchMode, randomJoinCode());
+  const timerSec = Number(timerSeconds) > 0 ? Number(timerSeconds) : 30;
+  const match = createMatch(roster.id, bank.id, matchMode, randomJoinCode(), timerSec);
   res.status(201).json(match);
 });
 

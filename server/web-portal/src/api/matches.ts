@@ -7,6 +7,7 @@ export interface Match {
   mode: "ffa" | "teams";
   status: "lobby" | "active" | "completed";
   join_code: string;
+  timer_seconds?: number;
   winner_ref: string | null;
   started_at: number | null;
   ended_at: number | null;
@@ -17,8 +18,13 @@ export interface MatchWithClassName extends Match {
   class_name: string;
 }
 
-export const createMatch = (classRosterId: number, questionBankId: number, mode: "ffa" | "teams") =>
-  apiPost<Match>("/matches", { classRosterId, questionBankId, mode });
+export const createMatch = (
+  classRosterId: number,
+  questionBankId: number,
+  mode: "ffa" | "teams",
+  timerSeconds = 30
+) =>
+  apiPost<Match>("/matches", { classRosterId, questionBankId, mode, timerSeconds });
 
 export const getMatch = (id: number) => apiGet<Match & { participants: unknown[]; events: unknown[] }>(`/matches/${id}`);
 

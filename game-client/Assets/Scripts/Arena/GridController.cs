@@ -7,7 +7,7 @@ namespace QuizBattle.Arena
     /// assets required, so it works whether or not real art has been imported yet.
     public class GridController : MonoBehaviour
     {
-        public float tileSize = 1f;
+        public float tileSize = 1.32f;
         public Color colorA = QuizBattlePalette.GrassLight;
         public Color colorB = QuizBattlePalette.GrassDark;
         public Color zoneColor = QuizBattlePalette.ZoneGold;
@@ -33,14 +33,16 @@ namespace QuizBattle.Arena
             _height = height;
             _tiles = new GameObject[width, height];
 
+            int finalGoalRow = (goalRow >= 0 && goalRow < height) ? goalRow : (height - 1);
+
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
-                    bool isGoal = y == goalRow;
+                    bool isGoal = y == finalGoalRow;
                     var color = isGoal ? zoneColor : ((x + y) % 2 == 0 ? colorA : colorB);
                     _tiles[x, y] = CreateTile(x, y, color);
-                    if (isGoal) CreateZoneGlow(x, y, isLeftEdge: x == 0, isRightEdge: x == width - 1);
+                    if (isGoal) CreateZoneGlow(x, y, x == 0, x == width - 1);
                 }
             }
 
@@ -59,9 +61,6 @@ namespace QuizBattle.Arena
             Destroy(tile.GetComponent<Collider>());
 
             var renderer = tile.GetComponent<Renderer>();
-            // Shared/cached — tiles are never mutated after creation, unlike CharacterToken's body.
-            // Tiles get a thinner outline than characters (TileStyle) so the checkerboard's
-            // seams don't read as busy compared to the chunkier character outlines.
             var tex = ResolveFloorTexture();
             renderer.sharedMaterial = tex != null
                 ? ToonMaterialFactory.Toon(color, TileStyle, tex, TileTiling)
@@ -91,17 +90,15 @@ namespace QuizBattle.Arena
 
         private void CreateZoneGlow(int x, int y, bool isLeftEdge, bool isRightEdge)
         {
-            // A flattened cylinder pulsing softly above the goal tile
             var glow = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             glow.name = $"ZoneGlow_{x}_{y}";
             glow.transform.SetParent(transform, false);
-            glow.transform.localPosition = new Vector3(x * tileSize, 0.52f, y * tileSize);
-            glow.transform.localScale = new Vector3(tileSize * 0.92f, 0.02f, tileSize * 0.92f);
+            glow.transform.localPosition = new Vector3(x * tileSize, 0.015f, y * tileSize);
+            glow.transform.localScale = new Vector3(tileSize * 0.92f, 0.005f, tileSize * 0.92f);
             Destroy(glow.GetComponent<Collider>());
             glow.GetComponent<Renderer>().sharedMaterial =
                 ToonMaterialFactory.Glow(zoneColor, intensity: 1.2f, softEdge: 0.35f, pulseSpeed: 2.5f, pulseAmount: 0.35f);
 
-            // Goal Finish Posts on the left and right ends of the finish line
             if (isLeftEdge || isRightEdge)
             {
                 CreateGoalPost(x, y, isLeftEdge);
@@ -136,6 +133,7 @@ namespace QuizBattle.Arena
             Destroy(crown.GetComponent<Collider>());
             crown.GetComponent<Renderer>().sharedMaterial = goldMat;
         }
+
 
         private void CreateCurbBorder(int width, int height)
         {

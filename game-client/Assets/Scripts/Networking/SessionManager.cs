@@ -30,6 +30,41 @@ namespace QuizBattle.Networking
             ? $"{HttpScheme}://{ServerHost}"
             : $"{HttpScheme}://{ServerHost}:{ServerPort}";
 
+        /// Automatically detects host, port, and SSL from browser origin when running in WebGL, or defaults to localhost:8080.
+        public static void AutoDetectEndpoint()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            try
+            {
+                if (!string.IsNullOrEmpty(Application.absoluteURL))
+                {
+                    var uri = new Uri(Application.absoluteURL);
+                    ServerHost = uri.Host;
+                    UseSsl = uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase);
+                    if (uri.Port > 0 && uri.Port != 80 && uri.Port != 443)
+                    {
+                        ServerPort = uri.Port;
+                    }
+                    else
+                    {
+                        ServerPort = UseSsl ? 443 : 80;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[SessionManager] WebGL URL autodetect skipped: {ex.Message}");
+            }
+#else
+            if (string.IsNullOrEmpty(ServerHost) || ServerHost == "localhost")
+            {
+                ServerHost = "localhost";
+                ServerPort = 8080;
+                UseSsl = false;
+            }
+#endif
+        }
+
         /// Parses a raw host/URL input (e.g. "https://quizbattle.run.app", "192.168.1.5:7777", "quizbattle.com")
         public static void SetEndpoint(string rawHostOrUrl, int? explicitPort = null)
         {

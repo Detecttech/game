@@ -15,6 +15,7 @@ New-Item -ItemType Directory -Path $tempDir | Out-Null
 # 1. Copy Docker & Cloud Build files
 Copy-Item "d:\game\Dockerfile" "$tempDir\"
 Copy-Item "d:\game\.dockerignore" "$tempDir\"
+Copy-Item "d:\game\.gcloudignore" "$tempDir\"
 Copy-Item "d:\game\cloudbuild.yaml" "$tempDir\"
 
 # 2. Copy deploy scripts
@@ -23,10 +24,10 @@ Copy-Item -Recurse "d:\game\deploy" "$tempDir\deploy"
 # 3. Copy shared assets
 Copy-Item -Recurse "d:\game\shared" "$tempDir\shared"
 
-# 4. Copy game-client/webgl-build (pre-compiled game)
-New-Item -ItemType Directory -Path "$tempDir\game-client" | Out-Null
+# 4. Copy game-client/webgl-build (pre-compiled game, omitting debug-only Burst info)
+New-Item -ItemType Directory -Path "$tempDir\game-client\webgl-build" | Out-Null
 if (Test-Path "d:\game\game-client\webgl-build") {
-    Copy-Item -Recurse "d:\game\game-client\webgl-build" "$tempDir\game-client\webgl-build"
+    Get-ChildItem "d:\game\game-client\webgl-build" -Exclude "*BurstDebugInformation*" | Copy-Item -Destination "$tempDir\game-client\webgl-build" -Recurse
 }
 
 # 5. Copy server (excluding node_modules and .db files)

@@ -15,6 +15,7 @@ export function MatchSetupPage() {
   const [classId, setClassId] = useState<number | "">("");
   const [bankId, setBankId] = useState<number | "">("");
   const [mode, setMode] = useState<"ffa" | "teams">("ffa");
+  const [timerSeconds, setTimerSeconds] = useState<number>(30);
   const [created, setCreated] = useState<Match | null>(null);
   const [recentMatches, setRecentMatches] = useState<MatchWithClassName[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +38,7 @@ export function MatchSetupPage() {
       return;
     }
     try {
-      const match = await createMatch(Number(classId), Number(bankId), mode);
+      const match = await createMatch(Number(classId), Number(bankId), mode, timerSeconds);
       setCreated(match);
       refreshMatches();
     } catch (err) {
@@ -84,6 +85,19 @@ export function MatchSetupPage() {
           {mode === "teams" && (
             <p className="muted">Students pick Team A or Team B themselves in the app's lobby before the match starts — no roster assignment needed here.</p>
           )}
+        </div>
+        <div className="field">
+          <label htmlFor="timer">Finish Countdown Timer (for 3+ players)</label>
+          <select id="timer" value={timerSeconds} onChange={(e) => setTimerSeconds(Number(e.target.value))}>
+            <option value={15}>15 seconds (Speed blitz)</option>
+            <option value={30}>30 seconds (Standard)</option>
+            <option value={45}>45 seconds (Relaxed)</option>
+            <option value={60}>60 seconds (1 minute)</option>
+            <option value={90}>90 seconds (1.5 minutes)</option>
+          </select>
+          <p className="muted" style={{ fontSize: "0.85em", marginTop: 4 }}>
+            In 3+ player games, when 1st place finishes, this countdown timer gives remaining players time to race for 2nd and 3rd place. (2-player games end immediately upon 1st finish).
+          </p>
         </div>
         {error && <p className="error-text">{error}</p>}
         <button className="btn btn-primary" type="submit">Create match</button>

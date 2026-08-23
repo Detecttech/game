@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using QuizBattle.Arena;
 using QuizBattle.Bootstrap;
 using QuizBattle.Networking;
 using TMPro;
@@ -26,26 +27,64 @@ namespace QuizBattle.UI.NameEntry
 
         private void Start()
         {
+            SessionManager.AutoDetectEndpoint();
             Build();
+            _ = PreconnectWs();
+        }
+
+        private async Task PreconnectWs()
+        {
+            var client = AppRoot.Instance.Client;
+            if (!client.IsConnected)
+            {
+                try
+                {
+                    await client.Connect(SessionManager.WsUrl);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"[NameEntryScreen] Background pre-connect: {ex.Message}");
+                }
+            }
         }
 
         private void Build()
         {
-            var canvas = UiFactory.CreateCanvas();
-            var title = UiFactory.CreateText(canvas.transform, "Title", new Vector2(0.5f, 0.88f), new Vector2(700, 60), 32);
-            title.text = "Enter Your Name";
+            var canvas = UiFactory.CreateCanvas("NameEntry_Canvas");
 
-            _classCodeField = UiFactory.CreateInputField(canvas.transform, "ClassCodeField", new Vector2(0.5f, 0.7f), new Vector2(320, 50), "Class code");
-            _nameField = UiFactory.CreateInputField(canvas.transform, "NameField", new Vector2(0.5f, 0.61f), new Vector2(320, 50), "Your name");
-            _pinField = UiFactory.CreateInputField(canvas.transform, "PinField", new Vector2(0.5f, 0.52f), new Vector2(320, 50), "PIN (4 digits)");
+            // Main center placard card
+            var (cardRect, innerCard) = UiFactory.CreatePlacardPanel(
+                canvas.transform, "CenterCard", new Vector2(0.5f, 0.5f), new Vector2(480, 540), QuizBattlePalette.PanelDeep);
+
+            // Title Ribbon Banner at the top of the card
+            var (bannerRect, _) = UiFactory.CreateBannerPanel(
+                cardRect, "TitleBanner", new Vector2(0.5f, 1f), new Vector2(340, 48), QuizBattlePalette.BannerBlue, new Vector2(0, 8));
+            var titleText = UiFactory.CreateText(bannerRect, "TitleText", new Vector2(0.5f, 0.5f), new Vector2(320, 36), 22);
+            titleText.text = "JOIN MATCH";
+            titleText.fontStyle = FontStyles.Bold;
+            titleText.color = QuizBattlePalette.GoldTrim;
+
+            // Subtitle
+            var subText = UiFactory.CreateText(innerCard.transform, "SubText", new Vector2(0.5f, 0.88f), new Vector2(420, 30), 14);
+            subText.text = "Enter your details to jump into the arena:";
+            subText.color = QuizBattlePalette.CreamText;
+
+            _classCodeField = UiFactory.CreateInputField(innerCard.transform, "ClassCodeField", new Vector2(0.5f, 0.74f), new Vector2(360, 46), "Class code (e.g. MATH101)");
+            _nameField = UiFactory.CreateInputField(innerCard.transform, "NameField", new Vector2(0.5f, 0.60f), new Vector2(360, 46), "Your nickname (e.g. Alex)");
+            _pinField = UiFactory.CreateInputField(innerCard.transform, "PinField", new Vector2(0.5f, 0.46f), new Vector2(360, 46), "PIN (4 digits)");
             _pinField.contentType = TMP_InputField.ContentType.IntegerNumber;
             _pinField.characterLimit = 4;
-            _matchCodeField = UiFactory.CreateInputField(canvas.transform, "MatchCodeField", new Vector2(0.5f, 0.43f), new Vector2(320, 50), "Match code");
+            _matchCodeField = UiFactory.CreateInputField(innerCard.transform, "MatchCodeField", new Vector2(0.5f, 0.32f), new Vector2(360, 46), "Match code (e.g. LOBBY1)");
 
-            _joinButton = UiFactory.CreateButton(canvas.transform, "JoinButton", new Vector2(0.5f, 0.3f), new Vector2(200, 50), "Join");
+            var (joinBtn, joinLabel) = UiFactory.CreateClashButton(
+                innerCard.transform, "JoinButton", new Vector2(0.5f, 0.16f), new Vector2(260, 52), "JOIN GAME >>",
+                new Color(0.18f, 0.68f, 0.28f), new Color(0.10f, 0.44f, 0.18f), "");
+            joinLabel.fontSize = 20;
+            _joinButton = joinBtn;
             _joinButton.onClick.AddListener(OnJoinClicked);
 
-            _statusText = UiFactory.CreateText(canvas.transform, "Status", new Vector2(0.5f, 0.17f), new Vector2(700, 80), 18);
+            _statusText = UiFactory.CreateText(innerCard.transform, "Status", new Vector2(0.5f, 0.04f), new Vector2(440, 30), 13);
+            _statusText.color = QuizBattlePalette.CreamText;
         }
 
         public void OnJoinClicked()
@@ -55,12 +94,32 @@ namespace QuizBattle.UI.NameEntry
 
         public async Task Join(string classCode, string name, string pin, string matchCode)
         {
-            _joinButton.interactable = false;
-            _statusText.text = "Signing in...";
+            if (string.IsNullOrWhiteSpace(classCode) || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(matchCode))
+            {
+                _statusText.text = "Please fill in all fields.";
+                return;
+            }
 
-            // Deliberately NOT using ConfigureAwait(false) anywhere in this method: it
-            // touches Unity UI after every await, which needs the main-thread
-            // SynchronizationContext that's only present with ConfigureAwait's default.
+            _joinButton.interactable = false;
+            _statusText.text = "Connecting & signing in...";
+
+            SessionManager.AutoDetectEndpoint();
+            var client = AppRoot.Instance.Client;
+
+            if (!client.IsConnected)
+            {
+                try
+                {
+                    await client.Connect(SessionManager.WsUrl);
+                }
+                catch (Exception e)
+                {
+                    _statusText.text = $"Could not reach server: {e.Message}";
+                    _joinButton.interactable = true;
+                    return;
+                }
+            }
+
             AuthClient.StudentLoginResult login;
             try
             {
@@ -78,12 +137,8 @@ namespace QuizBattle.UI.NameEntry
             SessionManager.Role = "student";
             SessionManager.JoinCode = matchCode;
 
-            var client = AppRoot.Instance.Client;
             var store = AppRoot.Instance.Store;
 
-            // Re-authenticate the already-open WS connection as this real student profile
-            // (see ConnectScreen — the first hello had no token, so the server was only
-            // tracking us by raw connection id until now).
             bool acked = false;
             void OnAck(Networking.Protocol.Envelope env)
             {
@@ -98,13 +153,13 @@ namespace QuizBattle.UI.NameEntry
             if (!await WsClient.WaitUntil(client, () => acked, 5000))
             {
                 client.MessageReceived -= OnAck;
-                _statusText.text = "Lost connection to the server. Please reconnect.";
+                _statusText.text = "Lost connection to the server. Please try again.";
                 _joinButton.interactable = true;
                 return;
             }
             client.MessageReceived -= OnAck;
 
-            _statusText.text = "Joining match...";
+            _statusText.text = "Joining match lobby...";
             client.Send("join_lobby", new { joinCode = matchCode, name = login.Name });
             bool inLobby = await WsClient.WaitUntil(client, () => store.LobbyPlayers.Exists(p => p.playerId == SessionManager.PlayerId), 5000);
 

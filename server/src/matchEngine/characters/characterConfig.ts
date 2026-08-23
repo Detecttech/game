@@ -27,10 +27,69 @@ export interface CharacterConfig {
   unlock: { defaultUnlocked: boolean; xpThreshold?: number };
 }
 
-const raw = fs.readFileSync(path.join(__dirname, "..", "..", "..", "..", "shared", "characters.json"), "utf-8");
-const parsed = JSON.parse(raw) as { characters: CharacterConfig[] };
+function loadCharacters(): CharacterConfig[] {
+  const possiblePaths = [
+    path.join(__dirname, "..", "..", "..", "..", "shared", "characters.json"),
+    path.join(__dirname, "..", "..", "shared", "characters.json"),
+    path.join(__dirname, "..", "shared", "characters.json"),
+    path.join(process.cwd(), "..", "shared", "characters.json"),
+    path.join(process.cwd(), "shared", "characters.json"),
+    "/app/shared/characters.json",
+  ];
 
-export const CHARACTERS: readonly CharacterConfig[] = parsed.characters;
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      try {
+        const raw = fs.readFileSync(p, "utf-8");
+        const parsed = JSON.parse(raw) as { characters: CharacterConfig[] };
+        if (parsed?.characters) return parsed.characters;
+      } catch {
+        // continue
+      }
+    }
+  }
+
+  // Fallback defaults if characters.json file is missing in container
+  return [
+    {
+      id: "aegis",
+      name: "Aegis",
+      baseStats: { hp: 120, moveRange: 1 },
+      ability: { id: "shield", name: "Iron Wall", type: "passive", description: "Takes 25% less damage", damageReductionPct: 25, vfxTag: "shield" },
+      unlock: { defaultUnlocked: true }
+    },
+    {
+      id: "blaze",
+      name: "Blaze",
+      baseStats: { hp: 100, moveRange: 1 },
+      ability: { id: "fireball", name: "Fireball", type: "active", description: "Deals 25 damage + 10 burn DoT", baseDamage: 25, dotDamage: 10, dotRounds: 2, vfxTag: "fireball" },
+      unlock: { defaultUnlocked: true }
+    },
+    {
+      id: "frost",
+      name: "Frost",
+      baseStats: { hp: 100, moveRange: 1 },
+      ability: { id: "ice_shard", name: "Freeze", type: "active", description: "Skips target next turn", baseDamage: 15, vfxTag: "freeze" },
+      unlock: { defaultUnlocked: true }
+    },
+    {
+      id: "surge",
+      name: "Surge",
+      baseStats: { hp: 90, moveRange: 2 },
+      ability: { id: "dash", name: "Quick Dash", type: "active", description: "Moves +1 extra step", bonusMoveSteps: 1, vfxTag: "dash" },
+      unlock: { defaultUnlocked: true }
+    },
+    {
+      id: "vamp",
+      name: "Vamp",
+      baseStats: { hp: 95, moveRange: 1 },
+      ability: { id: "drain", name: "Life Drain", type: "active", description: "Steals 20 HP from target", baseDamage: 20, lifestealPct: 50, vfxTag: "drain" },
+      unlock: { defaultUnlocked: false, xpThreshold: 100 }
+    }
+  ];
+}
+
+export const CHARACTERS: readonly CharacterConfig[] = loadCharacters();
 
 const byId = new Map(CHARACTERS.map((c) => [c.id, c]));
 

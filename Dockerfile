@@ -21,7 +21,7 @@ RUN npm install
 
 COPY server/tsconfig.json ./
 COPY server/src ./src
-RUN npm run build
+RUN npm run build && cp src/db/schema.sql dist/db/schema.sql
 
 # ==========================================
 # Stage 3: Production Runtime
@@ -49,6 +49,7 @@ RUN npm install --omit=dev && npm cache clean --force
 
 # Copy compiled artifacts from builders
 COPY --from=server-builder /app/server/dist ./dist
+COPY server/src/db/schema.sql ./dist/db/schema.sql
 COPY --from=web-portal-builder /app/server/web-portal/dist ./web-portal/dist
 
 # Copy Unity WebGL build if present
@@ -60,11 +61,11 @@ RUN mkdir -p /app/server/data
 # Environment configuration
 ENV NODE_ENV=production
 ENV MODE=wan
-ENV PORT=7777
+ENV PORT=8080
 ENV DB_PATH=/app/server/data/quizbattle.db
 
-# Cloud Run defaults to 8080, but app listens on process.env.PORT
-EXPOSE 7777 8080
+# Cloud Run defaults to 8080
+EXPOSE 8080
 
 # Persistent volume for SQLite data when running on Compute Engine or Docker
 VOLUME ["/app/server/data"]

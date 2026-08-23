@@ -10,6 +10,7 @@ export interface Match {
   mode: MatchMode;
   status: MatchStatus;
   join_code: string;
+  timer_seconds: number;
   winner_ref: string | null;
   started_at: number | null;
   ended_at: number | null;
@@ -30,13 +31,14 @@ export function createMatch(
   classRosterId: number,
   questionBankId: number,
   mode: MatchMode,
-  joinCode: string
+  joinCode: string,
+  timerSeconds = 30
 ): Match {
   const stmt = db.prepare(
-    `INSERT INTO matches (class_roster_id, question_bank_id, mode, status, join_code, created_at)
-     VALUES (?, ?, ?, 'lobby', ?, ?)`
+    `INSERT INTO matches (class_roster_id, question_bank_id, mode, status, join_code, timer_seconds, created_at)
+     VALUES (?, ?, ?, 'lobby', ?, ?, ?)`
   );
-  const info = stmt.run(classRosterId, questionBankId, mode, joinCode, Date.now());
+  const info = stmt.run(classRosterId, questionBankId, mode, joinCode, timerSeconds, Date.now());
   return findMatchById(info.lastInsertRowid as number)!;
 }
 

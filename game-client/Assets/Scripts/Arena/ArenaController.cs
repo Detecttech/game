@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using QuizBattle.Arena.Vfx;
+using QuizBattle.Arena.Visuals;
 using QuizBattle.Bootstrap;
 using QuizBattle.Characters;
 using QuizBattle.GameState;
@@ -64,6 +66,8 @@ namespace QuizBattle.Arena
             _hud.ChoiceSelected += OnChoiceSelected;
             _store.AnswerResultReceived += OnAnswerResult;
             _store.MatchEnded += OnMatchEnded;
+            _store.PlayerFinished += OnPlayerFinished;
+            _store.MatchTimerStarted += OnMatchTimerStarted;
             // Subscribed after _view's own QuestionPushed subscription above, so this
             // handler always runs after NetworkedArenaView.OnQuestionPushed re-enables
             // the buttons via ShowQuestion — letting it re-lock them if a reward popup
@@ -78,8 +82,30 @@ namespace QuizBattle.Arena
             {
                 _store.AnswerResultReceived -= OnAnswerResult;
                 _store.MatchEnded -= OnMatchEnded;
+                _store.PlayerFinished -= OnPlayerFinished;
+                _store.MatchTimerStarted -= OnMatchTimerStarted;
                 _store.QuestionPushed -= OnQuestionPushedWhileLocked;
             }
+        }
+
+        private void OnPlayerFinished(PlayerFinishedPayload finish)
+        {
+            _hud.Log($"🏁 {finish.Name} reached the goal! (#{finish.FinishRank})");
+
+            // Spawn 3D celebratory fireworks bursts over the goal line
+            float goalZ = _store.GridHeight - 1;
+            VictoryFireworksController.Spawn(new Vector3((_store.GridWidth - 1) * 0.5f, 0f, goalZ), _store.GridWidth, goalZ);
+
+            if (finish.PlayerId == SessionManager.PlayerId)
+            {
+                _hud.ShowWaitingFinished(finish.FinishRank ?? 1);
+            }
+        }
+
+        private void OnMatchTimerStarted(MatchTimerStartPayload timer)
+        {
+            _hud.ShowCountdown(timer.RemainingSeconds, timer.Message);
+            _hud.Log($"⏱️ Countdown started: {timer.RemainingSeconds}s remaining!");
         }
 
         private void OnQuestionPushedWhileLocked(QuestionPushPayload q)
@@ -157,14 +183,13 @@ namespace QuizBattle.Arena
             }
             else if (result.RewardOffered.Type == "bonus_move")
             {
-                _rewardPopupOpen = true;
-                _hud.SetChoicesInteractable(false);
-                _rewardPopup.ShowBonusMove(() =>
+                // Auto-advance immediately without waiting for a button click or locking input
+                AppRoot.Instance.Client.Send("reward_consumed", new { rewardId, choice = "bonus_move" });
+                _hud.Log("⚡ +1 BONUS STEP ACTIVATED!");
+                if (SessionManager.PlayerId.HasValue && _view.TryGetToken(SessionManager.PlayerId.Value, out var myToken))
                 {
-                    AppRoot.Instance.Client.Send("reward_consumed", new { rewardId, choice = "bonus_move" });
-                    _rewardPopupOpen = false;
-                    _hud.SetChoicesInteractable(true);
-                });
+                    FloatingCombatText.Spawn(myToken.transform.position + Vector3.up * 1.8f, "+1 BONUS STEP!", new Color(1f, 0.88f, 0.15f), 1.50f);
+                }
             }
         }
 

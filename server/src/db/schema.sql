@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS matches (
   mode TEXT NOT NULL CHECK (mode IN ('ffa', 'teams')),
   status TEXT NOT NULL CHECK (status IN ('lobby', 'active', 'completed')) DEFAULT 'lobby',
   join_code TEXT NOT NULL UNIQUE,
+  timer_seconds INTEGER DEFAULT 30,
   winner_ref TEXT,
   started_at INTEGER,
   ended_at INTEGER,

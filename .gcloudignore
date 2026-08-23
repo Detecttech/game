@@ -1,0 +1,35 @@
+.git
+.gitignore
+.claude
+.idea
+.vscode
+
+# Ignore giant Unity editor caches & source assets (WebGL build is already in webgl-build)
+game-client/Library/
+game-client/Temp/
+game-client/obj/
+game-client/Logs/
+game-client/Assets/
+game-client/Packages/
+game-client/ProjectSettings/
+game-client/UserSettings/
+game-client/.utmp/
+game-client/build/
+game-client/building/
+*BurstDebugInformation*
+game-client/webgl-build/*BurstDebugInformation*/
+
+# Ignore node_modules (built inside Docker container on Linux)
+node_modules/
+server/node_modules/
+server/dist/
+server/web-portal/node_modules/
+server/web-portal/dist/
+
+# Ignore databases and logs
+server/data/*.db
+server/data/*.db-journal
+server/data/*.db-wal
+server/data/*.db-shm
+*.log
+*.exitcode

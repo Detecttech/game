@@ -10,38 +10,14 @@ namespace QuizBattle.Arena.Visuals
         public Renderer[] Renderers;
     }
 
-    /// Builds a distinct silhouette per CharacterArchetype. Shared rules across every
-    /// archetype: origin at the feet (y=0 is the ground contact point, matching
-    /// GridController.TileToWorldPos), total height stays under ~1.3 tile-units so tokens
-    /// read clearly on an 8-wide board, and every character gets a thin emissive ground
-    /// disc in its own color — a cheap silhouette-independent position/team readability cue.
-    ///
-    /// Torsos/heads are imported ithappy character models (see ImportedModelResourcePaths)
-    /// recolored via QB_Toon; the flame crests/chest plates/fins/halos etc. below are the
-    /// original procedural accent parts, unchanged, just re-anchored onto the imported
-    /// body instead of a primitive torso.
+    /// Builds 4 distinct, highly creative, full-body stylized characters with expressive heads,
+    /// armor, weapons, capes/scarves, and visual props:
+    /// 1. Blaze: Golden Horned Gladiator Knight with Flaming Broadsword & Crimson Cape
+    /// 2. Aegis: Cyber Titan Mech Golem with Heavy Golden Tower Shield & Power Core
+    /// 3. Zephyr: Emerald Shadow Ninja with Dual Storm Daggers, Ninja Hood & Swirling Wind Ring
+    /// 4. Vera: Celestial Arcane Sorceress with Wizard Hat, Crystal Staff, Spellbook & Orbiting Halos
     public static class CharacterVisualBuilder
     {
-        // Only 3 distinct body meshes are available in the free character pack, so Wind
-        // and Arcane share Base_Mesh — differentiated by BaseColor/AccentColor tint and
-        // their own accent parts, same as the rest of this file already does per-archetype.
-        private static readonly Dictionary<CharacterArchetype, string> ImportedModelResourcePaths = new Dictionary<CharacterArchetype, string>
-        {
-            { CharacterArchetype.Fire, "Characters/Models/Costume_13_001" },
-            { CharacterArchetype.Tank, "Characters/Models/Mascot_002" },
-            { CharacterArchetype.Wind, "Characters/Models/Base_Mesh" },
-            { CharacterArchetype.Arcane, "Characters/Models/Base_Mesh" },
-        };
-
-        // Roughly matches the total height the old primitive-built torsos/heads occupied
-        // (~0.9-1.1 units), so the accent-part offsets below — authored against that old
-        // scale — still land in about the right place without per-bone repositioning math.
-        private const float ImportedBodyHeight = 1.0f;
-        private const string CharacterAtlasResourcePath = "Textures/CharacterAtlas";
-
-        private static Texture2D _cachedAtlas;
-        private static bool _atlasResolved;
-
         public static CharacterVisualResult Build(in CharacterVisual visual, Transform parent)
         {
             var renderers = new List<Renderer>();
@@ -50,243 +26,290 @@ namespace QuizBattle.Arena.Visuals
             switch (visual.Archetype)
             {
                 case CharacterArchetype.Fire:
-                    BuildFire(parent, visual, renderers, animator);
+                    BuildBlaze(parent, visual, renderers, animator);
                     break;
                 case CharacterArchetype.Tank:
-                    BuildTank(parent, visual, renderers, animator);
+                    BuildAegis(parent, visual, renderers, animator);
                     break;
                 case CharacterArchetype.Wind:
-                    BuildWind(parent, visual, renderers, animator);
+                    BuildZephyr(parent, visual, renderers, animator);
                     break;
                 case CharacterArchetype.Arcane:
-                    BuildArcane(parent, visual, renderers, animator);
+                    BuildVera(parent, visual, renderers, animator);
                     break;
                 default:
-                    BuildGeneric(parent, visual, renderers);
+                    BuildBlaze(parent, visual, renderers, animator);
                     break;
             }
 
             return new CharacterVisualResult { Root = parent.gameObject, Renderers = renderers.ToArray() };
         }
 
-        private static Texture2D ResolveCharacterAtlas()
+        // =========================================================================
+        // 1. BLAZE — The Flaming Gladiator Knight
+        // =========================================================================
+        private static void BuildBlaze(Transform parent, in CharacterVisual visual, List<Renderer> renderers, TokenIdleAnimator animator)
         {
-            if (_atlasResolved) return _cachedAtlas;
-            _cachedAtlas = Resources.Load<Texture2D>(CharacterAtlasResourcePath);
-            _atlasResolved = true;
-            return _cachedAtlas;
-        }
+            var armorMat = ToonMaterialFactory.Instance(new Color(0.92f, 0.22f, 0.15f)); // Crimson Red
+            var goldMat = ToonMaterialFactory.Instance(new Color(1.0f, 0.82f, 0.18f));  // Gold Trim
+            var skinMat = ToonMaterialFactory.Instance(new Color(0.98f, 0.78f, 0.62f));  // Skin
+            var steelMat = ToonMaterialFactory.Instance(new Color(0.68f, 0.72f, 0.80f)); // Steel
+            var flameGlowMat = ToonMaterialFactory.GlowInstance(new Color(1.0f, 0.55f, 0.05f), intensity: 2.2f);
+            var eyeGlowMat = ToonMaterialFactory.GlowInstance(new Color(1.0f, 0.90f, 0.20f), intensity: 2.5f);
 
-        // Base_Mesh ships with every optional slot (hat AND hairstyle AND mustache AND
-        // glasses AND a redundant full-body coverall on top of the separate shirt/pants)
-        // switched on simultaneously — the pack's own customization tool is what normally
-        // turns these off/on; instantiated raw, they z-fight into a jumbled mess. Disabling
-        // the overlapping/extraneous ones leaves a clean base. Base_Mesh's own embedded
-        // T_Shirt/Pants/Outerwear/Shoes/Hairstyle are also blank/neutral placeholders (the
-        // pack's actual colored art lives in the separate named wardrobe prefabs below), so
-        // those are hidden too and replaced with real equipped pieces.
-        private static readonly HashSet<string> SkippedDefaultParts = new HashSet<string>
-        {
-            "Full_body", "Hat", "Mustache", "Glasses", "Accessories",
-            "T_Shirt", "Pants", "Outerwear", "Shoes", "Hairstyle",
-        };
+            var body = new GameObject("BlazeBody");
+            body.transform.SetParent(parent, false);
+            animator.SetBodyRoot(body.transform);
 
-        // Standalone colored wardrobe pieces (each a self-contained mesh+skeleton at the
-        // same rig scale as Base_Mesh) equipped onto the Wind/Arcane archetypes in place of
-        // Base_Mesh's own blank defaults — Fire/Tank use Costume_13_001/Mascot_002, which
-        // are already single fully-colored meshes and need no additional wardrobe. Wind and
-        // Arcane both use Base_Mesh as their base, so they get deliberately different
-        // combos here — otherwise they'd be visually identical apart from accent props.
-        private static readonly Dictionary<CharacterArchetype, string[]> ImportedWardrobeResourcePaths = new Dictionary<CharacterArchetype, string[]>
-        {
-            { CharacterArchetype.Wind, new[] { "Characters/Models/Outfit_010", "Characters/Models/Pants_009", "Characters/Models/Hairstyle_Male_001", "Characters/Models/Shoe_Sneakers_009" } },
-            { CharacterArchetype.Arcane, new[] { "Characters/Models/Outwear_004", "Characters/Models/Pants_010", "Characters/Models/Hairstyle_Male_005", "Characters/Models/Shoe_Slippers_002" } },
-        };
+            // Torso & Chestplate
+            CreatePrimitivePart(body.transform, "Torso", PrimitiveType.Cube, new Vector3(0, 0.52f, 0), Quaternion.identity, new Vector3(0.38f, 0.40f, 0.28f), armorMat, renderers);
+            CreatePrimitivePart(body.transform, "ChestPlate", PrimitiveType.Cube, new Vector3(0, 0.55f, 0.08f), Quaternion.identity, new Vector3(0.32f, 0.28f, 0.16f), goldMat, renderers);
+            CreatePrimitivePart(body.transform, "CoreGem", PrimitiveType.Sphere, new Vector3(0, 0.58f, 0.17f), Quaternion.identity, Vector3.one * 0.10f, flameGlowMat, renderers);
 
-        /// Instantiates the archetype's imported body model, scales it to
-        /// ImportedBodyHeight, and re-anchors it so feet sit at local y=0 (origin-at-feet,
-        /// matching every primitive-built archetype). Renderers keep the pack's own
-        /// natural colors/textures (no per-archetype tint) so characters look like the
-        /// pack's actual art instead of a flat-dyed silhouette — archetype color-coding
-        /// comes from the accent props (flame crest, halo, chest plate, ...), the ground
-        /// disc, and the HP bar/nameplate instead. Materials are still swapped to QB_Toon
-        /// (carrying the shared UV atlas through via the new _MainTex support) so the
-        /// outline pass, cel-shading, and CharacterToken.SetEliminated's dimming all keep
-        /// working uniformly instead of mixing in the pack's own shader.
-        /// Returns null (falls back to no imported body) if the archetype has no mapped
-        /// model or the resource failed to load.
-        private static GameObject BuildImportedBody(Transform parent, CharacterArchetype archetype, List<Renderer> renderers)
-        {
-            if (!ImportedModelResourcePaths.TryGetValue(archetype, out var resourcePath)) return null;
+            // Cape on back
+            CreatePrimitivePart(body.transform, "Cape", PrimitiveType.Cube, new Vector3(0, 0.46f, -0.16f), Quaternion.Euler(14f, 0f, 0f), new Vector3(0.34f, 0.48f, 0.04f), armorMat, renderers);
 
-            var prefab = Resources.Load<GameObject>(resourcePath);
-            if (prefab == null)
-            {
-                Debug.LogWarning($"[CharacterVisualBuilder] imported model '{resourcePath}' not found — {archetype} will have no body.");
-                return null;
-            }
+            // Head & Face
+            var head = CreatePrimitivePart(body.transform, "Head", PrimitiveType.Sphere, new Vector3(0, 0.88f, 0), Quaternion.identity, Vector3.one * 0.30f, skinMat, renderers);
+            CreatePrimitivePart(body.transform, "EyeL", PrimitiveType.Sphere, new Vector3(-0.07f, 0.89f, 0.13f), Quaternion.identity, Vector3.one * 0.055f, eyeGlowMat, renderers);
+            CreatePrimitivePart(body.transform, "EyeR", PrimitiveType.Sphere, new Vector3(0.07f, 0.89f, 0.13f), Quaternion.identity, Vector3.one * 0.055f, eyeGlowMat, renderers);
 
-            var instance = Object.Instantiate(prefab, parent, false);
-            instance.name = "Body";
+            // Gladiator Horned Helmet & Flame Crest
+            CreatePrimitivePart(body.transform, "HelmetDome", PrimitiveType.Sphere, new Vector3(0, 0.94f, -0.02f), Quaternion.identity, new Vector3(0.32f, 0.24f, 0.32f), goldMat, renderers);
+            CreatePrimitivePart(body.transform, "HornL", PrimitiveType.Cylinder, new Vector3(-0.17f, 1.02f, 0f), Quaternion.Euler(0f, 0f, 35f), new Vector3(0.05f, 0.14f, 0.05f), goldMat, renderers);
+            CreatePrimitivePart(body.transform, "HornR", PrimitiveType.Cylinder, new Vector3(0.17f, 1.02f, 0f), Quaternion.Euler(0f, 0f, -35f), new Vector3(0.05f, 0.14f, 0.05f), goldMat, renderers);
 
-            var enabledRenderers = new List<Renderer>();
-            foreach (var r in instance.GetComponentsInChildren<Renderer>())
-            {
-                if (SkippedDefaultParts.Contains(r.name)) r.enabled = false;
-                else enabledRenderers.Add(r);
-            }
-            var bodyRenderers = enabledRenderers.ToArray();
-            if (bodyRenderers.Length == 0) return instance;
+            var crestMesh = PrimitiveMeshFactory.Cone(6, 0.08f, 0f, 0.32f);
+            var crest = CreatePart(body.transform, "FlameCrest", crestMesh, new Vector3(0, 1.02f, 0.02f), Quaternion.Euler(-18f, 0f, 0f), Vector3.one, flameGlowMat, renderers);
+            animator.Register(crest.transform, bobSpeed: 3f, bobAmount: 0.04f);
 
-            var bounds = bodyRenderers[0].bounds;
-            foreach (var r in bodyRenderers) bounds.Encapsulate(r.bounds);
-            float rawHeight = Mathf.Max(bounds.size.y, 0.001f);
-            instance.transform.localScale = Vector3.one * (ImportedBodyHeight / rawHeight);
+            // Shoulders
+            CreatePrimitivePart(body.transform, "ShoulderL", PrimitiveType.Sphere, new Vector3(-0.25f, 0.65f, 0), Quaternion.identity, Vector3.one * 0.16f, goldMat, renderers);
+            CreatePrimitivePart(body.transform, "ShoulderR", PrimitiveType.Sphere, new Vector3(0.25f, 0.65f, 0), Quaternion.identity, Vector3.one * 0.16f, goldMat, renderers);
 
-            // Re-measure after scaling — bounds.min.y shifts non-linearly with scale
-            // around an arbitrary pivot, so this can't be precomputed before the scale is set.
-            bounds = bodyRenderers[0].bounds;
-            foreach (var r in bodyRenderers) bounds.Encapsulate(r.bounds);
-            float feetGap = bounds.min.y - parent.position.y;
-            instance.transform.localPosition = new Vector3(0f, -feetGap, 0f);
+            // Arms
+            CreatePrimitivePart(body.transform, "ArmL", PrimitiveType.Cylinder, new Vector3(-0.25f, 0.46f, 0.04f), Quaternion.Euler(15f, 0f, 10f), new Vector3(0.09f, 0.18f, 0.09f), steelMat, renderers);
+            CreatePrimitivePart(body.transform, "ArmR", PrimitiveType.Cylinder, new Vector3(0.25f, 0.46f, 0.04f), Quaternion.Euler(-25f, 0f, -10f), new Vector3(0.09f, 0.18f, 0.09f), steelMat, renderers);
 
-            var atlas = ResolveCharacterAtlas();
-            var naturalMat = atlas != null
-                ? ToonMaterialFactory.Instance(Color.white, ToonStyle.Default, atlas, new Vector4(1f, 1f, 0f, 0f))
-                : ToonMaterialFactory.Instance(Color.white);
+            // Flaming Sword (Right Hand)
+            var sword = new GameObject("FlamingSword");
+            sword.transform.SetParent(body.transform, false);
+            sword.transform.localPosition = new Vector3(0.30f, 0.55f, 0.20f);
+            sword.transform.localRotation = Quaternion.Euler(35f, 20f, -15f);
+            CreatePrimitivePart(sword.transform, "Hilt", PrimitiveType.Cylinder, Vector3.zero, Quaternion.identity, new Vector3(0.04f, 0.10f, 0.04f), goldMat, renderers);
+            CreatePrimitivePart(sword.transform, "Guard", PrimitiveType.Cube, new Vector3(0, 0.10f, 0), Quaternion.identity, new Vector3(0.18f, 0.04f, 0.06f), goldMat, renderers);
+            CreatePrimitivePart(sword.transform, "Blade", PrimitiveType.Cube, new Vector3(0, 0.42f, 0), Quaternion.identity, new Vector3(0.08f, 0.58f, 0.025f), flameGlowMat, renderers);
 
-            ApplyNaturalMaterial(bodyRenderers, naturalMat, renderers);
-
-            if (ImportedWardrobeResourcePaths.TryGetValue(archetype, out var wardrobePaths))
-            {
-                foreach (var wardrobePath in wardrobePaths)
-                {
-                    var wardrobePrefab = Resources.Load<GameObject>(wardrobePath);
-                    if (wardrobePrefab == null)
-                    {
-                        Debug.LogWarning($"[CharacterVisualBuilder] wardrobe piece '{wardrobePath}' not found — skipping.");
-                        continue;
-                    }
-
-                    // Every wardrobe piece is a self-contained mesh+skeleton built at the
-                    // same rig scale as Base_Mesh, so matching the main body's already-
-                    // computed scale/position aligns it correctly with no bone remapping.
-                    var piece = Object.Instantiate(wardrobePrefab, parent, false);
-                    piece.transform.localScale = instance.transform.localScale;
-                    piece.transform.localPosition = instance.transform.localPosition;
-                    var pieceRenderers = piece.GetComponentsInChildren<Renderer>();
-                    ApplyNaturalMaterial(pieceRenderers, naturalMat, renderers);
-                }
-            }
-
-            return instance;
-        }
-
-        private static void ApplyNaturalMaterial(Renderer[] targets, Material naturalMat, List<Renderer> renderers)
-        {
-            foreach (var r in targets)
-            {
-                var mats = new Material[r.sharedMaterials.Length];
-                for (int i = 0; i < mats.Length; i++) mats[i] = naturalMat;
-                r.sharedMaterials = mats;
-                renderers.Add(r);
-            }
-        }
-
-        private static void BuildGeneric(Transform parent, in CharacterVisual visual, List<Renderer> renderers)
-        {
-            var bodyMat = ToonMaterialFactory.Instance(visual.BaseColor);
-            CreatePrimitivePart(parent, "Body", PrimitiveType.Capsule, new Vector3(0, 0.5f, 0), Quaternion.identity,
-                new Vector3(0.6f, 0.5f, 0.6f), bodyMat, renderers);
-            AddGroundDisc(parent, visual.BaseColor, renderers);
-        }
-
-        private static void BuildFire(Transform parent, in CharacterVisual visual, List<Renderer> renderers, TokenIdleAnimator animator)
-        {
-            var emberMat = ToonMaterialFactory.GlowInstance(visual.EmissionColor, intensity: 2.5f, softEdge: 0.3f);
-
-            var body = BuildImportedBody(parent, CharacterArchetype.Fire, renderers);
-            if (body != null) animator.SetBodyRoot(body.transform);
-
-            var flameMesh = PrimitiveMeshFactory.Cone(5, 0.05f, 0f, 0.18f);
-            CreatePart(parent, "FlameCrestCenter", flameMesh, new Vector3(0f, 0.74f, -0.05f), Quaternion.Euler(-16f, 0, 0), Vector3.one, emberMat, renderers);
-            CreatePart(parent, "FlameCrestLeft", flameMesh, new Vector3(-0.07f, 0.72f, -0.03f), Quaternion.Euler(-8f, 0, 16f), Vector3.one * 0.8f, emberMat, renderers);
-            CreatePart(parent, "FlameCrestRight", flameMesh, new Vector3(0.07f, 0.72f, -0.03f), Quaternion.Euler(-8f, 0, -16f), Vector3.one * 0.8f, emberMat, renderers);
-
-            var emberLeft = CreatePrimitivePart(parent, "EmberLeft", PrimitiveType.Sphere, new Vector3(-0.24f, 0.4f, 0.1f), Quaternion.identity, Vector3.one * 0.06f, emberMat, renderers);
-            var emberRight = CreatePrimitivePart(parent, "EmberRight", PrimitiveType.Sphere, new Vector3(0.24f, 0.35f, -0.08f), Quaternion.identity, Vector3.one * 0.06f, emberMat, renderers);
-            animator.Register(emberLeft.transform, bobSpeed: 1.6f, bobAmount: 0.025f);
-            animator.Register(emberRight.transform, bobSpeed: 1.3f, bobAmount: 0.02f);
+            // Legs & Armored Boots
+            CreatePrimitivePart(body.transform, "LegL", PrimitiveType.Cube, new Vector3(-0.10f, 0.18f, 0), Quaternion.identity, new Vector3(0.13f, 0.32f, 0.15f), steelMat, renderers);
+            CreatePrimitivePart(body.transform, "LegR", PrimitiveType.Cube, new Vector3(0.10f, 0.18f, 0), Quaternion.identity, new Vector3(0.13f, 0.32f, 0.15f), steelMat, renderers);
+            CreatePrimitivePart(body.transform, "BootL", PrimitiveType.Cube, new Vector3(-0.10f, 0.05f, 0.03f), Quaternion.identity, new Vector3(0.14f, 0.10f, 0.20f), goldMat, renderers);
+            CreatePrimitivePart(body.transform, "BootR", PrimitiveType.Cube, new Vector3(0.10f, 0.05f, 0.03f), Quaternion.identity, new Vector3(0.14f, 0.10f, 0.20f), goldMat, renderers);
 
             AddGroundDisc(parent, visual.BaseColor, renderers);
         }
 
-        private static void BuildTank(Transform parent, in CharacterVisual visual, List<Renderer> renderers, TokenIdleAnimator animator)
+        // =========================================================================
+        // 2. AEGIS — The Cyber Titan Mech Golem
+        // =========================================================================
+        private static void BuildAegis(Transform parent, in CharacterVisual visual, List<Renderer> renderers, TokenIdleAnimator animator)
         {
-            var accentMat = ToonMaterialFactory.Instance(visual.AccentColor);
+            var mechMat = ToonMaterialFactory.Instance(new Color(0.24f, 0.32f, 0.42f)); // Dark Titanium
+            var goldArmorMat = ToonMaterialFactory.Instance(new Color(0.95f, 0.72f, 0.18f)); // Golden Mech Plating
+            var cyanGlowMat = ToonMaterialFactory.GlowInstance(new Color(0.10f, 0.90f, 1.0f), intensity: 2.4f);
+            var jointMat = ToonMaterialFactory.Instance(new Color(0.12f, 0.15f, 0.18f));
 
-            var body = BuildImportedBody(parent, CharacterArchetype.Tank, renderers);
-            if (body != null) animator.SetBodyRoot(body.transform);
+            var body = new GameObject("AegisBody");
+            body.transform.SetParent(parent, false);
+            animator.SetBodyRoot(body.transform);
 
-            CreatePrimitivePart(parent, "ChestPlate", PrimitiveType.Cube, new Vector3(0, 0.5f, 0.15f), Quaternion.identity, new Vector3(0.36f, 0.28f, 0.06f), accentMat, renderers);
+            // Heavy Titan Torso
+            CreatePrimitivePart(body.transform, "Torso", PrimitiveType.Cube, new Vector3(0, 0.54f, 0), Quaternion.identity, new Vector3(0.48f, 0.42f, 0.36f), mechMat, renderers);
+            CreatePrimitivePart(body.transform, "ChestPlate", PrimitiveType.Cube, new Vector3(0, 0.58f, 0.12f), Quaternion.identity, new Vector3(0.40f, 0.30f, 0.18f), goldArmorMat, renderers);
+            CreatePrimitivePart(body.transform, "PowerReactor", PrimitiveType.Cylinder, new Vector3(0, 0.58f, 0.22f), Quaternion.Euler(90f, 0f, 0f), new Vector3(0.16f, 0.04f, 0.16f), cyanGlowMat, renderers);
 
-            CreatePrimitivePart(parent, "ShoulderLeft", PrimitiveType.Cube, new Vector3(-0.3f, 0.62f, 0), Quaternion.Euler(0, 0, 16f), new Vector3(0.18f, 0.14f, 0.24f), accentMat, renderers);
-            CreatePrimitivePart(parent, "ShoulderRight", PrimitiveType.Cube, new Vector3(0.3f, 0.62f, 0), Quaternion.Euler(0, 0, -16f), new Vector3(0.18f, 0.14f, 0.24f), accentMat, renderers);
+            // Dual Exhaust Stacks on back
+            CreatePrimitivePart(body.transform, "ExhaustL", PrimitiveType.Cylinder, new Vector3(-0.15f, 0.76f, -0.18f), Quaternion.Euler(-12f, 0f, 0f), new Vector3(0.06f, 0.22f, 0.06f), jointMat, renderers);
+            CreatePrimitivePart(body.transform, "ExhaustR", PrimitiveType.Cylinder, new Vector3(0.15f, 0.76f, -0.18f), Quaternion.Euler(-12f, 0f, 0f), new Vector3(0.06f, 0.22f, 0.06f), jointMat, renderers);
 
-            CreatePrimitivePart(parent, "Shield", PrimitiveType.Cube, new Vector3(-0.34f, 0.42f, 0.05f), Quaternion.Euler(0, 20f, 0), new Vector3(0.06f, 0.5f, 0.34f), accentMat, renderers);
+            // Robot Head & Cyber Visor
+            CreatePrimitivePart(body.transform, "Head", PrimitiveType.Cube, new Vector3(0, 0.88f, 0.02f), Quaternion.identity, new Vector3(0.32f, 0.26f, 0.28f), mechMat, renderers);
+            CreatePrimitivePart(body.transform, "HeadPlate", PrimitiveType.Cube, new Vector3(0, 0.98f, 0.02f), Quaternion.identity, new Vector3(0.24f, 0.06f, 0.26f), goldArmorMat, renderers);
+            CreatePrimitivePart(body.transform, "CyanVisor", PrimitiveType.Cube, new Vector3(0, 0.88f, 0.17f), Quaternion.identity, new Vector3(0.26f, 0.09f, 0.04f), cyanGlowMat, renderers);
+
+            // Massive Shoulder Pauldrons
+            CreatePrimitivePart(body.transform, "PauldronsL", PrimitiveType.Cube, new Vector3(-0.32f, 0.68f, 0), Quaternion.Euler(0f, 0f, 20f), new Vector3(0.20f, 0.18f, 0.28f), goldArmorMat, renderers);
+            CreatePrimitivePart(body.transform, "PauldronsR", PrimitiveType.Cube, new Vector3(0.32f, 0.68f, 0), Quaternion.Euler(0f, 0f, -20f), new Vector3(0.20f, 0.18f, 0.28f), goldArmorMat, renderers);
+
+            // Arms
+            CreatePrimitivePart(body.transform, "ArmL", PrimitiveType.Cylinder, new Vector3(-0.30f, 0.44f, 0.06f), Quaternion.Euler(15f, 0f, 15f), new Vector3(0.11f, 0.20f, 0.11f), mechMat, renderers);
+            CreatePrimitivePart(body.transform, "ArmR", PrimitiveType.Cylinder, new Vector3(0.30f, 0.44f, 0.06f), Quaternion.Euler(-10f, 0f, -15f), new Vector3(0.11f, 0.20f, 0.11f), mechMat, renderers);
+
+            // Giant Spiked Tower Shield (Left Arm)
+            var shield = new GameObject("TowerShield");
+            shield.transform.SetParent(body.transform, false);
+            shield.transform.localPosition = new Vector3(-0.36f, 0.48f, 0.18f);
+            shield.transform.localRotation = Quaternion.Euler(5f, 24f, -6f);
+            CreatePrimitivePart(shield.transform, "ShieldPlate", PrimitiveType.Cube, Vector3.zero, Quaternion.identity, new Vector3(0.08f, 0.65f, 0.42f), goldArmorMat, renderers);
+            CreatePrimitivePart(shield.transform, "ShieldCore", PrimitiveType.Sphere, new Vector3(0.05f, 0f, 0f), Quaternion.identity, new Vector3(0.06f, 0.20f, 0.20f), cyanGlowMat, renderers);
+            CreatePart(shield.transform, "ShieldSpike", PrimitiveMeshFactory.Cone(4, 0.06f, 0f, 0.16f), new Vector3(0.08f, 0f, 0f), Quaternion.Euler(0f, 90f, 0f), Vector3.one, goldArmorMat, renderers);
+
+            // Right Power Gauntlet
+            CreatePrimitivePart(body.transform, "PowerFist", PrimitiveType.Cube, new Vector3(0.32f, 0.32f, 0.18f), Quaternion.identity, new Vector3(0.16f, 0.16f, 0.20f), goldArmorMat, renderers);
+
+            // Heavy Hydraulic Legs
+            CreatePrimitivePart(body.transform, "LegL", PrimitiveType.Cube, new Vector3(-0.13f, 0.18f, 0), Quaternion.identity, new Vector3(0.17f, 0.34f, 0.20f), mechMat, renderers);
+            CreatePrimitivePart(body.transform, "LegR", PrimitiveType.Cube, new Vector3(0.13f, 0.18f, 0), Quaternion.identity, new Vector3(0.17f, 0.34f, 0.20f), mechMat, renderers);
+            CreatePrimitivePart(body.transform, "FootL", PrimitiveType.Cube, new Vector3(-0.13f, 0.05f, 0.04f), Quaternion.identity, new Vector3(0.18f, 0.11f, 0.26f), jointMat, renderers);
+            CreatePrimitivePart(body.transform, "FootR", PrimitiveType.Cube, new Vector3(0.13f, 0.05f, 0.04f), Quaternion.identity, new Vector3(0.18f, 0.11f, 0.26f), jointMat, renderers);
 
             AddGroundDisc(parent, visual.BaseColor, renderers);
         }
 
-        private static void BuildWind(Transform parent, in CharacterVisual visual, List<Renderer> renderers, TokenIdleAnimator animator)
+        // =========================================================================
+        // 3. ZEPHYR — The Emerald Shadow Ninja
+        // =========================================================================
+        private static void BuildZephyr(Transform parent, in CharacterVisual visual, List<Renderer> renderers, TokenIdleAnimator animator)
         {
-            var accentMat = ToonMaterialFactory.GlowInstance(visual.EmissionColor, intensity: 1.2f, softEdge: 0.25f);
+            var rogueMat = ToonMaterialFactory.Instance(new Color(0.12f, 0.18f, 0.16f)); // Dark Shinobi Obsidian
+            var emeraldMat = ToonMaterialFactory.Instance(new Color(0.18f, 0.75f, 0.35f)); // Emerald Green
+            var goldTrimMat = ToonMaterialFactory.Instance(new Color(1.0f, 0.85f, 0.20f));
+            var windGlowMat = ToonMaterialFactory.GlowInstance(new Color(0.20f, 1.0f, 0.50f), intensity: 2.2f);
+            var eyeGlowMat = ToonMaterialFactory.GlowInstance(new Color(0.40f, 1.0f, 0.60f), intensity: 2.8f);
 
-            var body = BuildImportedBody(parent, CharacterArchetype.Wind, renderers);
-            if (body != null) animator.SetBodyRoot(body.transform);
+            var body = new GameObject("ZephyrBody");
+            body.transform.SetParent(parent, false);
+            animator.SetBodyRoot(body.transform);
 
-            var finMesh = PrimitiveMeshFactory.Cone(4, 0.04f, 0f, 0.26f);
-            CreatePart(parent, "FinLeft", finMesh, new Vector3(-0.15f, 0.78f, -0.02f), Quaternion.Euler(70f, 20f, 60f), Vector3.one, accentMat, renderers);
-            CreatePart(parent, "FinRight", finMesh, new Vector3(0.15f, 0.78f, -0.02f), Quaternion.Euler(70f, -20f, -60f), Vector3.one, accentMat, renderers);
+            // Sleek Ninja Torso
+            CreatePrimitivePart(body.transform, "Torso", PrimitiveType.Cube, new Vector3(0, 0.50f, 0), Quaternion.identity, new Vector3(0.32f, 0.38f, 0.22f), rogueMat, renderers);
+            CreatePrimitivePart(body.transform, "Vest", PrimitiveType.Cube, new Vector3(0, 0.52f, 0.06f), Quaternion.identity, new Vector3(0.26f, 0.30f, 0.14f), emeraldMat, renderers);
+            CreatePrimitivePart(body.transform, "Belt", PrimitiveType.Cube, new Vector3(0, 0.34f, 0.02f), Quaternion.identity, new Vector3(0.34f, 0.08f, 0.24f), goldTrimMat, renderers);
 
-            // Flat/horizontal (no tilt) so it reads as wind swirling around the ankle and
-            // so spinning it around local up matches its visual orbit, not a tumble.
-            var ringMesh = PrimitiveMeshFactory.Torus(0.22f, 0.025f, 16, 6);
-            var ring = CreatePart(parent, "AnkleRing", ringMesh, new Vector3(0, 0.08f, 0), Quaternion.identity, Vector3.one, accentMat, renderers);
-            animator.Register(ring.transform, bobAmount: 0f, spinSpeed: 90f);
+            // Ninja Hood & Masked Face
+            CreatePrimitivePart(body.transform, "NinjaHood", PrimitiveType.Sphere, new Vector3(0, 0.86f, 0), Quaternion.identity, new Vector3(0.30f, 0.32f, 0.30f), rogueMat, renderers);
+            CreatePrimitivePart(body.transform, "FaceMask", PrimitiveType.Cube, new Vector3(0, 0.83f, 0.12f), Quaternion.identity, new Vector3(0.22f, 0.14f, 0.10f), emeraldMat, renderers);
+            CreatePrimitivePart(body.transform, "EyeL", PrimitiveType.Sphere, new Vector3(-0.065f, 0.89f, 0.13f), Quaternion.identity, new Vector3(0.045f, 0.035f, 0.045f), eyeGlowMat, renderers);
+            CreatePrimitivePart(body.transform, "EyeR", PrimitiveType.Sphere, new Vector3(0.065f, 0.89f, 0.13f), Quaternion.identity, new Vector3(0.045f, 0.035f, 0.045f), eyeGlowMat, renderers);
+
+            // Flowing Wind Scarf trailing behind
+            var scarfL = CreatePrimitivePart(body.transform, "ScarfTailL", PrimitiveType.Cube, new Vector3(-0.08f, 0.65f, -0.16f), Quaternion.Euler(28f, -15f, -12f), new Vector3(0.08f, 0.36f, 0.02f), emeraldMat, renderers);
+            var scarfR = CreatePrimitivePart(body.transform, "ScarfTailR", PrimitiveType.Cube, new Vector3(0.08f, 0.62f, -0.18f), Quaternion.Euler(35f, 15f, 12f), new Vector3(0.08f, 0.40f, 0.02f), emeraldMat, renderers);
+            animator.Register(scarfL.transform, bobSpeed: 4f, bobAmount: 0.05f);
+            animator.Register(scarfR.transform, bobSpeed: 4.5f, bobAmount: 0.06f);
+
+            // Dual Storm Daggers (Left & Right Hands)
+            var daggerL = new GameObject("DaggerL");
+            daggerL.transform.SetParent(body.transform, false);
+            daggerL.transform.localPosition = new Vector3(-0.24f, 0.45f, 0.16f);
+            daggerL.transform.localRotation = Quaternion.Euler(40f, 0f, 25f);
+            CreatePrimitivePart(daggerL.transform, "Blade", PrimitiveType.Cube, new Vector3(0, 0.16f, 0), Quaternion.identity, new Vector3(0.04f, 0.32f, 0.015f), windGlowMat, renderers);
+            CreatePrimitivePart(daggerL.transform, "Hilt", PrimitiveType.Cylinder, Vector3.zero, Quaternion.identity, new Vector3(0.03f, 0.08f, 0.03f), goldTrimMat, renderers);
+
+            var daggerR = new GameObject("DaggerR");
+            daggerR.transform.SetParent(body.transform, false);
+            daggerR.transform.localPosition = new Vector3(0.24f, 0.45f, 0.16f);
+            daggerR.transform.localRotation = Quaternion.Euler(40f, 0f, -25f);
+            CreatePrimitivePart(daggerR.transform, "Blade", PrimitiveType.Cube, new Vector3(0, 0.16f, 0), Quaternion.identity, new Vector3(0.04f, 0.32f, 0.015f), windGlowMat, renderers);
+            CreatePrimitivePart(daggerR.transform, "Hilt", PrimitiveType.Cylinder, Vector3.zero, Quaternion.identity, new Vector3(0.03f, 0.08f, 0.03f), goldTrimMat, renderers);
+
+            // Aerodynamic Wind Fins on Shoulders
+            var finMesh = PrimitiveMeshFactory.Cone(4, 0.04f, 0f, 0.24f);
+            CreatePart(body.transform, "FinLeft", finMesh, new Vector3(-0.16f, 0.72f, -0.04f), Quaternion.Euler(65f, 20f, 60f), Vector3.one, windGlowMat, renderers);
+            CreatePart(body.transform, "FinRight", finMesh, new Vector3(0.16f, 0.72f, -0.04f), Quaternion.Euler(65f, -20f, -60f), Vector3.one, windGlowMat, renderers);
+
+            // Spinning Ankle Wind Tornado Ring
+            var ringMesh = PrimitiveMeshFactory.Torus(0.24f, 0.025f, 16, 6);
+            var ring = CreatePart(body.transform, "AnkleRing", ringMesh, new Vector3(0, 0.08f, 0), Quaternion.identity, Vector3.one, windGlowMat, renderers);
+            animator.Register(ring.transform, bobAmount: 0f, spinSpeed: 120f);
+
+            // Legs & Ninja Tabis
+            CreatePrimitivePart(body.transform, "LegL", PrimitiveType.Cube, new Vector3(-0.09f, 0.18f, 0), Quaternion.identity, new Vector3(0.11f, 0.30f, 0.13f), rogueMat, renderers);
+            CreatePrimitivePart(body.transform, "LegR", PrimitiveType.Cube, new Vector3(0.09f, 0.18f, 0), Quaternion.identity, new Vector3(0.11f, 0.30f, 0.13f), rogueMat, renderers);
+            CreatePrimitivePart(body.transform, "FootL", PrimitiveType.Cube, new Vector3(-0.09f, 0.04f, 0.03f), Quaternion.identity, new Vector3(0.12f, 0.08f, 0.18f), emeraldMat, renderers);
+            CreatePrimitivePart(body.transform, "FootR", PrimitiveType.Cube, new Vector3(0.09f, 0.04f, 0.03f), Quaternion.identity, new Vector3(0.12f, 0.08f, 0.18f), emeraldMat, renderers);
 
             AddGroundDisc(parent, visual.BaseColor, renderers);
         }
 
-        private static void BuildArcane(Transform parent, in CharacterVisual visual, List<Renderer> renderers, TokenIdleAnimator animator)
+        // =========================================================================
+        // 4. VERA — The Celestial Arcane Sorceress
+        // =========================================================================
+        private static void BuildVera(Transform parent, in CharacterVisual visual, List<Renderer> renderers, TokenIdleAnimator animator)
         {
-            var glowMat = ToonMaterialFactory.GlowInstance(visual.EmissionColor, intensity: 1.8f, softEdge: 0.3f);
+            var robeMat = ToonMaterialFactory.Instance(new Color(0.48f, 0.14f, 0.72f)); // Royal Amethyst Purple
+            var magentaTrim = ToonMaterialFactory.Instance(new Color(0.85f, 0.22f, 0.65f)); // Magenta Silk
+            var goldMat = ToonMaterialFactory.Instance(new Color(1.0f, 0.84f, 0.22f));
+            var skinMat = ToonMaterialFactory.Instance(new Color(0.96f, 0.82f, 0.74f));
+            var purpleGlowMat = ToonMaterialFactory.GlowInstance(new Color(0.80f, 0.25f, 1.0f), intensity: 2.4f);
+            var eyeGlowMat = ToonMaterialFactory.GlowInstance(new Color(0.90f, 0.45f, 1.0f), intensity: 2.8f);
 
-            var body = BuildImportedBody(parent, CharacterArchetype.Arcane, renderers);
-            if (body != null) animator.SetBodyRoot(body.transform);
+            var body = new GameObject("VeraBody");
+            body.transform.SetParent(parent, false);
+            animator.SetBodyRoot(body.transform);
 
-            var haloMesh = PrimitiveMeshFactory.Torus(0.16f, 0.02f, 16, 6);
-            var haloA = CreatePart(parent, "HaloA", haloMesh, new Vector3(0, 0.95f, 0), Quaternion.Euler(70f, 0f, 0f), Vector3.one, glowMat, renderers);
-            var haloB = CreatePart(parent, "HaloB", haloMesh, new Vector3(0, 0.9f, 0), Quaternion.Euler(20f, 50f, 0f), Vector3.one * 0.85f, glowMat, renderers);
-            animator.Register(haloA.transform, bobAmount: 0f, spinSpeed: 40f);
-            animator.Register(haloB.transform, bobAmount: 0f, spinSpeed: -55f);
+            // Flowing Wizard Robe & Bodice
+            CreatePrimitivePart(body.transform, "RobeTorso", PrimitiveType.Cube, new Vector3(0, 0.52f, 0), Quaternion.identity, new Vector3(0.32f, 0.38f, 0.24f), robeMat, renderers);
+            CreatePrimitivePart(body.transform, "Bodice", PrimitiveType.Cube, new Vector3(0, 0.54f, 0.06f), Quaternion.identity, new Vector3(0.24f, 0.28f, 0.16f), magentaTrim, renderers);
+            CreatePart(body.transform, "RobeSkirt", PrimitiveMeshFactory.Cone(8, 0.26f, 0.14f, 0.40f), new Vector3(0, 0.18f, 0), Quaternion.Euler(180f, 0f, 0f), Vector3.one, robeMat, renderers);
+            CreatePrimitivePart(body.transform, "GoldSash", PrimitiveType.Cube, new Vector3(0, 0.36f, 0.02f), Quaternion.identity, new Vector3(0.34f, 0.06f, 0.26f), goldMat, renderers);
 
-            var orb = CreatePrimitivePart(parent, "Orb", PrimitiveType.Sphere, new Vector3(0, 0.55f, 0.22f), Quaternion.identity, Vector3.one * 0.09f, glowMat, renderers);
-            animator.Register(orb.transform, bobSpeed: 1.5f, bobAmount: 0.03f);
+            // Sorceress Head & Face
+            var head = CreatePrimitivePart(body.transform, "Head", PrimitiveType.Sphere, new Vector3(0, 0.86f, 0), Quaternion.identity, Vector3.one * 0.28f, skinMat, renderers);
+            CreatePrimitivePart(body.transform, "EyeL", PrimitiveType.Sphere, new Vector3(-0.065f, 0.87f, 0.12f), Quaternion.identity, Vector3.one * 0.048f, eyeGlowMat, renderers);
+            CreatePrimitivePart(body.transform, "EyeR", PrimitiveType.Sphere, new Vector3(0.065f, 0.87f, 0.12f), Quaternion.identity, Vector3.one * 0.048f, eyeGlowMat, renderers);
+
+            // Pointed Wizard Hat with Gold Crescent Moon Buckle
+            var hatBrim = CreatePrimitivePart(body.transform, "HatBrim", PrimitiveType.Cylinder, new Vector3(0, 0.96f, -0.02f), Quaternion.identity, new Vector3(0.48f, 0.025f, 0.48f), robeMat, renderers);
+            var hatConeMesh = PrimitiveMeshFactory.Cone(8, 0.20f, 0f, 0.42f);
+            var hatCone = CreatePart(body.transform, "HatCone", hatConeMesh, new Vector3(0, 0.98f, -0.02f), Quaternion.Euler(-14f, 0f, 0f), Vector3.one, robeMat, renderers);
+            CreatePrimitivePart(body.transform, "HatBand", PrimitiveType.Cylinder, new Vector3(0, 0.99f, -0.02f), Quaternion.identity, new Vector3(0.38f, 0.04f, 0.38f), magentaTrim, renderers);
+            CreatePart(body.transform, "MoonBuckle", PrimitiveMeshFactory.Torus(0.06f, 0.015f, 12, 6), new Vector3(0, 1.01f, 0.16f), Quaternion.Euler(90f, 0f, 0f), Vector3.one, goldMat, renderers);
+
+            // Crystal Mage Staff (Right Hand)
+            var staff = new GameObject("CrystalStaff");
+            staff.transform.SetParent(body.transform, false);
+            staff.transform.localPosition = new Vector3(0.28f, 0.45f, 0.15f);
+            staff.transform.localRotation = Quaternion.Euler(15f, -10f, -8f);
+            CreatePrimitivePart(staff.transform, "Shaft", PrimitiveType.Cylinder, Vector3.zero, Quaternion.identity, new Vector3(0.035f, 0.85f, 0.035f), goldMat, renderers);
+            CreatePart(staff.transform, "StaffHead", PrimitiveMeshFactory.Torus(0.12f, 0.02f, 14, 6), new Vector3(0, 0.46f, 0), Quaternion.identity, Vector3.one, goldMat, renderers);
+            var gem = CreatePrimitivePart(staff.transform, "FloatingGem", PrimitiveType.Sphere, new Vector3(0, 0.46f, 0), Quaternion.identity, Vector3.one * 0.12f, purpleGlowMat, renderers);
+            animator.Register(gem.transform, bobSpeed: 2.5f, bobAmount: 0.04f, spinSpeed: 60f);
+
+            // Floating Open Arcane Spellbook (Left Hand)
+            var book = new GameObject("Spellbook");
+            book.transform.SetParent(body.transform, false);
+            book.transform.localPosition = new Vector3(-0.28f, 0.58f, 0.22f);
+            book.transform.localRotation = Quaternion.Euler(25f, 25f, -10f);
+            CreatePrimitivePart(book.transform, "CoverL", PrimitiveType.Cube, new Vector3(-0.08f, 0f, 0f), Quaternion.Euler(0f, -25f, 0f), new Vector3(0.16f, 0.02f, 0.22f), robeMat, renderers);
+            CreatePrimitivePart(book.transform, "CoverR", PrimitiveType.Cube, new Vector3(0.08f, 0f, 0f), Quaternion.Euler(0f, 25f, 0f), new Vector3(0.16f, 0.02f, 0.22f), robeMat, renderers);
+            CreatePrimitivePart(book.transform, "GlowPages", PrimitiveType.Cube, new Vector3(0, 0.015f, 0), Quaternion.identity, new Vector3(0.26f, 0.02f, 0.20f), purpleGlowMat, renderers);
+            animator.Register(book.transform, bobSpeed: 2f, bobAmount: 0.05f);
+
+            // Dual Rotating Celestial Halos around shoulders
+            var haloMesh = PrimitiveMeshFactory.Torus(0.26f, 0.025f, 16, 6);
+            var haloA = CreatePart(body.transform, "HaloA", haloMesh, new Vector3(0, 0.72f, 0), Quaternion.Euler(70f, 0f, 0f), Vector3.one, purpleGlowMat, renderers);
+            var haloB = CreatePart(body.transform, "HaloB", haloMesh, new Vector3(0, 0.68f, 0), Quaternion.Euler(20f, 60f, 0f), Vector3.one * 0.88f, purpleGlowMat, renderers);
+            animator.Register(haloA.transform, bobAmount: 0f, spinSpeed: 45f);
+            animator.Register(haloB.transform, bobAmount: 0f, spinSpeed: -65f);
+
+            // Floating Orbiting Mana Sphere
+            var orb = CreatePrimitivePart(body.transform, "Orb", PrimitiveType.Sphere, new Vector3(0, 0.55f, 0.30f), Quaternion.identity, Vector3.one * 0.11f, purpleGlowMat, renderers);
+            animator.Register(orb.transform, bobSpeed: 1.8f, bobAmount: 0.04f);
 
             AddGroundDisc(parent, visual.BaseColor, renderers);
         }
 
-        private static void AddGroundDisc(Transform parent, Color color, List<Renderer> renderers, float radius = 0.4f)
+        private static void AddGroundDisc(Transform parent, Color color, List<Renderer> renderers, float radius = 0.42f)
         {
             // Soft dark contact blob shadow on the grass floor
             var shadowMat = ToonMaterialFactory.GlowInstance(new Color(0.02f, 0.02f, 0.04f), intensity: 0.85f, softEdge: 0.6f);
             CreatePrimitivePart(parent, "BlobShadow", PrimitiveType.Cylinder, new Vector3(0, 0.012f, 0), Quaternion.identity,
-                new Vector3(radius * 2.2f, 0.008f, radius * 2.2f), shadowMat, renderers);
+                new Vector3(radius * 2.3f, 0.008f, radius * 2.3f), shadowMat, renderers);
 
             // Stylized golden & team-tinted metallic base ring
-            var ringMat = ToonMaterialFactory.GlowInstance(color, intensity: 1.3f, softEdge: 0.2f);
-            var ringMesh = PrimitiveMeshFactory.Torus(radius * 1.05f, 0.03f, 20, 6);
+            var ringMat = ToonMaterialFactory.GlowInstance(color, intensity: 1.4f, softEdge: 0.2f);
+            var ringMesh = PrimitiveMeshFactory.Torus(radius * 1.10f, 0.035f, 20, 6);
             CreatePart(parent, "TeamBaseRing", ringMesh, new Vector3(0, 0.022f, 0), Quaternion.identity, Vector3.one, ringMat, renderers);
         }
 

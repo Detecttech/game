@@ -13,9 +13,10 @@ export function createMatch(
   matchId: number,
   mode: "ffa" | "teams",
   maxRounds = 20,
-  gridHeight?: number
+  gridHeight?: number,
+  timerSeconds = 30
 ): MatchState {
-  return createMatchState(matchId, mode, maxRounds, gridHeight);
+  return createMatchState(matchId, mode, maxRounds, gridHeight, timerSeconds);
 }
 
 export function addPlayer(
@@ -45,6 +46,8 @@ export function addPlayer(
     questionsAnswered: 0,
     currentQuestion: null,
     goalReached: false,
+    finishRank: null,
+    finishedAt: null,
     frozen: false,
     lastTargetedPlayerId: null,
   };
@@ -57,13 +60,19 @@ export function startMatch(state: MatchState): void {
 }
 
 /** Moves a player toward the goal row (grid.height - 1), clamped there, and
- * flags goalReached once they hit it. The lane is a single dimension — x
- * never changes after the player's starting position. */
-function advancePlayer(player: PlayerState, gridHeight: number, steps: number): void {
-  const goalY = gridHeight - 1;
+ * flags goalReached once they hit it. In 3+ player matches, records their finish rank. */
+export function advancePlayer(player: PlayerState, state: MatchState, steps: number): void {
+  const goalY = state.grid.height - 1;
   const nextY = Math.min(goalY, player.pos.y + steps);
   player.pos = { x: player.pos.x, y: nextY };
-  if (nextY >= goalY) player.goalReached = true;
+  if (nextY >= goalY && !player.goalReached) {
+    player.goalReached = true;
+    player.finishedAt = Date.now();
+    if (!state.finishOrder.includes(player.playerId)) {
+      state.finishOrder.push(player.playerId);
+      player.finishRank = state.finishOrder.length;
+    }
+  }
 }
 
 export function pushQuestion(state: MatchState, playerId: number, questionId: number, correctIndex: number): void {
@@ -119,7 +128,7 @@ export function submitAnswer(
     if (player.frozen) {
       player.frozen = false;
     } else {
-      advancePlayer(player, state.grid.height, 1);
+      advancePlayer(player, state, 1);
     }
   }
 
@@ -282,7 +291,7 @@ export function consumeBonusMove(state: MatchState, playerId: number, rewardId: 
 
   const character = getCharacter(player.characterId);
   const bonus = character.ability.type === "passive" ? character.ability.bonusMoveSteps ?? DEFAULT_BONUS_MOVE_STEPS : DEFAULT_BONUS_MOVE_STEPS;
-  advancePlayer(player, state.grid.height, bonus);
+  advancePlayer(player, state, bonus);
 
   const result = checkWinCondition(state);
   state.result = result;
@@ -325,14 +334,8 @@ function livingGroups(state: MatchState): Map<string | number, PlayerState[]> {
 export function checkWinCondition(state: MatchState): MatchState["result"] {
   const groups = livingGroups(state);
 
-  // Race win takes priority: first living player (or, in teams mode, any
-  // member of a team) to reach the goal row wins outright.
-  for (const [key, players] of groups) {
-    if (players.some((p) => p.goalReached)) {
-      return { winnerId: key, reason: "goal" };
-    }
-  }
-
+  // 1. Last player/team standing (all other players eliminated):
+  // The match ends immediately when only 1 is left, even if they have not reached the goal.
   if (groups.size === 1) {
     const [winnerId] = groups.keys();
     return { winnerId, reason: "hp" };
@@ -341,9 +344,16 @@ export function checkWinCondition(state: MatchState): MatchState["result"] {
     return { winnerId: null, reason: "hp" };
   }
 
-  // Forced decision once any living player has been asked enough questions —
-  // replaces the old round-cap zone-control tiebreak with lane progress
-  // (furthest up the board wins, tiebroken by total HP).
+  // 2. Continuous finish: match ends when all living racers have reached the goal
+  const allLivingGoalReached = [...groups.values()].every((players) => players.every((p) => p.goalReached));
+  if (allLivingGoalReached && state.finishOrder.length > 0) {
+    const winnerId = state.mode === "teams"
+      ? (state.players.get(state.finishOrder[0])?.team ?? state.finishOrder[0])
+      : state.finishOrder[0];
+    return { winnerId, reason: "goal" };
+  }
+
+  // Forced decision once any living player has been asked enough questions
   const anyoneAtCap = [...state.players.values()].some((p) => p.alive && p.questionsAnswered >= state.maxRounds);
   if (anyoneAtCap) {
     let bestKey: string | number | null = null;

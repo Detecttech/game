@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using QuizBattle.Arena.Vfx;
 using QuizBattle.Arena.Visuals;
+using QuizBattle.Audio;
 using QuizBattle.Characters;
 using QuizBattle.GameState;
+using QuizBattle.Networking;
 using QuizBattle.Networking.Protocol;
 using QuizBattle.UI.HUD;
 using UnityEngine;
@@ -89,6 +91,11 @@ namespace QuizBattle.Arena
             _hud.ShowQuestion(q.QuestionNumber, q.Text, q.Choices);
         }
 
+        public bool TryGetToken(int playerId, out CharacterToken token)
+        {
+            return _tokens.TryGetValue(playerId, out token);
+        }
+
         /// Fires whenever any player's turn resolves — answered, timed out, or consumed
         /// a bonus_move — since every player now advances independently instead of in a
         /// synced batch round. Replaces both the old round_resolved and move_result handling.
@@ -98,14 +105,34 @@ namespace QuizBattle.Arena
 
             token.MoveTo(_grid.TileToWorldPos(a.NewGridPos.X, a.NewGridPos.Y));
             token.SetHp(a.Hp, a.MaxHp);
-            if (a.Streak >= 2)
+
+            var orange = new Color(1.0f, 0.58f, 0.08f);
+
+            if (a.Reason == "bonus_move")
             {
-                token.SetStreak(a.Streak);
-                FloatingCombatText.Spawn(token.transform.position + Vector3.up * 1.5f, $"STREAK x{a.Streak}!", QuizBattlePalette.FireGlow, 1.15f);
+                FloatingCombatText.Spawn(token.transform.position + Vector3.up * 1.6f, "+1 BONUS STEP! ⚡", QuizBattlePalette.GoldTrim, 1.40f);
+                if (a.PlayerId == SessionManager.PlayerId) AudioManager.Instance.PlayBonusMove();
             }
-            else
+            else if (a.Reason == "wrong")
             {
-                FloatingCombatText.Spawn(token.transform.position + Vector3.up * 1.5f, "CORRECT!", QuizBattlePalette.GoldTrim, 1.0f);
+                if (a.Alive)
+                {
+                    token.PlayGoofyWrongReaction();
+                    if (a.PlayerId == SessionManager.PlayerId) AudioManager.Instance.PlayGoofyWrong();
+                }
+            }
+            else if (a.Reason == "correct" || (a.Streak >= 1 && a.Reason != "timeout" && a.Reason != "sync"))
+            {
+                if (a.Streak >= 2)
+                {
+                    token.SetStreak(a.Streak);
+                    FloatingCombatText.Spawn(token.transform.position + Vector3.up * 1.6f, $"STREAK x{a.Streak}!", orange, 1.50f);
+                }
+                else
+                {
+                    FloatingCombatText.Spawn(token.transform.position + Vector3.up * 1.6f, "CORRECT!", orange, 1.38f);
+                }
+                if (a.PlayerId == SessionManager.PlayerId) AudioManager.Instance.PlayCorrect();
             }
 
             if (!a.Alive) token.SetEliminated();
@@ -125,6 +152,7 @@ namespace QuizBattle.Arena
                 FloatingCombatText.Spawn(token.transform.position + Vector3.up * 1.5f, $"-{a.Damage} HP", QuizBattlePalette.RoofTilesRed, 1.25f);
                 if (a.Eliminated) token.SetEliminated();
             }
+            AudioManager.Instance.PlayAttack();
             _hud.Log($"Player {a.AttackerId} attacks player {a.TargetId} for {a.Damage} dmg!");
         }
 
@@ -137,6 +165,7 @@ namespace QuizBattle.Arena
                 token.SetFrozen(true);
                 FloatingCombatText.Spawn(token.transform.position + Vector3.up * 1.5f, "FROZEN!", QuizBattlePalette.WaterBlue, 1.15f);
             }
+            AudioManager.Instance.PlayFreeze();
             _hud.Log($"Player {f.CasterId} freezes player {f.TargetId}!");
         }
 
@@ -147,6 +176,7 @@ namespace QuizBattle.Arena
 
         private void OnMatchEnded(MatchEndPayload end)
         {
+            AudioManager.Instance.PlayVictory();
             _hud.Log($"MATCH OVER — winner: {end.WinnerId} ({end.Reason})");
         }
 

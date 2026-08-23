@@ -19,8 +19,15 @@ process.on("unhandledRejection", (err) => {
 const app = createHttpApp();
 const httpServer = createServer(app);
 createWsServer(httpServer);
-startDiscoveryResponder();
 
-httpServer.listen(config.httpPort, () => {
-  console.log(`[server] HTTP+WS listening on :${config.httpPort} (mode=${config.mode})`);
+if (config.mode === "lan") {
+  try {
+    startDiscoveryResponder();
+  } catch (err) {
+    console.warn("[server] UDP discovery responder skipped:", err);
+  }
+}
+
+httpServer.listen(config.httpPort, "0.0.0.0", () => {
+  console.log(`[server] HTTP+WS listening on 0.0.0.0:${config.httpPort} (mode=${config.mode})`);
 });

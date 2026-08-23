@@ -144,7 +144,7 @@ namespace QuizBattle.UI.CharacterSelect
             fillLight.transform.rotation = Quaternion.Euler(15f, 45f, 0f);
 
             RenderSettings.ambientMode = AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.42f, 0.40f, 0.48f);
+            RenderSettings.ambientLight = new Color(0.65f, 0.65f, 0.75f);
         }
 
         private static Transform BuildStagedCharacter(CharacterDefinitionSO def, Vector3 stagePos)

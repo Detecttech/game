@@ -85,8 +85,8 @@ test("a correct answer advances the player one step toward the goal", () => {
   assert.equal(a.goalReached, false);
 });
 
-test("reaching the goal row wins immediately, even mid-match for the other player", () => {
-  const { state, a } = twoPlayerMatch();
+test("reaching the goal row records finish and match concludes when all racers complete", () => {
+  const { state, a, b } = twoPlayerMatch();
   // Grid height is 6, so the goal row is y=5 — walk Alice up 5 correct answers.
   for (let i = 0; i < 5; i++) {
     pushQuestion(state, 1, 200 + i, 0);
@@ -94,6 +94,14 @@ test("reaching the goal row wins immediately, even mid-match for the other playe
   }
   assert.equal(a.pos.y, 5);
   assert.equal(a.goalReached, true);
+  assert.equal(state.finishOrder[0], 1);
+
+  // Bob now also finishes
+  for (let i = 0; i < 5; i++) {
+    pushQuestion(state, 2, 300 + i, 0);
+    submitAnswer(state, 2, 0, rngAttack);
+  }
+  assert.equal(b.goalReached, true);
 
   const result = checkWinCondition(state);
   assert.equal(result?.winnerId, 1);
@@ -162,7 +170,7 @@ test("bonus_move reward grants extra steps toward the goal", () => {
   const before = a.pos.y;
   const result = consumeBonusMove(state, a.playerId, answer.rewardOffered!.rewardId);
   assert.equal(result.ok, true);
-  assert.equal(a.pos.y, before + 2);
+  assert.equal(a.pos.y, before + 1);
 });
 
 test("advancing (auto or bonus) clamps at the goal row instead of overshooting", () => {

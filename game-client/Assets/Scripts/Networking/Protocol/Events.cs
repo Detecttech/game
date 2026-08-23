@@ -112,6 +112,8 @@ namespace QuizBattle.Networking.Protocol
         [JsonProperty("streak")] public int Streak;
         [JsonProperty("goalReached")] public bool GoalReached;
         [JsonProperty("frozen")] public bool Frozen;
+        [JsonProperty("reason")] public string Reason;
+        [JsonProperty("correct")] public bool? Correct;
     }
 
     public class AttackResultPayload
@@ -137,18 +139,41 @@ namespace QuizBattle.Networking.Protocol
         [JsonProperty("targetId")] public int TargetId;
     }
 
+    public class PlayerFinishedPayload
+    {
+        [JsonProperty("playerId")] public int PlayerId;
+        [JsonProperty("name")] public string Name;
+        [JsonProperty("finishRank")] public int? FinishRank;
+        [JsonProperty("pos")] public GridPosPayload Pos;
+    }
+
+    public class MatchTimerStartPayload
+    {
+        [JsonProperty("remainingSeconds")] public int RemainingSeconds;
+        [JsonProperty("firstFinisherId")] public int FirstFinisherId;
+        [JsonProperty("firstFinisherName")] public string FirstFinisherName;
+        [JsonProperty("message")] public string Message;
+    }
+
     public class StandingEntry
     {
         [JsonProperty("playerId")] public int PlayerId;
+        [JsonProperty("name")] public string Name;
+        [JsonProperty("characterId")] public string CharacterId;
         [JsonProperty("placement")] public int Placement;
+        [JsonProperty("finishRank")] public int? FinishRank;
+        [JsonProperty("goalReached")] public bool GoalReached;
+        [JsonProperty("timedOut")] public bool TimedOut;
         [JsonProperty("hp")] public int Hp;
         [JsonProperty("alive")] public bool Alive;
+        [JsonProperty("laneProgress")] public int LaneProgress;
+        [JsonProperty("totalCorrectAnswers")] public int TotalCorrectAnswers;
     }
 
     public class MatchEndPayload
     {
         [JsonProperty("winnerId")] public object WinnerId;
-        [JsonProperty("reason")] public string Reason; // "hp" | "goal" | "progress"
+        [JsonProperty("reason")] public string Reason; // "hp" | "goal" | "progress" | "timeout"
         [JsonProperty("standings")] public List<StandingEntry> Standings;
     }
 

@@ -22,7 +22,8 @@ namespace QuizBattle.Arena.Visuals
             float halfW = (width * tileSize) * 0.5f;
             float halfH = (height * tileSize) * 0.5f;
 
-            CreateSkyAndClouds(root.transform, center, Mathf.Max(halfW, halfH) + 12f);
+            CreateTerrainGround(root.transform, center, Mathf.Max(halfW, halfH) + 60f);
+            CreateSkyAndClouds(root.transform, center, Mathf.Max(halfW, halfH) + 16f);
             CreateStadiumWallsAndTowers(root.transform, center, halfW, halfH);
             CreateRoyalBanners(root.transform, center, halfW, halfH);
             CreateCornerBraziers(root.transform, center, halfW, halfH);
@@ -30,6 +31,18 @@ namespace QuizBattle.Arena.Visuals
             CreateFoliageAndProps(root.transform, center, halfW, halfH);
 
             return root;
+        }
+
+        private static void CreateTerrainGround(Transform parent, Vector3 center, float size)
+        {
+            var terrain = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            terrain.name = "ExpansiveGrassTerrain";
+            terrain.transform.SetParent(parent, false);
+            terrain.transform.position = center + new Vector3(0f, -0.62f, 0f);
+            terrain.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            terrain.transform.localScale = new Vector3(size * 2f, size * 2f, 1f);
+            Object.Destroy(terrain.GetComponent<Collider>());
+            terrain.GetComponent<Renderer>().sharedMaterial = ToonMaterialFactory.Toon(QuizBattlePalette.GrassLight, ToonStyle.Default);
         }
 
         #region Sky & Clouds

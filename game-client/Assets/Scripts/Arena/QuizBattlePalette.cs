@@ -64,7 +64,7 @@ namespace QuizBattle.Arena
         public static readonly Color ParchmentField = new Color(0.96f, 0.90f, 0.78f);
 
         // Shared outline/shadow tone for the toon shader.
-        public static readonly Color OutlineColor = new Color(0.04f, 0.03f, 0.05f);
-        public static readonly Color ShadowTint = new Color(0.24f, 0.18f, 0.36f);
+        public static readonly Color OutlineColor = new Color(0.10f, 0.08f, 0.16f);
+        public static readonly Color ShadowTint = new Color(0.72f, 0.74f, 0.88f);
     }
 }

@@ -40,8 +40,8 @@
         "id": "windstep",
         "name": "Windstep",
         "type": "passive",
-        "description": "Bonus-move rewards grant +3 steps instead of +2.",
-        "bonusMoveSteps": 3,
+        "description": "Bonus-move rewards grant +1 step immediately.",
+        "bonusMoveSteps": 1,
         "vfxTag": "vfx_wind_trail"
       },
       "unlock": { "defaultUnlocked": false, "xpThreshold": 300 }

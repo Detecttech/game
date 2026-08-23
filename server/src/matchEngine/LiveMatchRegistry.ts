@@ -24,6 +24,7 @@ export interface LiveMatch {
   lobby: Map<number, LobbyEntry>;
   connToPlayer: Map<number, number>;
   spectatorConnIds: Set<number>;
+  matchGraceTimer: ReturnType<typeof setTimeout> | null;
   // Each player answers on their own pace — a shared match-wide round timer
   // no longer makes sense, so every player gets their own timeout.
   playerTimers: Map<number, ReturnType<typeof setTimeout>>;
@@ -66,14 +67,16 @@ export function getOrCreateLiveMatch(matchId: number): LiveMatch {
   // larger bank could hit the cap before anyone's even able to reach the goal.
   const gridHeight = computeGridHeight(questions.length);
   const maxRounds = Math.max(20, (gridHeight - 1) * 2);
+  const timerSeconds = (match as any).timer_seconds ?? 30;
 
   const live: LiveMatch = {
     matchId,
-    state: Engine.createMatch(matchId, match.mode, maxRounds, gridHeight),
+    state: Engine.createMatch(matchId, match.mode, maxRounds, gridHeight, timerSeconds),
     questions,
     lobby: new Map(),
     connToPlayer: new Map(),
     spectatorConnIds: new Set(),
+    matchGraceTimer: null,
     playerTimers: new Map(),
     playerQuestionOrders: new Map(),
     playerQuestionCursors: new Map(),
@@ -213,7 +216,7 @@ function publicPlayer(p: PlayerState) {
  * this only matters for very long matches with a small question bank. */
 function pushQuestionToPlayer(live: LiveMatch, playerId: number, emit: Emit) {
   const player = live.state.players.get(playerId);
-  if (!player || !player.alive) return;
+  if (!player || !player.alive || player.goalReached) return;
 
   let order = live.playerQuestionOrders.get(playerId);
   let cursor = live.playerQuestionCursors.get(playerId) ?? 0;
@@ -255,7 +258,13 @@ function clearPlayerTimer(live: LiveMatch, playerId: number) {
   }
 }
 
-function broadcastPlayerAdvanced(live: LiveMatch, playerId: number, emit: Emit) {
+function broadcastPlayerAdvanced(
+  live: LiveMatch,
+  playerId: number,
+  emit: Emit,
+  reason: "correct" | "wrong" | "timeout" | "bonus_move" | "sync" = "sync",
+  correct?: boolean
+) {
   const player = live.state.players.get(playerId);
   if (!player) return;
   emit(
@@ -263,19 +272,79 @@ function broadcastPlayerAdvanced(live: LiveMatch, playerId: number, emit: Emit) 
       type: "player_advanced",
       payload: {
         playerId: player.playerId,
+        name: player.name,
         newGridPos: player.pos,
         hp: player.hp,
         maxHp: player.maxHp,
         alive: player.alive,
         streak: player.consecutiveCorrect,
         goalReached: player.goalReached,
+        finishRank: player.finishRank,
         frozen: player.frozen,
+        reason,
+        correct: correct ?? (reason === "correct"),
       },
     },
     "broadcast"
   );
   if (!player.alive) {
     emit({ type: "player_eliminated", payload: { playerId } }, "broadcast");
+  }
+}
+
+function handlePlayerFinishedCheck(live: LiveMatch, playerId: number, emit: Emit) {
+  const player = live.state.players.get(playerId);
+  if (!player || !player.goalReached) return;
+
+  emit(
+    {
+      type: "player_finished",
+      payload: {
+        playerId: player.playerId,
+        name: player.name,
+        finishRank: player.finishRank,
+        pos: player.pos,
+      },
+    },
+    "broadcast"
+  );
+
+  // In 3+ player matches: when 1st place finishes, start the countdown timer for other racers!
+  if (live.state.players.size >= 3 && player.finishRank === 1 && !live.matchGraceTimer) {
+    const timerSec = live.state.timerSeconds || 30;
+    live.state.timerStartedAt = Date.now();
+    emit(
+      {
+        type: "match_timer_start",
+        payload: {
+          remainingSeconds: timerSec,
+          firstFinisherId: player.playerId,
+          firstFinisherName: player.name,
+          message: `1st Place Finished! ${timerSec}s to cross the goal!`,
+        },
+      },
+      "broadcast"
+    );
+
+    live.matchGraceTimer = setTimeout(() => {
+      handleGraceTimerExpired(live, emit);
+    }, timerSec * 1000);
+  }
+}
+
+function handleGraceTimerExpired(live: LiveMatch, emit: Emit) {
+  try {
+    live.matchGraceTimer = null;
+    const winnerId = live.state.finishOrder[0] ?? [...live.state.players.keys()][0];
+    const result: NonNullable<MatchState["result"]> = {
+      winnerId: live.state.mode === "teams"
+        ? (live.state.players.get(winnerId)?.team ?? winnerId)
+        : winnerId,
+      reason: "timeout",
+    };
+    endMatch(live, emit, result);
+  } catch (err) {
+    console.error(`[matchEngine] handleGraceTimerExpired failed for match ${live.matchId}:`, err);
   }
 }
 
@@ -289,7 +358,10 @@ function handleAnswerTimeout(live: LiveMatch, playerId: number, emit: Emit) {
     if (!result.ok) return; // already answered via a race with this timer; nothing to do
 
     log(live, "answer_timeout", { playerId });
-    broadcastPlayerAdvanced(live, playerId, emit);
+    broadcastPlayerAdvanced(live, playerId, emit, "timeout", false);
+    if (result.goalReached) {
+      handlePlayerFinishedCheck(live, playerId, emit);
+    }
 
     if (result.result) {
       endMatch(live, emit, result.result);
@@ -305,21 +377,47 @@ function handleAnswerTimeout(live: LiveMatch, playerId: number, emit: Emit) {
 }
 
 function endMatch(live: LiveMatch, emit: Emit, result: NonNullable<MatchState["result"]>) {
+  if (live.matchGraceTimer) {
+    clearTimeout(live.matchGraceTimer);
+    live.matchGraceTimer = null;
+  }
   for (const timer of live.playerTimers.values()) clearTimeout(timer);
   live.playerTimers.clear();
 
   setMatchStatus(live.matchId, "completed");
   setMatchWinner(live.matchId, String(result.winnerId ?? "none"));
 
-  const standings = [...live.state.players.values()]
+  // Standings calculation:
+  // 1. Finished players sorted by finishRank (1st, 2nd, 3rd...)
+  // 2. Unfinished players sorted by lane progress (pos.y DESC), then total correct answers DESC, then HP DESC.
+  const finished = [...live.state.players.values()]
+    .filter((p) => p.goalReached && p.finishRank !== null)
+    .sort((a, b) => (a.finishRank ?? 999) - (b.finishRank ?? 999));
+
+  const unfinished = [...live.state.players.values()]
+    .filter((p) => !p.goalReached)
     .sort(
       (a, b) =>
         Number(b.alive) - Number(a.alive) ||
-        Number(b.goalReached) - Number(a.goalReached) ||
         b.pos.y - a.pos.y ||
+        b.totalCorrectAnswers - a.totalCorrectAnswers ||
         b.hp - a.hp
-    )
-    .map((p, i) => ({ playerId: p.playerId, placement: i + 1, hp: p.hp, alive: p.alive }));
+    );
+
+  const allSorted = [...finished, ...unfinished];
+  const standings = allSorted.map((p, i) => ({
+    playerId: p.playerId,
+    name: p.name,
+    characterId: p.characterId,
+    placement: i + 1,
+    finishRank: p.finishRank,
+    goalReached: p.goalReached,
+    timedOut: !p.goalReached && result.reason === "timeout",
+    hp: p.hp,
+    alive: p.alive,
+    laneProgress: p.pos.y,
+    totalCorrectAnswers: p.totalCorrectAnswers,
+  }));
 
   for (const p of live.state.players.values()) {
     const won = live.state.mode === "teams" ? result.winnerId === p.team : result.winnerId === p.playerId;
@@ -330,11 +428,6 @@ function endMatch(live: LiveMatch, emit: Emit, result: NonNullable<MatchState["r
       mode: live.state.mode,
     });
 
-    // Only persist participant/XP rows for real, authenticated student profiles —
-    // anonymous dev/test connections (playerId falls back to the raw ws connection id)
-    // have no matching student_profiles row, and match_participants.student_profile_id
-    // is a foreign key: writing it for a fake id throws and, uncaught, would crash the
-    // whole server (see endMatch's caller — this runs inside a setTimeout).
     const profile = findStudentProfileById(p.playerId);
     if (!profile) continue;
 
@@ -377,7 +470,10 @@ export function handleSubmitAnswer(live: LiveMatch, playerId: number, choiceInde
     { type: "answer_result", payload: { ok: true, correct: result.correct, streakCount: result.streakCount, rewardOffered: result.rewardOffered } },
     playerId
   );
-  broadcastPlayerAdvanced(live, playerId, emit);
+  broadcastPlayerAdvanced(live, playerId, emit, result.correct ? "correct" : "wrong", result.correct);
+  if (result.goalReached) {
+    handlePlayerFinishedCheck(live, playerId, emit);
+  }
 
   if (result.result) {
     endMatch(live, emit, result.result);
@@ -442,7 +538,10 @@ export function handleConsumeBonusMove(live: LiveMatch, playerId: number, reward
   const result = Engine.consumeBonusMove(live.state, playerId, rewardId);
   if (result.ok) {
     log(live, "bonus_move", { playerId, pos: result.newPos });
-    broadcastPlayerAdvanced(live, playerId, emit);
+    broadcastPlayerAdvanced(live, playerId, emit, "bonus_move", true);
+    if (result.goalReached) {
+      handlePlayerFinishedCheck(live, playerId, emit);
+    }
     if (result.result) {
       endMatch(live, emit, result.result);
     }

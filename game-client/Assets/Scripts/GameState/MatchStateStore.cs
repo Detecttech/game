@@ -60,6 +60,8 @@ namespace QuizBattle.GameState
         public event Action<AttackResultPayload> AttackResolved;
         public event Action<FreezeResultPayload> FreezeResolved;
         public event Action<int> PlayerEliminated;
+        public event Action<PlayerFinishedPayload> PlayerFinished;
+        public event Action<MatchTimerStartPayload> MatchTimerStarted;
         public event Action<MatchEndPayload> MatchEnded;
         public event Action<XpAwardPayload> XpAwarded;
         public event Action<LiveDashboardPayload> DashboardUpdated;
@@ -100,6 +102,12 @@ namespace QuizBattle.GameState
                     break;
                 case "player_advanced":
                     HandlePlayerAdvanced(payload.ToObject<PlayerAdvancedPayload>());
+                    break;
+                case "player_finished":
+                    PlayerFinished?.Invoke(payload.ToObject<PlayerFinishedPayload>());
+                    break;
+                case "match_timer_start":
+                    MatchTimerStarted?.Invoke(payload.ToObject<MatchTimerStartPayload>());
                     break;
                 case "attack_result":
                     HandleAttackResult(payload.ToObject<AttackResultPayload>());

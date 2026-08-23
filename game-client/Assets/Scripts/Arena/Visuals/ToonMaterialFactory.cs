@@ -26,32 +26,32 @@ namespace QuizBattle.Arena.Visuals
         {
             ShadowTint = QuizBattlePalette.ShadowTint,
             RimColor = new Color(0.92f, 0.96f, 1f),
-            RimIntensity = 1.25f,
-            RimPower = 2.0f,
+            RimIntensity = 0.85f,
+            RimPower = 2.8f,
             SpecTint = Color.white,
-            Gloss = 22f,
-            SpecIntensity = 0.95f,
+            Gloss = 32f,
+            SpecIntensity = 0.50f,
             EmissionColor = Color.black,
             EmissionIntensity = 0f,
             OutlineColor = QuizBattlePalette.OutlineColor,
-            OutlineWidth = 2.2f,
+            OutlineWidth = 0.9f,
             OutlineEnabled = true,
         };
 
         // Ultra glossy specular and studio rim for Character Select and hero units
         public static ToonStyle GlossyToy => new ToonStyle
         {
-            ShadowTint = new Color(0.20f, 0.22f, 0.42f),
-            RimColor = new Color(0.85f, 0.95f, 1f),
-            RimIntensity = 1.65f,
-            RimPower = 1.8f,
+            ShadowTint = new Color(0.70f, 0.72f, 0.86f),
+            RimColor = new Color(0.88f, 0.96f, 1f),
+            RimIntensity = 1.1f,
+            RimPower = 2.4f,
             SpecTint = Color.white,
-            Gloss = 18f,
-            SpecIntensity = 1.40f,
+            Gloss = 28f,
+            SpecIntensity = 0.70f,
             EmissionColor = Color.black,
             EmissionIntensity = 0f,
-            OutlineColor = new Color(0.06f, 0.06f, 0.12f),
-            OutlineWidth = 2.4f,
+            OutlineColor = new Color(0.10f, 0.08f, 0.16f),
+            OutlineWidth = 1.0f,
             OutlineEnabled = true,
         };
 

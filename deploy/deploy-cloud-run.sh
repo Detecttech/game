@@ -9,6 +9,17 @@ echo "========================================================"
 echo "    QuizBattle - Google Cloud Run Deployment Setup"
 echo "========================================================"
 
+# Always run from the repository root where Dockerfile is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT"
+
+if [ ! -f "Dockerfile" ]; then
+    echo "Error: Dockerfile not found in $REPO_ROOT"
+    echo "Please ensure you have unzipped all project files."
+    exit 1
+fi
+
 # Check for gcloud CLI
 if ! command -v gcloud &> /dev/null; then
     echo "Error: 'gcloud' CLI is not installed or not in PATH."
@@ -67,8 +78,16 @@ if [ -z "$JWT_SECRET" ]; then
 fi
 
 echo ""
-echo "Building container image using Google Cloud Build..."
-gcloud builds submit --tag "$IMAGE_TAG" --project="$PROJECT_ID" .
+if command -v docker &> /dev/null && docker info &> /dev/null; then
+    echo "Building container directly via Docker..."
+    gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
+    docker build -t "$IMAGE_TAG" .
+    echo "Pushing image to Artifact Registry..."
+    docker push "$IMAGE_TAG"
+else
+    echo "Building container image using Google Cloud Build..."
+    gcloud builds submit --tag "$IMAGE_TAG" --project="$PROJECT_ID" .
+fi
 
 echo ""
 echo "Deploying container to Google Cloud Run..."

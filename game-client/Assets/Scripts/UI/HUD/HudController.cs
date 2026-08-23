@@ -35,6 +35,7 @@ namespace QuizBattle.UI.HUD
             // Question Placard Banner at the top
             var (placard, innerCard) = QuizBattle.UI.UiFactory.CreatePlacardPanel(
                 parent, "QuestionPlacard", new Vector2(0.5f, 0.938f), new Vector2(860, 56), QuizBattlePalette.PanelDeep);
+            _questionPlacard = placard.gameObject;
 
             // Question Sequence Ribbon Badge
             var (badge, _) = QuizBattle.UI.UiFactory.CreateBannerPanel(
@@ -81,28 +82,96 @@ namespace QuizBattle.UI.HUD
                 _choiceLabels[i] = label;
             }
 
-            // Bottom-left corner match log in a semi-transparent royal slate card (unobtrusive)
-            const float margin = 12f;
-            const float logWidth = 280f;
-            const float logHeight = 90f;
-            var (logPlacard, logInner) = QuizBattle.UI.UiFactory.CreatePlacardPanel(
-                parent, "LogPanel", new Vector2(0f, 0f), new Vector2(logWidth, logHeight),
-                new Color(0.08f, 0.09f, 0.14f, 0.80f), new Vector2(margin + logWidth / 2f, margin + logHeight / 2f));
-            _logText = QuizBattle.UI.UiFactory.CreateText(
-                logInner.transform, "LogText", new Vector2(0.5f, 0.5f), new Vector2(logWidth - 16f, logHeight - 12f), 11);
-            _logText.alignment = TextAlignmentOptions.TopLeft;
-
             _celebrationOverlay = AnswerCelebrationOverlay.Create(parent);
+
+            // Floating countdown banner under the question card
+            var (timerPlacard, timerInner) = QuizBattle.UI.UiFactory.CreatePlacardPanel(
+                parent, "TimerBanner", new Vector2(0.5f, 0.70f), new Vector2(500, 38), new Color(0.9f, 0.2f, 0.2f, 0.9f));
+            _timerBanner = timerPlacard.gameObject;
+            _timerText = QuizBattle.UI.UiFactory.CreateText(
+                timerInner.transform, "TimerText", new Vector2(0.5f, 0.5f), new Vector2(480, 32), 14);
+            _timerText.fontStyle = FontStyles.Bold;
+            _timerText.color = Color.white;
+            _timerBanner.SetActive(false);
+
+            // Sleek spectator badge pill anchored at the bottom edge so the arena is completely visible
+            var (waitPlacard, waitInner) = QuizBattle.UI.UiFactory.CreatePlacardPanel(
+                parent, "WaitBanner", new Vector2(0.5f, 0.08f), new Vector2(540, 44), QuizBattlePalette.PanelDeep);
+            _finishedWaitingBanner = waitPlacard.gameObject;
+            _finishedWaitingText = QuizBattle.UI.UiFactory.CreateText(
+                waitInner.transform, "WaitText", new Vector2(0.5f, 0.5f), new Vector2(520, 36), 15);
+            _finishedWaitingText.fontStyle = FontStyles.Bold;
+            _finishedWaitingText.color = QuizBattlePalette.GoldTrim;
+            _finishedWaitingBanner.SetActive(false);
         }
 
+        private GameObject _questionPlacard;
         private AnswerCelebrationOverlay _celebrationOverlay;
+        private GameObject _timerBanner;
+        private TMP_Text _timerText;
+        private float _remainingTimerSeconds = 0f;
+        private bool _timerActive = false;
+
+        private GameObject _finishedWaitingBanner;
+        private TMP_Text _finishedWaitingText;
+
+        private void Update()
+        {
+            if (_timerActive && _remainingTimerSeconds > 0f)
+            {
+                _remainingTimerSeconds -= Time.deltaTime;
+                int sec = Mathf.CeilToInt(Mathf.Max(0f, _remainingTimerSeconds));
+                if (_timerText != null)
+                {
+                    _timerText.text = $"1st Place Finished! {sec}s to cross the goal!";
+                }
+                if (_remainingTimerSeconds <= 0f)
+                {
+                    _timerActive = false;
+                    if (_timerText != null) _timerText.text = "Time's up!";
+                }
+            }
+        }
+
+        public void ShowCountdown(int remainingSeconds, string message)
+        {
+            _remainingTimerSeconds = remainingSeconds;
+            _timerActive = true;
+            if (_timerBanner != null)
+            {
+                _timerBanner.SetActive(true);
+                if (_timerText != null) _timerText.text = message;
+            }
+        }
+
+        public void ShowWaitingFinished(int rank)
+        {
+            SetChoicesInteractable(false);
+            if (_choiceButtons != null)
+            {
+                foreach (var b in _choiceButtons)
+                {
+                    if (b != null) b.gameObject.SetActive(false);
+                }
+            }
+            if (_questionPlacard != null) _questionPlacard.SetActive(false);
+
+            if (_finishedWaitingBanner != null)
+            {
+                _finishedWaitingBanner.SetActive(true);
+                if (_finishedWaitingText != null)
+                {
+                    _finishedWaitingText.text = rank == 1
+                        ? "CHAMPION! 1ST PLACE REACHED! SPECTATING RACE..."
+                        : $"FINISHED #{rank}! SPECTATING RACE...";
+                }
+            }
+        }
 
         public void ShowFeedback(bool correct, int streak, int chosenIndex = -1)
         {
-            if (_celebrationOverlay != null)
-            {
-                _celebrationOverlay.ShowFeedback(correct, streak);
-            }
+            // Big overlay is suppressed per user request — crisp orange pop-up animation is
+            // rendered directly above the character's head in the arena instead!
         }
 
         public void ShowQuestion(int questionNumber, string text, IReadOnlyList<string> choices)
@@ -125,11 +194,7 @@ namespace QuizBattle.UI.HUD
 
         public void Log(string line)
         {
-            _logLines.Add(line);
-            if (_logLines.Count > 12) _logLines.RemoveAt(0);
-            var sb = new StringBuilder();
-            foreach (var l in _logLines) sb.AppendLine(l);
-            _logText.text = sb.ToString();
+            Debug.Log($"[HUD] {line}");
         }
     }
 }

@@ -9,8 +9,8 @@ namespace QuizBattle.Arena.Visuals
     /// and status effects.
     public class FloatingCombatText : MonoBehaviour
     {
-        private const float Duration = 0.85f;
-        private const float FloatDistance = 1.1f;
+        private const float Duration = 1.15f;
+        private const float FloatDistance = 1.45f;
 
         private TMP_Text _text;
         private Vector3 _startPos;
@@ -28,16 +28,16 @@ namespace QuizBattle.Arena.Visuals
             var textObj = new GameObject("Text");
             textObj.transform.SetParent(go.transform, false);
             textObj.transform.localPosition = Vector3.zero;
-            textObj.transform.localScale = Vector3.one * 0.22f * scale;
+            textObj.transform.localScale = Vector3.one * 0.35f * scale;
 
             var tmp = textObj.AddComponent<TextMeshPro>();
             if (TMP_Settings.defaultFontAsset != null) tmp.font = TMP_Settings.defaultFontAsset;
             tmp.text = message;
-            tmp.fontSize = 6.2f;
+            tmp.fontSize = 8.5f;
             tmp.fontStyle = FontStyles.Bold;
             tmp.alignment = TextAlignmentOptions.Center;
             tmp.color = color;
-            tmp.outlineWidth = 0.22f;
+            tmp.outlineWidth = 0.28f;
             tmp.outlineColor = Color.black;
             tmp.enableWordWrapping = false;
             tmp.ForceMeshUpdate();
@@ -54,19 +54,19 @@ namespace QuizBattle.Arena.Visuals
             _elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(_elapsed / Duration);
 
-            // Upward drift
-            float easeOut = 1f - Mathf.Pow(1f - t, 2.2f);
+            // Upward drift with smooth deceleration
+            float easeOut = 1f - Mathf.Pow(1f - t, 2.4f);
             transform.position = _startPos + Vector3.up * (easeOut * FloatDistance);
 
-            // Bouncy spring scale punch: 0 -> 1.35 -> 1.0
+            // Bouncy spring scale punch: 0 -> 1.55 -> 1.0
             float punch;
-            if (t < 0.2f)
+            if (t < 0.18f)
             {
-                punch = Mathf.Lerp(0.2f, 1.35f, t / 0.2f);
+                punch = Mathf.Lerp(0.2f, 1.55f, t / 0.18f);
             }
-            else if (t < 0.45f)
+            else if (t < 0.42f)
             {
-                punch = Mathf.Lerp(1.35f, 1.0f, (t - 0.2f) / 0.25f);
+                punch = Mathf.Lerp(1.55f, 1.0f, (t - 0.18f) / 0.24f);
             }
             else
             {

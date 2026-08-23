@@ -23,14 +23,14 @@ MonoBehaviour:
   abilityId: windstep
   abilityName: Windstep
   abilityType: 1
-  abilityDescription: Bonus-move rewards grant +3 steps instead of +2.
+  abilityDescription: Bonus-move rewards grant +1 step immediately.
   targeting: 0
   range: 0
   baseDamage: 0
   dotDamage: 0
   dotRounds: 0
   damageReductionPct: 0
-  bonusMoveSteps: 3
+  bonusMoveSteps: 1
   lifestealPct: 0
   vfxTag: vfx_wind_trail
   defaultUnlocked: 0
