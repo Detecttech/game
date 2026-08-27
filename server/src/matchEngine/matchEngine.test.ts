@@ -14,9 +14,9 @@ import {
 } from "./MatchEngine";
 import { computeGridHeight } from "./MatchState";
 
-// Weights: [0, 0.4) => attack_choice, [0.4, 0.7) => freeze, [0.7, 1) => bonus_move.
+// Weights: [0, 0.60) => attack_choice, [0.60, 0.92) => freeze, [0.92, 1) => bonus_move.
 const rngAttack = () => 0;
-const rngFreeze = () => 0.5;
+const rngFreeze = () => 0.70;
 const rngMove = () => 0.99;
 
 function twoPlayerMatch() {
@@ -85,7 +85,7 @@ test("a correct answer advances the player one step toward the goal", () => {
   assert.equal(a.goalReached, false);
 });
 
-test("reaching the goal row records finish and match concludes when all racers complete", () => {
+test("reaching the goal row records finish and match concludes when only one player left", () => {
   const { state, a, b } = twoPlayerMatch();
   // Grid height is 6, so the goal row is y=5 — walk Alice up 5 correct answers.
   for (let i = 0; i < 5; i++) {
@@ -96,16 +96,11 @@ test("reaching the goal row records finish and match concludes when all racers c
   assert.equal(a.goalReached, true);
   assert.equal(state.finishOrder[0], 1);
 
-  // Bob now also finishes
-  for (let i = 0; i < 5; i++) {
-    pushQuestion(state, 2, 300 + i, 0);
-    submitAnswer(state, 2, 0, rngAttack);
-  }
-  assert.equal(b.goalReached, true);
-
+  // In a 2-player match, Alice finished so only Bob is left racing: match ends immediately!
   const result = checkWinCondition(state);
   assert.equal(result?.winnerId, 1);
   assert.equal(result?.reason, "goal");
+  assert.equal(state.finishOrder[1], 2);
 });
 
 test("Aegis takes 25% reduced damage and Blaze's fireball applies a burn DoT that ticks on the target's own next answer", () => {
@@ -132,7 +127,7 @@ test("Aegis takes 25% reduced damage and Blaze's fireball applies a burn DoT tha
   assert.equal(b.pendingDot, null);
 });
 
-test("anti-repeat rule forces bonus_move after a consumed attack_choice reward", () => {
+test("anti-repeat rule forces freeze after a consumed attack_choice reward", () => {
   const { state, a, b } = twoPlayerMatch();
   pushQuestion(state, 1, 101, 0);
   submitAnswer(state, 1, 0, rngAttack); // streak 1
@@ -145,7 +140,7 @@ test("anti-repeat rule forces bonus_move after a consumed attack_choice reward",
   pushQuestion(state, 1, 103, 0);
   const second = submitAnswer(state, 1, 0, rngAttack); // streak 3, rng still favors attack_choice
   assert.equal(second.streakCount, 3);
-  assert.equal(second.rewardOffered?.type, "bonus_move", "must alternate away from attack after using one");
+  assert.equal(second.rewardOffered?.type, "freeze", "must alternate away from attack to freeze, keeping bonus jump rare");
 });
 
 test("cannot target self or an already-eliminated player", () => {
@@ -157,6 +152,28 @@ test("cannot target self or an already-eliminated player", () => {
   const selfAttack = useAttack(state, a.playerId, answer.rewardOffered!.rewardId, a.playerId);
   assert.equal(selfAttack.ok, false);
   assert.equal(selfAttack.error, "cannot_target_self");
+});
+
+test("cannot target a player who has already reached the goal / finished", () => {
+  const { state, a, b, c } = threePlayerMatch();
+  // Bob reaches the goal
+  b.pos.y = 5;
+  b.goalReached = true;
+  state.finishOrder.push(b.playerId);
+
+  pushQuestion(state, 1, 101, 0);
+  submitAnswer(state, 1, 0, rngAttack);
+  pushQuestion(state, 1, 102, 0);
+  const answer = submitAnswer(state, 1, 0, rngAttack);
+  assert.equal(answer.rewardOffered?.type, "attack_choice");
+
+  const attackFinished = useAttack(state, a.playerId, answer.rewardOffered!.rewardId, b.playerId);
+  assert.equal(attackFinished.ok, false);
+  assert.equal(attackFinished.error, "target_already_finished");
+
+  // But attacking active player Cara is permitted
+  const attackActive = useAttack(state, a.playerId, answer.rewardOffered!.rewardId, c.playerId);
+  assert.equal(attackActive.ok, true);
 });
 
 test("bonus_move reward grants extra steps toward the goal", () => {
@@ -282,24 +299,27 @@ test("cannot attack or freeze the same player twice in a row when another target
   useAttack(state, a.playerId, first.rewardOffered!.rewardId, b.playerId);
   assert.equal(a.lastTargetedPlayerId, b.playerId);
 
-  // Next reward — anti-repeat (reward-type) forces bonus_move, so consume that first to
-  // get back to an attack_choice, then confirm targeting Bob again is blocked while Cara
-  // is available.
+  // Next reward — anti-repeat (reward-type) forces freeze.
+  // Confirm that freezing Bob immediately after attacking Bob is blocked while Cara is available.
   pushQuestion(state, 1, 103, 0);
   const second = submitAnswer(state, 1, 0, rngAttack);
-  assert.equal(second.rewardOffered?.type, "bonus_move");
-  consumeBonusMove(state, a.playerId, second.rewardOffered!.rewardId);
-
-  pushQuestion(state, 1, 104, 0);
-  const third = submitAnswer(state, 1, 0, rngAttack);
-  assert.equal(third.rewardOffered?.type, "attack_choice");
-  const repeatBlocked = useAttack(state, a.playerId, third.rewardOffered!.rewardId, b.playerId);
+  assert.equal(second.rewardOffered?.type, "freeze");
+  const repeatBlocked = useFreeze(state, a.playerId, second.rewardOffered!.rewardId, b.playerId);
   assert.equal(repeatBlocked.ok, false);
   assert.equal(repeatBlocked.error, "repeat_target_blocked");
 
-  const okAgainstCara = useAttack(state, a.playerId, third.rewardOffered!.rewardId, c.playerId);
+  // Freezing Cara instead succeeds!
+  const okAgainstCara = useFreeze(state, a.playerId, second.rewardOffered!.rewardId, c.playerId);
   assert.equal(okAgainstCara.ok, true);
   assert.equal(a.lastTargetedPlayerId, c.playerId);
+
+  // Now for reward #3, Alice can target Bob again since her last target was Cara
+  pushQuestion(state, 1, 104, 0);
+  const third = submitAnswer(state, 1, 0, rngAttack);
+  assert.equal(third.rewardOffered?.type, "attack_choice");
+  const attackBob = useAttack(state, a.playerId, third.rewardOffered!.rewardId, b.playerId);
+  assert.equal(attackBob.ok, true);
+  assert.equal(a.lastTargetedPlayerId, b.playerId);
 });
 
 test("repeat-target rule is waived when the attacker has no other living opponent", () => {
@@ -312,12 +332,33 @@ test("repeat-target rule is waived when the attacker has no other living opponen
 
   pushQuestion(state, 1, 103, 0);
   const second = submitAnswer(state, 1, 0, rngAttack);
-  assert.equal(second.rewardOffered?.type, "bonus_move", "anti-repeat on reward type still applies");
-  consumeBonusMove(state, a.playerId, second.rewardOffered!.rewardId);
+  assert.equal(second.rewardOffered?.type, "freeze", "anti-repeat on reward type alternates to freeze");
+  useFreeze(state, a.playerId, second.rewardOffered!.rewardId, b.playerId);
 
   pushQuestion(state, 1, 104, 0);
   const third = submitAnswer(state, 1, 0, rngAttack);
   // Bob is the only living opponent in a 2-player match, so targeting him again must be allowed.
   const result = useAttack(state, a.playerId, third.rewardOffered!.rewardId, b.playerId);
   assert.equal(result.ok, true);
+});
+
+test("teacher can terminate match at any time, determining the current leader", () => {
+  const { state, a, b } = twoPlayerMatch();
+  // Alice answers 2 questions, Bob answers 1 question
+  pushQuestion(state, 1, 101, 0);
+  submitAnswer(state, 1, 0, rngAttack);
+  pushQuestion(state, 1, 102, 0);
+  submitAnswer(state, 1, 0, rngAttack);
+
+  pushQuestion(state, 2, 201, 0);
+  submitAnswer(state, 2, 0, rngAttack);
+
+  assert.equal(a.pos.y, 2);
+  assert.equal(b.pos.y, 1);
+
+  // When teacher terminates, current leader (Alice at y=2) is crowned winner with reason "teacher_stopped"
+  const living = [...state.players.values()].filter((p) => p.alive).sort((x, y) => y.pos.y - x.pos.y);
+  const result = { winnerId: living[0].playerId, reason: "teacher_stopped" as const };
+  assert.equal(result.winnerId, 1);
+  assert.equal(result.reason, "teacher_stopped");
 });

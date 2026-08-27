@@ -589,3 +589,36 @@ export function liveDashboard(live: LiveMatch) {
     })),
   };
 }
+
+export function killLiveMatch(live: LiveMatch, emit: Emit) {
+  log(live, "teacher_kill_match", { matchId: live.matchId });
+
+  if (live.state.status === "lobby") {
+    setMatchStatus(live.matchId, "completed");
+    setMatchWinner(live.matchId, "none");
+    emit({ type: "match_end", payload: { winnerId: null, reason: "teacher_stopped", standings: [] } }, "broadcast");
+    liveMatches.delete(live.matchId);
+    return;
+  }
+
+  // Active match: determine the current winner based on progress
+  const players = [...live.state.players.values()];
+  const finished = players.filter((p) => p.goalReached).sort((a, b) => (a.finishRank ?? 999) - (b.finishRank ?? 999));
+  let winnerId: string | number | null = null;
+
+  if (finished.length > 0) {
+    winnerId = live.state.mode === "teams"
+      ? (live.state.players.get(finished[0].playerId)?.team ?? finished[0].playerId)
+      : finished[0].playerId;
+  } else {
+    // Current leader by lane position, then correct answers, then HP
+    const living = players.filter((p) => p.alive).sort(
+      (a, b) => b.pos.y - a.pos.y || b.totalCorrectAnswers - a.totalCorrectAnswers || b.hp - a.hp
+    );
+    if (living.length > 0) {
+      winnerId = live.state.mode === "teams" ? (living[0].team ?? living[0].playerId) : living[0].playerId;
+    }
+  }
+
+  endMatch(live, emit, { winnerId, reason: "teacher_stopped" });
+}

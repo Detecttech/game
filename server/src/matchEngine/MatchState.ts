@@ -41,7 +41,7 @@ export interface PlayerState {
   lastTargetedPlayerId: number | null; // for the "can't attack/freeze the same player twice in a row" rule
 }
 
-export type WinReason = "hp" | "goal" | "progress" | "timeout";
+export type WinReason = "hp" | "goal" | "progress" | "timeout" | "teacher_stopped";
 
 export interface MatchResult {
   winnerId: number | string | null; // playerId (FFA) or team name (teams)

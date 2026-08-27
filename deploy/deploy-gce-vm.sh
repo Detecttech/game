@@ -42,7 +42,7 @@ if ! gcloud compute firewall-rules describe allow-quizbattle --project="$PROJECT
         --priority=1000 \
         --network=default \
         --action=ALLOW \
-        --rules=tcp:80,tcp:443,tcp:7777 \
+        --rules=tcp:80,tcp:443,tcp:7777,tcp:8080 \
         --source-ranges=0.0.0.0/0 \
         --target-tags=quizbattle-server \
         --project="$PROJECT_ID"
@@ -75,7 +75,7 @@ gcloud compute ssh "$VM_NAME" --zone="$ZONE" --project="$PROJECT_ID" --command="
     sudo cp -r /tmp/quizbattle-build/* /opt/quizbattle/ && \
     cd /opt/quizbattle/server/web-portal && sudo npm install && sudo npm run build && \
     cd /opt/quizbattle/server && sudo npm install && sudo npm run build && \
-    sudo pm2 restart quizbattle || sudo pm2 start dist/index.js --name quizbattle --cwd /opt/quizbattle/server
+    (sudo pm2 restart /opt/quizbattle/ecosystem.config.cjs || sudo pm2 start /opt/quizbattle/ecosystem.config.cjs)
 "
 
 echo ""

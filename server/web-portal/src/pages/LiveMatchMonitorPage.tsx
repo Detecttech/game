@@ -125,6 +125,11 @@ export function LiveMatchMonitorPage() {
     wsRef.current?.send(JSON.stringify({ type: "teacher_start_match", payload: {} }));
   }
 
+  function killMatch() {
+    if (!window.confirm("Are you sure you want to end this match immediately for all students?")) return;
+    wsRef.current?.send(JSON.stringify({ type: "teacher_kill_match", payload: { matchId: Number(matchIdParam) } }));
+  }
+
   if (!matchIdParam) {
     return (
       <div className="page" style={{ maxWidth: 420 }}>
@@ -141,8 +146,21 @@ export function LiveMatchMonitorPage() {
 
   return (
     <div className="page">
-      <h1>Live Match Monitor — #{matchIdParam}</h1>
-      <p className="muted">{connected ? "Connected" : "Connecting…"} · status: {status} · round {round}</p>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", marginBottom: "1rem" }}>
+        <div>
+          <h1 style={{ margin: 0 }}>Live Match Monitor — #{matchIdParam}</h1>
+          <p className="muted" style={{ margin: "4px 0 0" }}>{connected ? "Connected" : "Connecting…"} · status: {status} · round {round}</p>
+        </div>
+        {status !== "completed" && (
+          <button
+            className="btn btn-danger"
+            style={{ backgroundColor: "#dc2626", color: "white", padding: "8px 16px", borderRadius: "6px", fontWeight: "bold", cursor: "pointer" }}
+            onClick={killMatch}
+          >
+            {status === "lobby" ? "Abort / Cancel Match" : "Kill Match Immediately"}
+          </button>
+        )}
+      </div>
 
       {lobby && status === "lobby" && (
         <div className="card">
@@ -160,9 +178,18 @@ export function LiveMatchMonitorPage() {
               ))}
             </tbody>
           </table>
-          <button className="btn btn-primary" style={{ marginTop: "0.75em" }} onClick={startMatch}>
-            Start match
-          </button>
+          <div style={{ display: "flex", gap: "10px", marginTop: "0.75em" }}>
+            <button className="btn btn-primary" onClick={startMatch}>
+              Start match
+            </button>
+            <button
+              className="btn btn-danger"
+              style={{ backgroundColor: "#dc2626", color: "white" }}
+              onClick={killMatch}
+            >
+              Cancel match
+            </button>
+          </div>
         </div>
       )}
 

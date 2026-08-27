@@ -176,7 +176,7 @@ namespace QuizBattle.GameState.MockEngine
         {
             foreach (var p in state.players.Values)
             {
-                if (!p.alive || p.playerId == attacker.playerId || p.playerId == excludeId) continue;
+                if (!p.alive || p.goalReached || p.playerId == attacker.playerId || p.playerId == excludeId) continue;
                 if (state.mode == MatchMode.Teams && attacker.team != null && attacker.team == p.team) continue;
                 return true;
             }
@@ -185,7 +185,9 @@ namespace QuizBattle.GameState.MockEngine
 
         private static string ValidateTarget(MatchState state, PlayerState attacker, PlayerState target)
         {
+            if (attacker.goalReached) return "attacker_already_finished";
             if (target == null || !target.alive) return "invalid_target";
+            if (target.goalReached) return "target_already_finished";
             if (attacker.playerId == target.playerId) return "cannot_target_self";
             if (state.mode == MatchMode.Teams && attacker.team != null && attacker.team == target.team) return "friendly_fire_blocked";
             if (attacker.lastTargetedPlayerId == target.playerId && HasAlternativeTarget(state, attacker, target.playerId))
@@ -330,23 +332,50 @@ namespace QuizBattle.GameState.MockEngine
         {
             var groups = LivingGroups(state);
 
-            // Race win takes priority: first living player (or, in teams mode, any
-            // member of a team) to reach the goal row wins outright.
-            foreach (var (key, players) in groups)
-            {
-                if (players.Any(p => p.goalReached))
-                {
-                    return new MatchResult { winnerId = key, reason = WinReason.Goal };
-                }
-            }
-
-            if (groups.Count == 1)
-            {
-                return new MatchResult { winnerId = groups.Keys.First(), reason = WinReason.Hp };
-            }
             if (groups.Count == 0)
             {
                 return new MatchResult { winnerId = null, reason = WinReason.Hp };
+            }
+
+            var activeLivingPlayers = state.players.Values.Where(p => p.alive && !p.goalReached).ToList();
+            var activeGroups = new Dictionary<object, List<PlayerState>>();
+            foreach (var p in activeLivingPlayers)
+            {
+                object key = state.mode == MatchMode.Teams && p.team != null ? (object)p.team : p.playerId;
+                if (!activeGroups.TryGetValue(key, out var list))
+                {
+                    list = new List<PlayerState>();
+                    activeGroups[key] = list;
+                }
+                list.Add(p);
+            }
+
+            // End when only one player/team is left actively racing
+            if (state.players.Count > 1)
+            {
+                if (activeGroups.Count <= 1)
+                {
+                    var finishedGroup = groups.FirstOrDefault(g => g.Value.Any(p => p.goalReached));
+                    if (finishedGroup.Value != null)
+                    {
+                        return new MatchResult { winnerId = finishedGroup.Key, reason = WinReason.Goal };
+                    }
+
+                    if (groups.Count == 1)
+                    {
+                        return new MatchResult { winnerId = groups.Keys.First(), reason = WinReason.Hp };
+                    }
+                }
+            }
+            else
+            {
+                if (activeGroups.Count == 0)
+                {
+                    var first = groups.FirstOrDefault();
+                    if (first.Value != null && first.Value.Any(p => p.goalReached))
+                        return new MatchResult { winnerId = first.Key, reason = WinReason.Goal };
+                    return new MatchResult { winnerId = null, reason = WinReason.Hp };
+                }
             }
 
             // Forced decision once any living player has been asked enough questions —

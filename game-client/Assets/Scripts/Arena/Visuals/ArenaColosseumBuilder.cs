@@ -22,8 +22,8 @@ namespace QuizBattle.Arena.Visuals
             float halfW = (width * tileSize) * 0.5f;
             float halfH = (height * tileSize) * 0.5f;
 
-            CreateTerrainGround(root.transform, center, Mathf.Max(halfW, halfH) + 60f);
-            CreateSkyAndClouds(root.transform, center, Mathf.Max(halfW, halfH) + 16f);
+            CreateTerrainGround(root.transform, center, halfW, halfH);
+            CreateSkyAndClouds(root.transform, center, halfH);
             CreateStadiumWallsAndTowers(root.transform, center, halfW, halfH);
             CreateRoyalBanners(root.transform, center, halfW, halfH);
             CreateCornerBraziers(root.transform, center, halfW, halfH);
@@ -33,55 +33,43 @@ namespace QuizBattle.Arena.Visuals
             return root;
         }
 
-        private static void CreateTerrainGround(Transform parent, Vector3 center, float size)
+        #region Terrain & Sky
+
+        private static void CreateTerrainGround(Transform parent, Vector3 center, float halfW, float halfH)
         {
             var terrain = GameObject.CreatePrimitive(PrimitiveType.Quad);
             terrain.name = "ExpansiveGrassTerrain";
             terrain.transform.SetParent(parent, false);
-            terrain.transform.position = center + new Vector3(0f, -0.62f, 0f);
+            // Grass field surrounds the colosseum, moat, and trees,
+            // while ending just behind the North wall so the castle silhouette stands against the vibrant blue sky
+            float spanX = halfW * 2f + 20f;
+            float spanZ = halfH * 2f + 9.5f;
+            terrain.transform.position = center + new Vector3(0f, -0.62f, -0.8f);
             terrain.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-            terrain.transform.localScale = new Vector3(size * 2f, size * 2f, 1f);
+            terrain.transform.localScale = new Vector3(spanX, spanZ, 1f);
             Object.Destroy(terrain.GetComponent<Collider>());
             terrain.GetComponent<Renderer>().sharedMaterial = ToonMaterialFactory.Toon(QuizBattlePalette.GrassLight, ToonStyle.Default);
         }
 
+        #endregion
+
         #region Sky & Clouds
 
-        private static void CreateSkyAndClouds(Transform parent, Vector3 center, float radius)
+        private static void CreateSkyAndClouds(Transform parent, Vector3 center, float halfH)
         {
             var skyObj = new GameObject("SkyBackdrop");
             skyObj.transform.SetParent(parent, false);
 
-            // Large curved backdrop cylinder for gradient sky
-            var skyCylinder = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            skyCylinder.name = "SkyDome";
-            skyCylinder.transform.SetParent(skyObj.transform, false);
-            skyCylinder.transform.position = center + new Vector3(0f, 6f, 18f);
-            skyCylinder.transform.localScale = new Vector3(radius * 3.5f, 18f, radius * 1.5f);
-            skyCylinder.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-            Object.Destroy(skyCylinder.GetComponent<Collider>());
-
-            var skyStyle = new ToonStyle
-            {
-                ShadowTint = QuizBattlePalette.SkyHorizon,
-                RimColor = Color.white,
-                RimIntensity = 0.2f,
-                EmissionColor = QuizBattlePalette.SkyZenith,
-                EmissionIntensity = 0.8f,
-                OutlineEnabled = false,
-            };
-            skyCylinder.GetComponent<Renderer>().sharedMaterial = ToonMaterialFactory.Toon(QuizBattlePalette.SkyZenith, skyStyle);
-
-            // Puffy stylized cartoon clouds floating in the upper horizon
+            // Puffy stylized cartoon clouds floating high in the upper horizon far behind the arena
             var cloudsContainer = new GameObject("Clouds");
             cloudsContainer.transform.SetParent(skyObj.transform, false);
 
             Vector3[] cloudPositions = {
-                center + new Vector3(-12f, 10f, 14f),
-                center + new Vector3(-3f, 12f, 16f),
-                center + new Vector3(7f, 11f, 15f),
-                center + new Vector3(14f, 9.5f, 13f),
-                center + new Vector3(0f, 8.5f, 12f),
+                center + new Vector3(-11f, 8.5f, halfH + 13f),
+                center + new Vector3(-4f, 10f, halfH + 15f),
+                center + new Vector3(4f, 9.5f, halfH + 14f),
+                center + new Vector3(11f, 8f, halfH + 12f),
+                center + new Vector3(0f, 8f, halfH + 11f),
             };
 
             float[] cloudScales = { 1.3f, 1.6f, 1.2f, 1.4f, 1.0f };
@@ -181,13 +169,13 @@ namespace QuizBattle.Arena.Visuals
             float wallH = 1.8f;
             float margin = 1.6f;
 
-            // North Wall (Opponent / Goal side)
+            // North Wall (Castle Battlement Wall behind the Goal / Win Line)
             CreateWallSection(stadium.transform, center + new Vector3(0f, wallH * 0.5f - 0.7f, halfH + margin),
                 new Vector3(halfW * 2f + margin * 2f, wallH, wallThick), wallMat, crenellations: true);
 
-            // South Wall (Player side)
-            CreateWallSection(stadium.transform, center + new Vector3(0f, wallH * 0.5f - 0.7f, -halfH - margin),
-                new Vector3(halfW * 2f + margin * 2f, wallH, wallThick), wallMat, crenellations: true);
+            // South Wall (Player side - low foundation curb so the lower rows and tokens are completely visible)
+            CreateWallSection(stadium.transform, center + new Vector3(0f, -0.45f, -halfH - margin),
+                new Vector3(halfW * 2f + margin * 2f, 0.5f, wallThick), wallMat, crenellations: false);
 
             // East Wall & West Wall (with tiered spectator benches)
             CreateWallSection(stadium.transform, center + new Vector3(halfW + margin + 1.2f, wallH * 0.5f - 0.7f, 0f),
@@ -200,20 +188,11 @@ namespace QuizBattle.Arena.Visuals
             CreateSpectatorBenches(stadium.transform, center + new Vector3(-halfW - margin - 0.4f, 0f, 0f), halfH * 2f + 1f, woodMat, isWest: true);
             CreateSpectatorBenches(stadium.transform, center + new Vector3(halfW + margin + 0.4f, 0f, 0f), halfH * 2f + 1f, woodMat, isWest: false);
 
-            // 4 Corner Bastion Towers
-            Vector3[] towerPositions = {
-                center + new Vector3(-halfW - margin, 0f, -halfH - margin), // South-West (Blue)
-                center + new Vector3(halfW + margin, 0f, -halfH - margin),  // South-East (Blue)
-                center + new Vector3(-halfW - margin, 0f, halfH + margin),  // North-West (Red)
-                center + new Vector3(halfW + margin, 0f, halfH + margin),   // North-East (Red)
-            };
-
-            for (int i = 0; i < towerPositions.Length; i++)
-            {
-                bool isNorth = i >= 2;
-                Color roofColor = isNorth ? QuizBattlePalette.RoofTilesRed : QuizBattlePalette.RoofTilesBlue;
-                CreateTower(stadium.transform, towerPositions[i], wallMat, roofColor);
-            }
+            // 4 Bastion Towers at the arena corners (Red for North Goal, Blue for South Player side)
+            CreateTower(stadium.transform, center + new Vector3(-halfW - margin, 0f, halfH + margin), wallMat, QuizBattlePalette.RoofTilesRed);
+            CreateTower(stadium.transform, center + new Vector3(halfW + margin, 0f, halfH + margin), wallMat, QuizBattlePalette.RoofTilesRed);
+            CreateTower(stadium.transform, center + new Vector3(-halfW - margin, 0f, -halfH - margin), wallMat, QuizBattlePalette.RoofTilesBlue);
+            CreateTower(stadium.transform, center + new Vector3(halfW + margin, 0f, -halfH - margin), wallMat, QuizBattlePalette.RoofTilesBlue);
         }
 
         private static void CreateWallSection(Transform parent, Vector3 pos, Vector3 size, Material wallMat, bool crenellations)

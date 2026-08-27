@@ -117,11 +117,18 @@ export function createHttpApp() {
   }
 
   if (fs.existsSync(config.webPortalDist)) {
-    app.use(express.static(config.webPortalDist));
+    app.use(express.static(config.webPortalDist, {
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith("index.html")) {
+          res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        }
+      },
+    }));
     app.get("*", (req, res) => {
       if (req.path.startsWith("/play") || req.path.startsWith("/api") || req.path.startsWith("/ws")) {
         return res.status(404).send("Not Found");
       }
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
       res.sendFile(path.join(config.webPortalDist, "index.html"));
     });
   }

@@ -93,8 +93,8 @@ namespace QuizBattle.Arena
 
             key.color = new Color(1.00f, 0.96f, 0.88f); // Warm sunlit golden key light
             key.intensity = 1.35f;
-            key.shadows = LightShadows.Soft;
-            key.shadowStrength = 0.50f; // Soft stylized cartoon shadow
+            key.shadows = LightShadows.None; // Crisp toon presentation without dynamic shadow blobs on tiles
+            key.shadowStrength = 0f;
             key.transform.rotation = Quaternion.Euler(46f, -32f, 0f);
 
             RenderSettings.sun = key;
@@ -160,6 +160,8 @@ namespace QuizBattle.Arena
 
     /// Dynamically and responsively calculates camera framing and distance whenever the
     /// window or screen size/aspect ratio changes (including live window resize in WebGL and mobile).
+    /// Guarantees that the North wall and Win Line are always comfortably visible below the HUD
+    /// and that the arena boundaries fit within any aspect ratio (from 4:3 iPad to 21:9 ultra-wide phones).
     public class ArenaCameraAutoFramer : MonoBehaviour
     {
         public int GridWidth = 8;
@@ -206,27 +208,38 @@ namespace QuizBattle.Arena
             _lastAspect = _cam.aspect;
 
             float centerX = (GridWidth - 1) * TileSize * 0.5f;
-            float centerZ = (GridHeight - 1) * TileSize * 0.5f;
 
-            float pitch = 52f;
+            float pitch = 50f;
             float pitchRad = pitch * Mathf.Deg2Rad;
             float fovRad = _cam.fieldOfView * Mathf.Deg2Rad;
             float aspect = _cam.aspect > 0.05f ? _cam.aspect : (float)Screen.width / Mathf.Max(1, Screen.height);
 
-            float zSpan = GridHeight * TileSize + 2.2f;
-            float xSpan = GridWidth * TileSize + 2.4f;
+            // Bounding extents including castle walls, towers, spotlights, and moat
+            float zTop = (GridHeight - 0.5f) * TileSize + 2.2f;
+            float zBot = -0.5f * TileSize - 1.7f;
+            float zSpan = zTop - zBot;
 
-            float targetNdcHeight = 1.25f;
-            float distV = (zSpan * Mathf.Sin(pitchRad)) / (targetNdcHeight * Mathf.Tan(fovRad * 0.5f));
+            float xSpan = GridWidth * TileSize + 4.6f;
 
-            float targetNdcWidth = 1.50f;
-            float distH = xSpan / (targetNdcWidth * Mathf.Tan(fovRad * 0.5f) * aspect);
+            // Safe vertical placement: North wall & towers cleanly below HUD, South wall above bottom screen edge
+            float yTargetTop = 0.20f;
+            float yTargetBot = -0.84f;
+            float xTargetMax = 0.88f;
+
+            float k = Mathf.Tan(fovRad * 0.5f);
+            float sinP = Mathf.Sin(pitchRad);
+            float cosP = Mathf.Cos(pitchRad);
+
+            float fTop = (yTargetTop * k) / Mathf.Max(0.01f, sinP - yTargetTop * k * cosP);
+            float fBot = (yTargetBot * k) / Mathf.Max(0.01f, sinP - yTargetBot * k * cosP);
+
+            float distV = zSpan / Mathf.Max(0.01f, fTop - fBot);
+            float distH = xSpan / Mathf.Max(0.01f, 2f * xTargetMax * k * aspect);
 
             float dist = Mathf.Max(distV, distH);
 
-            float targetNdcMidY = -0.28f;
-            float zAimOffset = (dist * (-targetNdcMidY) * Mathf.Tan(fovRad * 0.5f)) / Mathf.Sin(pitchRad);
-            float aimZ = centerZ + zAimOffset;
+            // Center vertical framing safely between the target bounds
+            float aimZ = 0.5f * (zTop + zBot) - 0.5f * dist * (fTop + fBot);
 
             var rotation = Quaternion.Euler(pitch, 0f, 0f);
             Vector3 forward = rotation * Vector3.forward;

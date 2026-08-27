@@ -78,16 +78,8 @@ if [ -z "$JWT_SECRET" ]; then
 fi
 
 echo ""
-if command -v docker &> /dev/null && docker info &> /dev/null; then
-    echo "Building container directly via Docker..."
-    gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
-    docker build -t "$IMAGE_TAG" .
-    echo "Pushing image to Artifact Registry..."
-    docker push "$IMAGE_TAG"
-else
-    echo "Building container image using Google Cloud Build..."
-    gcloud builds submit --tag "$IMAGE_TAG" --project="$PROJECT_ID" .
-fi
+echo "Building container image using Google Cloud Build..."
+gcloud builds submit --tag "$IMAGE_TAG" --project="$PROJECT_ID" .
 
 echo ""
 echo "Deploying container to Google Cloud Run..."

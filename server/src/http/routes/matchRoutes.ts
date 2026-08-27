@@ -8,8 +8,12 @@ import {
   listMatchesByTeacher,
   listMatchEvents,
   listParticipants,
+  setMatchStatus,
+  setMatchWinner,
   type MatchMode,
 } from "../../db/repositories/matchRepo";
+import { getLiveMatch, killLiveMatch } from "../../matchEngine/LiveMatchRegistry";
+import { buildEmit } from "../../ws/liveMatchEmit";
 
 export const matchRoutes = Router();
 
@@ -60,4 +64,31 @@ matchRoutes.get("/matches/:id", (req: AuthedRequest, res) => {
     participants: listParticipants(match.id),
     events: listMatchEvents(match.id),
   });
+});
+
+matchRoutes.post("/matches/:id/kill", (req: AuthedRequest, res) => {
+  const matchId = Number(req.params.id);
+  const match = findMatchById(matchId);
+  if (!match) {
+    res.status(404).json({ code: "not_found", message: "Match not found" });
+    return;
+  }
+  const roster = findClassRosterById(match.class_roster_id);
+  if (!roster || roster.teacher_id !== req.teacherId) {
+    res.status(403).json({ code: "forbidden", message: "Not authorized to manage this match" });
+    return;
+  }
+
+  const live = getLiveMatch(matchId);
+  if (live) {
+    const emit = buildEmit(matchId);
+    killLiveMatch(live, emit);
+    res.json({ ok: true, message: "Match terminated" });
+  } else {
+    if (match.status !== "completed") {
+      setMatchStatus(matchId, "completed");
+      setMatchWinner(matchId, "none");
+    }
+    res.json({ ok: true, message: "Match marked as cancelled" });
+  }
 });

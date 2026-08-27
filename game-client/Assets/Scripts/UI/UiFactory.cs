@@ -22,12 +22,10 @@ namespace QuizBattle.UI
             var scaler = obj.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1280, 720);
-            // Match width and height evenly rather than width-only (the default) — the
-            // reference is a fixed 16:9 landscape layout, and phone screens (even locked
-            // to landscape, see AndroidManifest.xml's sensorLandscape) vary in aspect
-            // ratio (e.g. 20:9). Width-only matching over-scales the canvas height on
-            // wider-than-16:9 screens, shrinking every element relative to the visible area.
-            scaler.matchWidthOrHeight = 0.5f;
+            // Match height (1.0f) so the HUD occupies a fixed, predictable fraction (~27%)
+            // of the vertical screen across all landscape phone aspect ratios (from 4:3 iPad to 21:9 phones),
+            // leaving the lower viewport consistently open for the 3D arena board.
+            scaler.matchWidthOrHeight = 1.0f;
             obj.AddComponent<GraphicRaycaster>();
 
             if (Object.FindFirstObjectByType<EventSystem>() == null)

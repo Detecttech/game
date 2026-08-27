@@ -41,7 +41,7 @@ namespace QuizBattle.Arena
                 {
                     bool isGoal = y == finalGoalRow;
                     var color = isGoal ? zoneColor : ((x + y) % 2 == 0 ? colorA : colorB);
-                    _tiles[x, y] = CreateTile(x, y, color);
+                    _tiles[x, y] = CreateTile(x, y, color, isGoal);
                     if (isGoal) CreateZoneGlow(x, y, x == 0, x == width - 1);
                 }
             }
@@ -51,7 +51,7 @@ namespace QuizBattle.Arena
             ArenaColosseumBuilder.Build(transform, width, height, tileSize);
         }
 
-        private GameObject CreateTile(int x, int y, Color color)
+        private GameObject CreateTile(int x, int y, Color color, bool isGoal)
         {
             var tile = GameObject.CreatePrimitive(PrimitiveType.Cube);
             tile.name = $"Tile_{x}_{y}";
@@ -61,10 +61,32 @@ namespace QuizBattle.Arena
             Destroy(tile.GetComponent<Collider>());
 
             var renderer = tile.GetComponent<Renderer>();
-            var tex = ResolveFloorTexture();
-            renderer.sharedMaterial = tex != null
-                ? ToonMaterialFactory.Toon(color, TileStyle, tex, TileTiling)
-                : ToonMaterialFactory.Toon(color, TileStyle);
+            if (isGoal)
+            {
+                var goalStyle = new ToonStyle
+                {
+                    ShadowTint = QuizBattlePalette.GoldTrimDark,
+                    RimColor = Color.white,
+                    RimIntensity = 1.1f,
+                    RimPower = 2.0f,
+                    SpecTint = Color.white,
+                    Gloss = 40f,
+                    SpecIntensity = 0.8f,
+                    EmissionColor = QuizBattlePalette.ZoneGold,
+                    EmissionIntensity = 0.6f,
+                    OutlineColor = QuizBattlePalette.GoldTrimDark,
+                    OutlineWidth = 1.2f,
+                    OutlineEnabled = true,
+                };
+                renderer.sharedMaterial = ToonMaterialFactory.Toon(QuizBattlePalette.ZoneGold, goalStyle);
+            }
+            else
+            {
+                var tex = ResolveFloorTexture();
+                renderer.sharedMaterial = tex != null
+                    ? ToonMaterialFactory.Toon(color, TileStyle, tex, TileTiling)
+                    : ToonMaterialFactory.Toon(color, TileStyle);
+            }
 
             return tile;
         }
@@ -90,14 +112,51 @@ namespace QuizBattle.Arena
 
         private void CreateZoneGlow(int x, int y, bool isLeftEdge, bool isRightEdge)
         {
-            var glow = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            // Luminous golden finish panel over the goal tile (elevated to avoid z-fighting)
+            var glow = GameObject.CreatePrimitive(PrimitiveType.Cube);
             glow.name = $"ZoneGlow_{x}_{y}";
             glow.transform.SetParent(transform, false);
-            glow.transform.localPosition = new Vector3(x * tileSize, 0.015f, y * tileSize);
-            glow.transform.localScale = new Vector3(tileSize * 0.92f, 0.005f, tileSize * 0.92f);
+            glow.transform.localPosition = new Vector3(x * tileSize, 0.035f, y * tileSize);
+            glow.transform.localScale = new Vector3(tileSize * 0.94f, 0.05f, tileSize * 0.94f);
             Destroy(glow.GetComponent<Collider>());
-            glow.GetComponent<Renderer>().sharedMaterial =
-                ToonMaterialFactory.Glow(zoneColor, intensity: 1.2f, softEdge: 0.35f, pulseSpeed: 2.5f, pulseAmount: 0.35f);
+            var glowStyle = new ToonStyle
+            {
+                ShadowTint = QuizBattlePalette.GoldTrimDark,
+                RimColor = Color.white,
+                RimIntensity = 1.6f,
+                RimPower = 1.4f,
+                SpecTint = Color.white,
+                Gloss = 50f,
+                SpecIntensity = 1.0f,
+                EmissionColor = new Color(1.00f, 0.82f, 0.15f),
+                EmissionIntensity = 1.2f,
+                OutlineColor = QuizBattlePalette.GoldTrimDark,
+                OutlineWidth = 1.2f,
+                OutlineEnabled = true,
+            };
+            glow.GetComponent<Renderer>().sharedMaterial = ToonMaterialFactory.Toon(QuizBattlePalette.ZoneGold, glowStyle);
+
+            // Overhead North-wall spotlight fan beam illuminating the goal tile from the castle wall
+            var spotFan = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            spotFan.name = $"SpotFan_{x}_{y}";
+            spotFan.transform.SetParent(transform, false);
+            spotFan.transform.localPosition = new Vector3(x * tileSize, 0.06f, y * tileSize + tileSize * 0.40f);
+            spotFan.transform.localScale = new Vector3(tileSize * 0.85f, 0.04f, tileSize * 0.35f);
+            Destroy(spotFan.GetComponent<Collider>());
+            var spotStyle = new ToonStyle
+            {
+                ShadowTint = new Color(1.00f, 0.92f, 0.40f),
+                RimColor = Color.white,
+                RimIntensity = 2.0f,
+                RimPower = 1.1f,
+                SpecTint = Color.white,
+                Gloss = 60f,
+                SpecIntensity = 1.2f,
+                EmissionColor = new Color(1.00f, 0.95f, 0.40f),
+                EmissionIntensity = 1.6f,
+                OutlineEnabled = false,
+            };
+            spotFan.GetComponent<Renderer>().sharedMaterial = ToonMaterialFactory.Toon(new Color(1.00f, 0.95f, 0.35f), spotStyle);
 
             if (isLeftEdge || isRightEdge)
             {
@@ -109,31 +168,58 @@ namespace QuizBattle.Arena
         {
             var post = new GameObject(isLeft ? "GoalPost_Left" : "GoalPost_Right");
             post.transform.SetParent(transform, false);
-            float dir = isLeft ? -0.55f : 0.55f;
+            float dir = isLeft ? -0.75f : 0.75f;
             post.transform.localPosition = new Vector3(x * tileSize + dir * tileSize, 0.5f, y * tileSize);
 
             var pillarMat = ToonMaterialFactory.Toon(QuizBattlePalette.StoneBorder, ToonStyle.Default);
-            var goldMat = ToonMaterialFactory.Toon(QuizBattlePalette.GoldTrim, ToonStyle.Default);
 
-            // Pillar
+            // Stone Pillar
             var col = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
             col.name = "Pillar";
             col.transform.SetParent(post.transform, false);
             col.transform.localPosition = new Vector3(0f, 0.6f, 0f);
-            col.transform.localScale = new Vector3(0.32f, 0.6f, 0.32f);
+            col.transform.localScale = new Vector3(0.40f, 0.7f, 0.40f);
             Destroy(col.GetComponent<Collider>());
             col.GetComponent<Renderer>().sharedMaterial = pillarMat;
 
-            // Golden crown cap
+            // Golden glowing lantern globe
             var crown = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             crown.name = "CrownCap";
             crown.transform.SetParent(post.transform, false);
-            crown.transform.localPosition = new Vector3(0f, 1.3f, 0f);
-            crown.transform.localScale = Vector3.one * 0.35f;
+            crown.transform.localPosition = new Vector3(0f, 1.45f, 0f);
+            crown.transform.localScale = Vector3.one * 0.55f;
             Destroy(crown.GetComponent<Collider>());
-            crown.GetComponent<Renderer>().sharedMaterial = goldMat;
-        }
+            var lanternStyle = new ToonStyle
+            {
+                ShadowTint = QuizBattlePalette.GoldTrimDark,
+                RimColor = Color.white,
+                RimIntensity = 1.8f,
+                RimPower = 1.3f,
+                SpecTint = Color.white,
+                Gloss = 60f,
+                SpecIntensity = 1.2f,
+                EmissionColor = new Color(1.00f, 0.88f, 0.20f),
+                EmissionIntensity = 1.8f,
+                OutlineColor = QuizBattlePalette.GoldTrimDark,
+                OutlineWidth = 1.2f,
+                OutlineEnabled = true,
+            };
+            crown.GetComponent<Renderer>().sharedMaterial = ToonMaterialFactory.Toon(QuizBattlePalette.GoldTrim, lanternStyle);
 
+            // 3 Dark metal claw / tripod brackets holding the lantern globe
+            for (int b = 0; b < 3; b++)
+            {
+                float angle = b * 120f * Mathf.Deg2Rad;
+                var bracket = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                bracket.name = $"Bracket_{b}";
+                bracket.transform.SetParent(post.transform, false);
+                bracket.transform.localPosition = new Vector3(Mathf.Cos(angle) * 0.26f, 1.40f, Mathf.Sin(angle) * 0.26f);
+                bracket.transform.localRotation = Quaternion.Euler(-18f * Mathf.Sin(angle), 0f, 18f * Mathf.Cos(angle));
+                bracket.transform.localScale = new Vector3(0.08f, 0.48f, 0.08f);
+                Destroy(bracket.GetComponent<Collider>());
+                bracket.GetComponent<Renderer>().sharedMaterial = ToonMaterialFactory.Toon(new Color(0.12f, 0.12f, 0.16f), ToonStyle.Default);
+            }
+        }
 
         private void CreateCurbBorder(int width, int height)
         {
@@ -141,7 +227,7 @@ namespace QuizBattle.Arena
             curbContainer.transform.SetParent(transform, false);
 
             var curbMat = ToonMaterialFactory.Toon(QuizBattlePalette.StoneBorder, ToonStyle.Default);
-            var studMat = ToonMaterialFactory.Toon(QuizBattlePalette.GoldTrim, ToonStyle.Default);
+            var goldCurbMat = ToonMaterialFactory.Toon(QuizBattlePalette.GoldTrim, ToonStyle.Default);
 
             float totalW = width * tileSize;
             float totalH = height * tileSize;
@@ -150,29 +236,27 @@ namespace QuizBattle.Arena
             float curbThick = 0.22f;
             float curbH = 0.18f;
 
-            // North, South, East, West borders
-            CreateCurbSegment(curbContainer.transform, new Vector3(cx, 0.04f, cz + totalH * 0.5f + curbThick * 0.5f), new Vector3(totalW + curbThick * 2f, curbH, curbThick), curbMat);
+            // North (Golden Goal Trim), South, East, West borders
+            CreateCurbSegment(curbContainer.transform, new Vector3(cx, 0.04f, cz + totalH * 0.5f + curbThick * 0.5f), new Vector3(totalW + curbThick * 2f, curbH, curbThick), goldCurbMat);
             CreateCurbSegment(curbContainer.transform, new Vector3(cx, 0.04f, cz - totalH * 0.5f - curbThick * 0.5f), new Vector3(totalW + curbThick * 2f, curbH, curbThick), curbMat);
             CreateCurbSegment(curbContainer.transform, new Vector3(cx + totalW * 0.5f + curbThick * 0.5f, 0.04f, cz), new Vector3(curbThick, curbH, totalH), curbMat);
             CreateCurbSegment(curbContainer.transform, new Vector3(cx - totalW * 0.5f - curbThick * 0.5f, 0.04f, cz), new Vector3(curbThick, curbH, totalH), curbMat);
 
-            // 4 Golden corner studs
+            // 2 Golden corner studs on the North Finish Line
             Vector3[] cornerStuds = {
-                new Vector3(cx - totalW * 0.5f - curbThick * 0.5f, 0.12f, cz - totalH * 0.5f - curbThick * 0.5f),
-                new Vector3(cx + totalW * 0.5f + curbThick * 0.5f, 0.12f, cz - totalH * 0.5f - curbThick * 0.5f),
                 new Vector3(cx - totalW * 0.5f - curbThick * 0.5f, 0.12f, cz + totalH * 0.5f + curbThick * 0.5f),
                 new Vector3(cx + totalW * 0.5f + curbThick * 0.5f, 0.12f, cz + totalH * 0.5f + curbThick * 0.5f),
             };
 
             foreach (var sPos in cornerStuds)
             {
-                var stud = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                var stud = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 stud.name = "CornerStud";
                 stud.transform.SetParent(curbContainer.transform, false);
-                stud.transform.localPosition = sPos;
-                stud.transform.localScale = new Vector3(0.24f, 0.08f, 0.24f);
+                stud.transform.localPosition = sPos + new Vector3(0f, 0.05f, 0f);
+                stud.transform.localScale = new Vector3(0.36f, 0.36f, 0.36f);
                 Destroy(stud.GetComponent<Collider>());
-                stud.GetComponent<Renderer>().sharedMaterial = studMat;
+                stud.GetComponent<Renderer>().sharedMaterial = goldCurbMat;
             }
         }
 

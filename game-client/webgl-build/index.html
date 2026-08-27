@@ -52,12 +52,13 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/webgl-build.loader.js";
+      var v = "?v=20260827_arena_v2";
+      var loaderUrl = buildUrl + "/webgl-build.loader.js" + v;
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/webgl-build.data",
-        frameworkUrl: buildUrl + "/webgl-build.framework.js",
-        codeUrl: buildUrl + "/webgl-build.wasm",
+        dataUrl: buildUrl + "/webgl-build.data" + v,
+        frameworkUrl: buildUrl + "/webgl-build.framework.js" + v,
+        codeUrl: buildUrl + "/webgl-build.wasm" + v,
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "game-client",

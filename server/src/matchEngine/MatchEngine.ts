@@ -189,13 +189,12 @@ export function timeoutAnswer(state: MatchState, playerId: number): SubmitAnswer
 }
 
 /** Every living player attacker could legally target (alive, not self, not a
- * teammate) other than excludeId — used both to enforce "can't target the
- * same player twice in a row" and to waive that rule when there's genuinely
- * no one else to pick (e.g. a 2-player match), rather than soft-locking the
- * reward entirely. */
+ * teammate, and NOT already finished) other than excludeId — used both to enforce
+ * "can't target the same player twice in a row" and to waive that rule when there's
+ * genuinely no one else to pick, rather than soft-locking the reward entirely. */
 function hasAlternativeTarget(state: MatchState, attacker: PlayerState, excludeId: number): boolean {
   for (const p of state.players.values()) {
-    if (!p.alive || p.playerId === attacker.playerId || p.playerId === excludeId) continue;
+    if (!p.alive || p.goalReached || p.playerId === attacker.playerId || p.playerId === excludeId) continue;
     if (state.mode === "teams" && attacker.team && attacker.team === p.team) continue;
     return true;
   }
@@ -203,7 +202,9 @@ function hasAlternativeTarget(state: MatchState, attacker: PlayerState, excludeI
 }
 
 function validateTarget(state: MatchState, attacker: PlayerState, target: PlayerState | undefined): string | null {
+  if (attacker.goalReached) return "attacker_already_finished";
   if (!target || !target.alive) return "invalid_target";
+  if (target.goalReached) return "target_already_finished";
   if (attacker.playerId === target.playerId) return "cannot_target_self";
   if (state.mode === "teams" && attacker.team && attacker.team === target.team) return "friendly_fire_blocked";
   if (attacker.lastTargetedPlayerId === target.playerId && hasAlternativeTarget(state, attacker, target.playerId)) {
@@ -334,23 +335,54 @@ function livingGroups(state: MatchState): Map<string | number, PlayerState[]> {
 export function checkWinCondition(state: MatchState): MatchState["result"] {
   const groups = livingGroups(state);
 
-  // 1. Last player/team standing (all other players eliminated):
-  // The match ends immediately when only 1 is left, even if they have not reached the goal.
-  if (groups.size === 1) {
-    const [winnerId] = groups.keys();
-    return { winnerId, reason: "hp" };
-  }
+  // 1. All players eliminated (draw / complete wipeout)
   if (groups.size === 0) {
     return { winnerId: null, reason: "hp" };
   }
 
-  // 2. Continuous finish: match ends when all living racers have reached the goal
-  const allLivingGoalReached = [...groups.values()].every((players) => players.every((p) => p.goalReached));
-  if (allLivingGoalReached && state.finishOrder.length > 0) {
-    const winnerId = state.mode === "teams"
-      ? (state.players.get(state.finishOrder[0])?.team ?? state.finishOrder[0])
-      : state.finishOrder[0];
-    return { winnerId, reason: "goal" };
+  // Active racers: living players who have NOT yet reached the goal
+  const activeLivingPlayers = [...state.players.values()].filter((p) => p.alive && !p.goalReached);
+
+  // Group active racers by team (or playerId in FFA)
+  const activeGroups = new Map<string | number, PlayerState[]>();
+  for (const p of activeLivingPlayers) {
+    const key = state.mode === "teams" && p.team ? p.team : p.playerId;
+    const list = activeGroups.get(key) ?? [];
+    list.push(p);
+    activeGroups.set(key, list);
+  }
+
+  // 2. End when there is only one player/team left actively racing
+  if (state.players.size > 1) {
+    if (activeGroups.size <= 1) {
+      // If someone reached the goal, record any remaining active runner-up and finish
+      if (state.finishOrder.length > 0) {
+        for (const p of activeLivingPlayers) {
+          if (!state.finishOrder.includes(p.playerId)) {
+            state.finishOrder.push(p.playerId);
+            p.finishRank = state.finishOrder.length;
+          }
+        }
+        const winnerId = state.mode === "teams"
+          ? (state.players.get(state.finishOrder[0])?.team ?? state.finishOrder[0])
+          : state.finishOrder[0];
+        return { winnerId, reason: "goal" };
+      }
+
+      // No one reached the goal, but only 1 living player/team remains (elimination by HP)
+      if (groups.size === 1) {
+        const [winnerId] = groups.keys();
+        return { winnerId, reason: "hp" };
+      }
+    }
+  } else {
+    // Single player match: ends when the player reaches the goal or is eliminated
+    if (activeGroups.size === 0) {
+      if (state.finishOrder.length > 0) {
+        return { winnerId: state.finishOrder[0], reason: "goal" };
+      }
+      return { winnerId: null, reason: "hp" };
+    }
   }
 
   // Forced decision once any living player has been asked enough questions

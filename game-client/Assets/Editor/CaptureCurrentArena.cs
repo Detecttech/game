@@ -29,6 +29,15 @@ public static class CaptureCurrentArena
                 Object.DestroyImmediate(fct.gameObject);
             }
             FloatingCombatText.Spawn(grid.TileToWorldPos(3, 1) + Vector3.up * 1.5f, "-15 HP", QuizBattlePalette.RoofTilesRed, 1.15f);
+
+            var tokenMap = new Dictionary<string, CharacterToken>();
+            foreach (var t in Object.FindObjectsByType<CharacterToken>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                tokenMap[t.name] = t;
+
+            if (tokenMap.TryGetValue("Blaze", out var b)) { b.gameObject.SetActive(true); b.MoveTo(grid.TileToWorldPos(3, 1)); b.SetHp(30, 45); }
+            if (tokenMap.TryGetValue("Vera", out var v)) { v.gameObject.SetActive(true); v.MoveTo(grid.TileToWorldPos(4, 3)); v.SetHp(50, 50); v.SetStreak(2); }
+            if (tokenMap.TryGetValue("Zephyr", out var z)) { z.gameObject.SetActive(true); z.MoveTo(grid.TileToWorldPos(6, 1)); z.SetHp(50, 50); }
+            if (tokenMap.TryGetValue("Aegis", out var a)) { a.gameObject.SetActive(true); a.MoveTo(grid.TileToWorldPos(1, 2)); a.SetHp(40, 55); }
         }
 
         var hud = Object.FindFirstObjectByType<HudController>();
@@ -59,26 +68,45 @@ public static class CaptureCurrentArena
         }
         Canvas.ForceUpdateCanvases();
 
-        const int width = 1280;
-        const int height = 720;
-        var rt = new RenderTexture(width, height, 24);
-        camera.targetTexture = rt;
-        var tex = new Texture2D(width, height, TextureFormat.RGB24, false);
-        camera.Render();
+        string artifactDir = @"C:\Users\engmh\.gemini\antigravity-ide\brain\1c945747-d0fc-4277-b165-3e3b6cc283d2";
+        if (!Directory.Exists(artifactDir)) Directory.CreateDirectory(artifactDir);
 
-        RenderTexture.active = rt;
-        tex.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-        tex.Apply();
+        var framer = camera.GetComponent<ArenaCameraAutoFramer>();
 
-        camera.targetTexture = null;
-        RenderTexture.active = null;
-        Object.DestroyImmediate(rt);
+        // Render multiple aspect ratios: Standard 16:9, iPhone/Galaxy 19.5:9, Ultra-wide 20:9, iPad 4:3
+        var resolutions = new (int w, int h, string suffix)[]
+        {
+            (1280, 720, "arena_preview.png"),
+            (1280, 720, "arena_preview_16_9.png"),
+            (1560, 720, "arena_preview_19_5_9.png"),
+            (1600, 720, "arena_preview_20_9.png"),
+            (960, 720, "arena_preview_4_3.png"),
+        };
 
-        string outputPath = @"C:\Users\engmh\.gemini\antigravity-ide\brain\531cdd05-2b28-4037-b8c7-b10c24a8917d\arena_preview.png";
-        File.WriteAllBytes(outputPath, tex.EncodeToPNG());
-        Object.DestroyImmediate(tex);
+        foreach (var (w, h, filename) in resolutions)
+        {
+            camera.aspect = (float)w / h;
+            if (framer != null) framer.ApplyFraming();
 
-        Debug.Log($"[CaptureCurrentArena] Arena preview saved to {outputPath}");
+            var rt = new RenderTexture(w, h, 24);
+            camera.targetTexture = rt;
+            var tex = new Texture2D(w, h, TextureFormat.RGB24, false);
+            camera.Render();
+
+            RenderTexture.active = rt;
+            tex.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+            tex.Apply();
+
+            camera.targetTexture = null;
+            RenderTexture.active = null;
+            Object.DestroyImmediate(rt);
+
+            string path = Path.Combine(artifactDir, filename);
+            File.WriteAllBytes(path, tex.EncodeToPNG());
+            Object.DestroyImmediate(tex);
+            Debug.Log($"[CaptureCurrentArena] Saved {filename} to {path}");
+        }
+
         EditorApplication.Exit(0);
     }
 

@@ -67,7 +67,7 @@ Shader "QuizBattle/GlowAdditive"
 
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 output.uv = input.uv;
-                output.color = input.color;
+                output.color = any(input.color) ? input.color : half4(1, 1, 1, 1);
                 return output;
             }
 
@@ -76,14 +76,12 @@ Shader "QuizBattle/GlowAdditive"
                 UNITY_SETUP_INSTANCE_ID(input);
 
                 half dist = length(input.uv - 0.5) * 2.0;
-                half falloff = 1.0 - smoothstep(1.0 - _SoftEdge, 1.0, dist);
+                half falloff = (_SoftEdge > 0.01 && dist <= 1.5) ? (1.0 - smoothstep(1.0 - _SoftEdge, 1.0, saturate(dist))) : 1.0;
 
-                // _PulseAmount defaults to 0, so this is a no-op for every non-pulsing
-                // use (HP bars, ground discs, ember/halo accents) regardless of speed.
                 half pulse = 1.0 - _PulseAmount * 0.5 * (1.0 + sin(_Time.y * _PulseSpeed));
 
                 half3 rgb = _TintColor.rgb * input.color.rgb * _Intensity * pulse;
-                half a = _TintColor.a * input.color.a * falloff * pulse;
+                half a = saturate(_TintColor.a * input.color.a * falloff * pulse);
                 return half4(rgb * a, a);
             }
             ENDHLSL

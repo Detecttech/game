@@ -6,7 +6,7 @@ import { handleAnswer } from "./handlers/questionHandler";
 import { handleRewardConsumed } from "./handlers/rewardHandler";
 import { handleAttack } from "./handlers/attackHandler";
 import { handleFreeze } from "./handlers/freezeHandler";
-import { handleTeacherJoinMatch } from "./handlers/teacherSpectatorHandler";
+import { handleTeacherJoinMatch, handleTeacherKillMatch } from "./handlers/teacherSpectatorHandler";
 
 type Handler = (conn: ClientConnection, msg: Envelope) => void;
 
@@ -22,6 +22,8 @@ const handlers: Record<string, Handler> = {
   use_attack: handleAttack,
   use_freeze: handleFreeze,
   teacher_join_match: handleTeacherJoinMatch,
+  teacher_kill_match: handleTeacherKillMatch,
+  teacher_end_match: handleTeacherKillMatch,
 };
 
 export function dispatch(conn: ClientConnection, msg: Envelope) {

@@ -31,6 +31,8 @@ namespace QuizBattle.UI.TeacherDashboard
         private TMP_Text _dashboardStatusText;
         private TMP_Text _playerListText;
         private Button _startMatchButton;
+        private Button _killMatchButton;
+        private int _watchingMatchId;
 
         private MatchStateStore _store;
 
@@ -58,15 +60,21 @@ namespace QuizBattle.UI.TeacherDashboard
             var connectButton = UiFactory.CreateButton(_dashboardPanel.transform, "ConnectButton", new Vector2(0.72f, 0.83f), new Vector2(160, 45), "Watch");
             connectButton.onClick.AddListener(OnWatchClicked);
 
-            _startMatchButton = UiFactory.CreateButton(_dashboardPanel.transform, "StartMatchButton", new Vector2(0.5f, 0.73f), new Vector2(240, 45), "Start Match");
+            _startMatchButton = UiFactory.CreateButton(_dashboardPanel.transform, "StartMatchButton", new Vector2(0.35f, 0.73f), new Vector2(180, 45), "Start Match");
             _startMatchButton.onClick.AddListener(OnStartMatchClicked);
             _startMatchButton.gameObject.SetActive(false);
 
-            var listPanel = UiFactory.CreatePanel(_dashboardPanel.transform, "PlayerListPanel", new Vector2(0.5f, 0.4f), new Vector2(540, 340), new Color(0, 0, 0, 0.4f));
-            _playerListText = UiFactory.CreateText(listPanel.transform, "PlayerList", new Vector2(0.5f, 0.5f), new Vector2(520, 320), 16);
+            _killMatchButton = UiFactory.CreateButton(_dashboardPanel.transform, "KillMatchButton", new Vector2(0.68f, 0.73f), new Vector2(180, 45), "End Match");
+            var killImg = _killMatchButton.GetComponent<Image>();
+            if (killImg) killImg.color = new Color(0.85f, 0.22f, 0.22f, 1f);
+            _killMatchButton.onClick.AddListener(OnKillMatchClicked);
+            _killMatchButton.gameObject.SetActive(false);
+
+            var listPanel = UiFactory.CreatePanel(_dashboardPanel.transform, "PlayerListPanel", new Vector2(0.5f, 0.38f), new Vector2(540, 310), new Color(0, 0, 0, 0.4f));
+            _playerListText = UiFactory.CreateText(listPanel.transform, "PlayerList", new Vector2(0.5f, 0.5f), new Vector2(520, 290), 16);
             _playerListText.alignment = TextAlignmentOptions.TopLeft;
 
-            _dashboardStatusText = UiFactory.CreateText(_dashboardPanel.transform, "Status", new Vector2(0.5f, 0.06f), new Vector2(560, 40), 14);
+            _dashboardStatusText = UiFactory.CreateText(_dashboardPanel.transform, "Status", new Vector2(0.5f, 0.05f), new Vector2(560, 40), 14);
 
             _dashboardPanel.SetActive(false);
         }
@@ -109,11 +117,17 @@ namespace QuizBattle.UI.TeacherDashboard
         {
             _dashboardStatusText.text = "Connecting...";
 
+            _watchingMatchId = matchId;
             var client = AppRoot.Instance.Client;
             _store = AppRoot.Instance.Store;
             _store.DashboardUpdated += OnDashboardUpdated;
             _store.LobbyUpdated += _ => RenderLobby();
             _store.MatchStarted += _ => _startMatchButton.gameObject.SetActive(false);
+            _store.MatchEnded += _ =>
+            {
+                _startMatchButton.gameObject.SetActive(false);
+                _killMatchButton.gameObject.SetActive(false);
+            };
 
             if (!client.IsConnected)
             {
@@ -137,6 +151,7 @@ namespace QuizBattle.UI.TeacherDashboard
             client.Send("teacher_join_match", new { matchId });
             _dashboardStatusText.text = $"Watching match #{matchId}";
             _startMatchButton.gameObject.SetActive(true);
+            _killMatchButton.gameObject.SetActive(true);
         }
 
         private void OnStartMatchClicked()
@@ -144,9 +159,20 @@ namespace QuizBattle.UI.TeacherDashboard
             AppRoot.Instance.Client.Send("teacher_start_match", new { });
         }
 
+        private void OnKillMatchClicked()
+        {
+            AppRoot.Instance.Client.Send("teacher_kill_match", new { matchId = _watchingMatchId });
+            _dashboardStatusText.text = "Terminating match...";
+        }
+
         private void OnDashboardUpdated(LiveDashboardPayload dashboard)
         {
             _dashboardStatusText.text = $"Status: {dashboard.Status}";
+            if (dashboard.Status == "completed")
+            {
+                _startMatchButton.gameObject.SetActive(false);
+                _killMatchButton.gameObject.SetActive(false);
+            }
             var sb = new StringBuilder();
             foreach (var p in dashboard.Players)
             {

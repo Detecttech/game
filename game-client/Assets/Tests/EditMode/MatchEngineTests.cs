@@ -8,9 +8,9 @@ namespace QuizBattle.Tests.EditMode
     /// expected numbers, so the two engines are verified to agree.
     public class MatchEngineTests
     {
-        // Weights: [0, 0.4) => attack_choice, [0.4, 0.7) => freeze, [0.7, 1) => bonus_move.
+        // Weights: [0, 0.60) => attack_choice, [0.60, 0.92) => freeze, [0.92, 1) => bonus_move.
         private static double RngAttack() => 0.0;
-        private static double RngFreeze() => 0.5;
+        private static double RngFreeze() => 0.70;
         private static double RngMove() => 0.99;
 
         [SetUp]
@@ -134,7 +134,7 @@ namespace QuizBattle.Tests.EditMode
         }
 
         [Test]
-        public void AntiRepeatForcesBonusMoveAfterConsumedAttack()
+        public void AntiRepeatForcesFreezeAfterConsumedAttack()
         {
             var (state, a, b) = TwoPlayerMatch();
             MatchEngine.PushQuestion(state, 1, 101, 0);
@@ -148,7 +148,28 @@ namespace QuizBattle.Tests.EditMode
             MatchEngine.PushQuestion(state, 1, 103, 0);
             var second = MatchEngine.SubmitAnswer(state, 1, 0, RngAttack); // streak 3, rng still favors attack_choice
             Assert.AreEqual(3, second.streakCount);
-            Assert.AreEqual(RewardType.BonusMove, second.rewardOffered.type);
+            Assert.AreEqual(RewardType.Freeze, second.rewardOffered.type, "anti-repeat alternates attack to freeze to keep bonus jump rare");
+        }
+
+        [Test]
+        public void CannotTargetPlayerWhoHasReachedGoal()
+        {
+            var (state, a, b, c) = ThreePlayerMatch();
+            b.pos = new GridPos(0, 5);
+            b.goalReached = true;
+
+            MatchEngine.PushQuestion(state, 1, 101, 0);
+            MatchEngine.SubmitAnswer(state, 1, 0, RngAttack);
+            MatchEngine.PushQuestion(state, 1, 102, 0);
+            var answer = MatchEngine.SubmitAnswer(state, 1, 0, RngAttack);
+            Assert.AreEqual(RewardType.AttackChoice, answer.rewardOffered.type);
+
+            var attackFinished = MatchEngine.UseAttack(state, a.playerId, answer.rewardOffered.rewardId, b.playerId);
+            Assert.IsFalse(attackFinished.ok);
+            Assert.AreEqual("target_already_finished", attackFinished.error);
+
+            var attackActive = MatchEngine.UseAttack(state, a.playerId, answer.rewardOffered.rewardId, c.playerId);
+            Assert.IsTrue(attackActive.ok);
         }
 
         [Test]
@@ -303,23 +324,27 @@ namespace QuizBattle.Tests.EditMode
             MatchEngine.UseAttack(state, a.playerId, first.rewardOffered.rewardId, b.playerId);
             Assert.AreEqual(b.playerId, a.lastTargetedPlayerId);
 
-            // Reward-type anti-repeat forces bonus_move next — consume it, then confirm
-            // targeting Bob again is blocked while Cara is available.
+            // Reward-type anti-repeat forces freeze next.
+            // Confirm that freezing Bob immediately after attacking Bob is blocked while Cara is available.
             MatchEngine.PushQuestion(state, 1, 103, 0);
             var second = MatchEngine.SubmitAnswer(state, 1, 0, RngAttack);
-            Assert.AreEqual(RewardType.BonusMove, second.rewardOffered.type);
-            MatchEngine.ConsumeBonusMove(state, a.playerId, second.rewardOffered.rewardId);
-
-            MatchEngine.PushQuestion(state, 1, 104, 0);
-            var third = MatchEngine.SubmitAnswer(state, 1, 0, RngAttack);
-            Assert.AreEqual(RewardType.AttackChoice, third.rewardOffered.type);
-            var repeatBlocked = MatchEngine.UseAttack(state, a.playerId, third.rewardOffered.rewardId, b.playerId);
+            Assert.AreEqual(RewardType.Freeze, second.rewardOffered.type);
+            var repeatBlocked = MatchEngine.UseFreeze(state, a.playerId, second.rewardOffered.rewardId, b.playerId);
             Assert.IsFalse(repeatBlocked.ok);
             Assert.AreEqual("repeat_target_blocked", repeatBlocked.error);
 
-            var okAgainstCara = MatchEngine.UseAttack(state, a.playerId, third.rewardOffered.rewardId, c.playerId);
+            // Freezing Cara instead succeeds!
+            var okAgainstCara = MatchEngine.UseFreeze(state, a.playerId, second.rewardOffered.rewardId, c.playerId);
             Assert.IsTrue(okAgainstCara.ok);
             Assert.AreEqual(c.playerId, a.lastTargetedPlayerId);
+
+            // Now for reward #3, Alice can target Bob again since her last target was Cara
+            MatchEngine.PushQuestion(state, 1, 104, 0);
+            var third = MatchEngine.SubmitAnswer(state, 1, 0, RngAttack);
+            Assert.AreEqual(RewardType.AttackChoice, third.rewardOffered.type);
+            var attackBob = MatchEngine.UseAttack(state, a.playerId, third.rewardOffered.rewardId, b.playerId);
+            Assert.IsTrue(attackBob.ok);
+            Assert.AreEqual(b.playerId, a.lastTargetedPlayerId);
         }
 
         [Test]
@@ -334,14 +359,34 @@ namespace QuizBattle.Tests.EditMode
 
             MatchEngine.PushQuestion(state, 1, 103, 0);
             var second = MatchEngine.SubmitAnswer(state, 1, 0, RngAttack);
-            Assert.AreEqual(RewardType.BonusMove, second.rewardOffered.type, "anti-repeat on reward type still applies");
-            MatchEngine.ConsumeBonusMove(state, a.playerId, second.rewardOffered.rewardId);
+            Assert.AreEqual(RewardType.Freeze, second.rewardOffered.type, "anti-repeat on reward type alternates to freeze");
+            var freezeBob = MatchEngine.UseFreeze(state, a.playerId, second.rewardOffered.rewardId, b.playerId);
+            Assert.IsTrue(freezeBob.ok);
 
             MatchEngine.PushQuestion(state, 1, 104, 0);
             var third = MatchEngine.SubmitAnswer(state, 1, 0, RngAttack);
             // Bob is the only living opponent in a 2-player match, so targeting him again must be allowed.
             var result = MatchEngine.UseAttack(state, a.playerId, third.rewardOffered.rewardId, b.playerId);
             Assert.IsTrue(result.ok);
+        }
+
+        [Test]
+        public void MatchEndsWhenOnlyOnePlayerLeft()
+        {
+            var (state, a, b) = TwoPlayerMatch();
+            for (int i = 0; i < 5; i++)
+            {
+                MatchEngine.PushQuestion(state, 1, 200 + i, 0);
+                MatchEngine.SubmitAnswer(state, 1, 0, RngAttack);
+            }
+            Assert.AreEqual(5, a.pos.y);
+            Assert.IsTrue(a.goalReached);
+
+            // In a 2-player match, Alice finished so only Bob is left racing: match ends immediately!
+            var result = MatchEngine.CheckWinCondition(state);
+            Assert.IsNotNull(result);
+            Assert.AreEqual(1, result.winnerId);
+            Assert.AreEqual(WinReason.Goal, result.reason);
         }
     }
 }

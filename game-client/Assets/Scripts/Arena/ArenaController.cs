@@ -199,7 +199,7 @@ namespace QuizBattle.Arena
         private List<(int playerId, string name)> GetTargetableOpponents()
         {
             var all = _store.Players.Values
-                .Where(p => p.alive && p.playerId != SessionManager.PlayerId)
+                .Where(p => p.alive && !p.goalReached && p.playerId != SessionManager.PlayerId)
                 .Select(p => (p.playerId, p.name))
                 .ToList();
 

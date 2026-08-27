@@ -171,7 +171,7 @@ namespace QuizBattle.GameState
 
         private PlayerState PickRandomTarget(PlayerState attacker, System.Random rng)
         {
-            var targets = _state.players.Values.Where(p => p.alive && p.playerId != attacker.playerId).ToList();
+            var targets = _state.players.Values.Where(p => p.alive && !p.goalReached && p.playerId != attacker.playerId).ToList();
             return targets.Count == 0 ? null : targets[rng.Next(targets.Count)];
         }
 

@@ -78,6 +78,7 @@ namespace QuizBattle.GameState.MockEngine
         Hp,
         Goal,
         Progress,
+        TeacherStopped,
     }
 
     public class MatchResult
