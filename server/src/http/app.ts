@@ -11,6 +11,7 @@ import { questionBankRoutes, questionRoutes } from "./routes/questionBankRoutes"
 import { matchRoutes } from "./routes/matchRoutes";
 import { leaderboardRoutes } from "./routes/leaderboardRoutes";
 import { studentRoutes } from "./routes/studentRoutes";
+import { backupRoutes } from "./routes/backupRoutes";
 
 export function createHttpApp() {
   const app = express();
@@ -26,7 +27,8 @@ export function createHttpApp() {
     questionRoutes,
     matchRoutes,
     leaderboardRoutes,
-    studentRoutes
+    studentRoutes,
+    backupRoutes
   );
 
   // Mounted before the web-portal's catch-all below, at its own /play prefix so the
