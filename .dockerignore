@@ -23,7 +23,6 @@ server/node_modules
 server/dist
 server/web-portal/node_modules
 server/web-portal/dist
-server/data/*.db
 server/data/*.db-journal
 server/data/*.db-wal
 server/data/*.db-shm

@@ -5,8 +5,8 @@ OS: 'Windows 11  (10.0.26200) Professional' Language: 'en' Physical Memory: 3236
 BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
 System  architecture: x64
 Process architecture: x64
-Date: 2026-08-24T13:51:13Z
-[Licensing::Module] Successfully launched the LicensingClient (PId: 29504)
+Date: 2026-08-27T20:57:41Z
+[Licensing::Module] Successfully launched the LicensingClient (PId: 30588)
 
 COMMAND LINE ARGUMENTS:
 D:\Program Files\Editor\6000.5.7f1\Editor\Unity.exe
@@ -17,7 +17,7 @@ D:\game\game-client
 CaptureCurrentArena.Capture
 -quit
 -logFile
-D:\game\unity-capture.log
+D:\game\unity-capture-new.log
 Successfully changed project path to: D:\game\game-client
 D:/game/game-client
 [UnityMemory] Configuration Parameters - Can be set up in boot.config
@@ -56,31 +56,31 @@ D:/game/game-client
     "memorysetup-job-temp-allocator-block-size=2097152"
     "memorysetup-job-temp-allocator-block-size-background=1048576"
     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
-Logging is directed to a specific file, skipping project log.Player connection [22144]  Target information:
+Logging is directed to a specific file, skipping project log.Player connection [22416]  Target information:
 
-Player connection [22144]  * "[IP] 10.0.0.111 [Port] 55504 [Flags] 2 [Guid] 4154440081 [EditorId] 4154440081 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-VJHN5MG) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+Player connection [22416]  * "[IP] 10.0.0.111 [Port] 55504 [Flags] 2 [Guid] 4186572582 [EditorId] 4186572582 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-VJHN5MG) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
 
-Player connection [22144] Host joined multi-casting on [225.0.0.222:54997]...
-Player connection [22144] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Player connection [22416] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [22416] Host joined alternative multi-casting on [225.0.0.222:34997]...
 Input System module state changed to: Initialized.
 [Physics::Module] Initialized fallback backend.
 [Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-26820" after 0.3 seconds.
+[Licensing::Module] Licensing is not yet initialized.
 Starting IPC server.
 Waiting for clients to connect on \\.\pipe\Unity-LicenseClient-engmh, press Ctrl-C to exit.
-[Licensing::IpcConnector] Successfully connected to: "LicenseClient-engmh" at "2026-08-24T13:51:13.8309017Z"
-[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 29504, path: "D:/Program Files/Editor/6000.5.7f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-engmh" at "2026-08-27T20:57:51.6226795Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 30588, path: "D:/Program Files/Editor/6000.5.7f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
 [Licensing::Module] LicensingClient has failed validation; ignoring
-[Package Manager] Connected to IPC stream "Upm-12844" after 0.6 seconds.
-[Licensing::Module] Licensing is not yet initialized.
 [Licensing::Client] Handshaking with LicensingClient:
   Version:                 1.18.1+9fbee8e
-  Session Id:              4fe3415632c242ba8315dc117c7c3ba1
-  Correlation Id:          f55352d5b6c4c8f5b228c1718607a17e
-  External correlation Id: 7253658010473009247
+  Session Id:              15c065a1edd44b369f8f06adeaf2f33b
+  Correlation Id:          5051d6529e4aa49525dd19aa897d17c6
+  External correlation Id: 5211471190701223811
   Machine Id:              BvCvD9V+nLWzZG/D2RgCqRIYhiE=
-[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-engmh" (connect: 0.57s, validation: 0.33s, handshake: 0.09s)
-[Licensing::IpcConnector] Successfully connected to: "LicenseClient-engmh-notifications" at "2026-08-24T13:51:14.2519903Z"
-[Licensing::Module] Connected to LicensingClient (PId: 29504, launch time: 0.01, total connection time: 0.99s)
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-engmh" (connect: 9.84s, validation: 0.69s, handshake: 0.18s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-engmh-notifications" at "2026-08-27T20:57:52.4907478Z"
+[Licensing::Module] Connected to LicensingClient (PId: 30588, launch time: 0.06, total connection time: 10.71s)
 [Licensing::Module] Error: Access token is unavailable; failed to update
 [Licensing::Client] Successfully resolved entitlement details
 [Licensing::Module] License group:
@@ -88,10 +88,10 @@ Waiting for clients to connect on \\.\pipe\Unity-LicenseClient-engmh, press Ctrl
   Product: Unity Personal
   Type: Assigned
   Expiration: Unlimited
-[Licensing::Client] Successfully updated license, isAsync: True, time: 0.02
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.01
 [Licensing::Client] Successfully resolved entitlement details
-[Licensing::Module] Licensing Background thread has ended after 1.10s
-[Licensing::Module] Licensing is initialized (took 0.18s).
+[Licensing::Module] Licensing Background thread has ended after 10.82s
+[Licensing::Module] Licensing is initialized (took 8.11s).
 [Licensing::Client] Successfully resolved entitlement details
 Library Redirect Path: Library/
 [Physics::Module] Selected backend.
@@ -119,7 +119,7 @@ Mono path[0] = 'D:/Program Files/Editor/6000.5.7f1/Editor/Data/Managed'
 Mono path[1] = 'D:/Program Files/Editor/6000.5.7f1/Editor/Data/BCLExtensions/runtime/netstandard2.1'
 Mono path[2] = 'D:/Program Files/Editor/6000.5.7f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
 Mono config path = 'D:/Program Files/Editor/6000.5.7f1/Editor/Data/MonoBleedingEdge/etc'
-Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56844
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56820
 CodeReloadManager initialized
 ImportWorker Server TCP listen port: 0
 AcceleratorClientConnectionCallback - disconnected - :0
@@ -131,7 +131,7 @@ Register platform support module: D:/Program Files/Editor/6000.5.7f1/Editor/Data
 Register platform support module: D:/Program Files/Editor/6000.5.7f1/Editor/Data/PlaybackEngines/MetroSupport/UnityEditor.UWP.Extensions.dll
 [Licensing::Client] Successfully resolved entitlement details
 Register platform support module: D:/Program Files/Editor/6000.5.7f1/Editor/Data/PlaybackEngines/AndroidPlayer/UnityEditor.Android.Extensions.dll
-Registered in 0.008953 seconds.
+Registered in 2.005112 seconds.
 Native extension for Android target not found
 Native extension for UWP target not found
 Native extension for WindowsStandalone target not found
@@ -139,24 +139,24 @@ Native extension for WebGL target not found
 Package Manager log level set to [2]
 ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
 Mono: successfully reloaded assembly
-- Finished resetting the current domain, in  0.660 seconds
-Domain Reload Profiling: 1492ms
-	BeginReloadAssembly (207ms)
-		CreateAndSetChildDomain (12ms)
-	RebuildCommonClasses (8ms)
-	RebuildNativeTypeToScriptingClass (28ms)
-	initialDomainReloadingComplete (99ms)
-	LoadAllAssembliesAndSetupDomain (485ms)
-		LoadAssemblies (195ms)
-		AnalyzeDomain (366ms)
-			TypeCache.Refresh (364ms)
-				TypeCache.ScanAssembly (341ms)
-	FinalizeReload (665ms)
+- Finished resetting the current domain, in  0.759 seconds
+Domain Reload Profiling: 8455ms
+	BeginReloadAssembly (478ms)
+		CreateAndSetChildDomain (9ms)
+	RebuildCommonClasses (7ms)
+	RebuildNativeTypeToScriptingClass (365ms)
+	initialDomainReloadingComplete (2313ms)
+	LoadAllAssembliesAndSetupDomain (4530ms)
+		LoadAssemblies (505ms)
+		AnalyzeDomain (4363ms)
+			TypeCache.Refresh (4360ms)
+				TypeCache.ScanAssembly (3807ms)
+	FinalizeReload (763ms)
 		SetupLoadedEditorAssemblies (0ms)
-			InitializePlatformSupportModulesInManaged (71ms)
-			BeforeProcessingInitializeOnLoad (145ms)
-			ProcessInitializeOnLoadAttributes (151ms)
-			ProcessInitializeOnLoadMethodAttributes (173ms)
+			InitializePlatformSupportModulesInManaged (87ms)
+			BeforeProcessingInitializeOnLoad (148ms)
+			ProcessInitializeOnLoadAttributes (187ms)
+			ProcessInitializeOnLoadMethodAttributes (209ms)
 [Licensing::Client] Successfully resolved entitlement details
 Application.AssetDatabase Initial Refresh Start
 [Package Manager] Restoring resolved packages state from cache
@@ -221,8 +221,7 @@ Application.AssetDatabase Initial Refresh Start
     com.endel.nativewebsocket@https://github.com/endel/NativeWebSocket.git#upm (location: D:\game\game-client\Library\PackageCache\com.endel.nativewebsocket@ea014c9ae534)
 [Package Manager] com.unity.textmeshpro is deprecated: This package is no longer supported. TextMeshPro functionalities are now included in the com.unity.ugui package. To continue using them, consider adding it to your project dependencies.
 [Subsystems] No new subsystems found in resolved package list.
-[Package Manager] Done registering packages in 0.03 seconds
-[ScriptCompilation] Requested script compilation because: AssetDatabase observed changes in script compilation related files
+[Package Manager] Done registering packages in 0.04 seconds
 info: Microsoft.Hosting.Lifetime[14]
       Now listening on: http://localhost:80
 info: Microsoft.Hosting.Lifetime[0]
@@ -238,7 +237,7 @@ info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint 'gRPC - /UnityILPP.PostProcessing/Ping'
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/Ping - 200 - application/grpc 49.2003ms
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/Ping - 200 - application/grpc 406.1398ms
 Starting: D:\Program Files\Editor\6000.5.7f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/2000b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
 WorkingDir: D:/game/game-client
 info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
@@ -257,168 +256,12 @@ info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
 info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
       Executed endpoint 'gRPC - /UnityILPP.PostProcessing/ConfigurePostProcessors'
 info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/ConfigurePostProcessors - 200 - application/grpc 100.8663ms
-info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly - application/grpc -
-info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly - application/grpc -
-info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
-      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
-info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
-      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
-info: Unity.ILPP.Runner.PostProcessingPipeline[0]
-      Processing assembly Library/Bee/artifacts/2000b0aE.dag/QuizBattle.Tests.EditMode.dll, with 115 defines and 297 references
-info: Unity.ILPP.Runner.PostProcessingPipeline[0]
-      Processing assembly Library/Bee/artifacts/2000b0aE.dag/QuizBattle.Runtime.dll, with 117 defines and 290 references
-info: Unity.ILPP.Runner.PostProcessingPipeline[0]
-      processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
-info: Unity.ILPP.Runner.PostProcessingPipeline[0]
-      processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
-info: Unity.ILPP.Runner.PostProcessingPipeline[0]
-      running Unity.Jobs.CodeGen.JobsILPostProcessor
-info: Unity.ILPP.Runner.PostProcessingPipeline[0]
-      running Unity.Jobs.CodeGen.JobsILPostProcessor
-info: Unity.ILPP.Runner.PostProcessingPipeline[0]
-      running zzzUnity.Burst.CodeGen.BurstILPostProcessor
-info: Unity.ILPP.Runner.PostProcessingPipeline[0]
-      running zzzUnity.Burst.CodeGen.BurstILPostProcessor
-info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
-      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
-info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
-      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
-info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly - 200 - application/grpc 23.7104ms
-info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly - 200 - application/grpc 23.7149ms
-info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
-      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly - application/grpc -
-info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
-      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
-info: Unity.ILPP.Runner.PostProcessingPipeline[0]
-      Processing assembly Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp-Editor.dll, with 115 defines and 342 references
-info: Unity.ILPP.Runner.PostProcessingPipeline[0]
-      processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
-info: Unity.ILPP.Runner.PostProcessingPipeline[0]
-      running Unity.Jobs.CodeGen.JobsILPostProcessor
-info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
-      Resolved Unity.Collections, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null with Library\Bee\artifacts\2000b0aE.dag\Unity.Collections.dll
-info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
-      Resolved UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null with D:\Program Files\Editor\6000.5.7f1\Editor\Data\Managed\UnityEngine\UnityEditor.CoreModule.dll
-info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
-      Resolved UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null with D:\Program Files\Editor\6000.5.7f1\Editor\Data\Managed\UnityEngine\UnityEngine.CoreModule.dll
-info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
-      Resolved Unity.Scripting, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null with D:\Program Files\Editor\6000.5.7f1\Editor\Data\Managed\UnityEngine\Unity.Scripting.dll
-info: Unity.ILPP.Runner.PostProcessingPipeline[0]
-      running zzzUnity.Burst.CodeGen.BurstILPostProcessor
-info: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
-      Resolved Unity.Burst.Cecil.Rocks, Version=0.11.6.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e with Library\PackageCache\com.unity.burst@2f3d916873ea\Unity.Burst.CodeGen\Unity.Burst.Cecil.Rocks.dll
-info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
-      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/PostProcessAssembly'
-info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
-      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/PostProcessAssembly - 200 - application/grpc 723.4052ms
-ExitCode: 0 Duration: 5s368ms
-[573/721    0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
-[709/721    3s] Csc Library/Bee/artifacts/2000b0aE.dag/QuizBattle.Runtime.dll (+2 others)
-Assets\Scripts\UI\UiFactory.cs(31,17): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-
-Assets\Scripts\UI\UiFactory.cs(59,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
-
-Assets\Scripts\Arena\ArenaEnvironment.cs(82,67): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
-
-Assets\Scripts\Arena\ArenaEnvironment.cs(82,35): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
-
-Assets\Scripts\Arena\ArenaEnvironment.cs(128,28): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-
-Assets\Scripts\Arena\CharacterToken.cs(141,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
-
-Assets\Scripts\Arena\Visuals\FloatingCombatText.cs(42,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
-
-Assets\Scripts\Arena\Vfx\VictoryFireworksController.cs(29,28): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-[711/721    0s] Csc Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp-Editor.dll (+2 others)
-Assets\Editor\ArenaDemoRunner.cs(71,20): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-
-Assets\Editor\ArenaDemoRunner.cs(153,72): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
-
-Assets\Editor\ArenaDemoRunner.cs(153,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
-
-Assets\Editor\ArenaDemoRunner.cs(159,65): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
-
-Assets\Editor\ArenaDemoRunner.cs(159,32): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
-
-Assets\Editor\CaptureCurrentArena.cs(24,20): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-
-Assets\Editor\CaptureCurrentArena.cs(34,72): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
-
-Assets\Editor\CaptureCurrentArena.cs(34,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
-
-Assets\Editor\CaptureCurrentArena.cs(43,19): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-
-Assets\Editor\CaptureCurrentArena.cs(57,72): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
-
-Assets\Editor\CaptureCurrentArena.cs(57,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
-
-Assets\Editor\CaptureCurrentArena.cs(62,65): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
-
-Assets\Editor\CaptureCurrentArena.cs(62,32): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
-
-Assets\Editor\NetworkedMatchDemoRunner.cs(203,84): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
-
-Assets\Editor\NetworkedMatchDemoRunner.cs(203,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
-[712/721    0s] ILPostProcess Library/Bee/artifacts/2000b0aE.dag/post-processed/QuizBattle.Runtime.dll (+pdb)
-Processing assembly Library/Bee/artifacts/2000b0aE.dag/QuizBattle.Runtime.dll, with 117 defines and 290 references
-
-processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
-
-running Unity.Jobs.CodeGen.JobsILPostProcessor
-
-running zzzUnity.Burst.CodeGen.BurstILPostProcessor
-[713/721    0s] ILPostProcess Library/Bee/artifacts/2000b0aE.dag/post-processed/QuizBattle.Tests.EditMode.dll (+pdb)
-Processing assembly Library/Bee/artifacts/2000b0aE.dag/QuizBattle.Tests.EditMode.dll, with 115 defines and 297 references
-
-processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
-
-running Unity.Jobs.CodeGen.JobsILPostProcessor
-
-running zzzUnity.Burst.CodeGen.BurstILPostProcessor
-[714/721    0s] CopyFiles Library/ScriptAssemblies/QuizBattle.Runtime.pdb
-[717/721    0s] CopyFiles Library/ScriptAssemblies/QuizBattle.Runtime.dll
-[718/721    0s] ILPostProcess Library/Bee/artifacts/2000b0aE.dag/post-processed/Assembly-CSharp-Editor.dll (+pdb)
-Processing assembly Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp-Editor.dll, with 115 defines and 342 references
-
-processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
-
-running Unity.Jobs.CodeGen.JobsILPostProcessor
-
-running zzzUnity.Burst.CodeGen.BurstILPostProcessor
-[719/721    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb
-[720/721    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
-*** Tundra build success (5.32 seconds), 10 items updated, 721 evaluated
-Assets\Scripts\UI\UiFactory.cs(31,17): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-Assets\Scripts\UI\UiFactory.cs(59,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
-Assets\Scripts\Arena\ArenaEnvironment.cs(82,67): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
-Assets\Scripts\Arena\ArenaEnvironment.cs(82,35): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
-Assets\Scripts\Arena\ArenaEnvironment.cs(128,28): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-Assets\Scripts\Arena\CharacterToken.cs(141,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
-Assets\Scripts\Arena\Visuals\FloatingCombatText.cs(42,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
-Assets\Scripts\Arena\Vfx\VictoryFireworksController.cs(29,28): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-Assets\Editor\ArenaDemoRunner.cs(71,20): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-Assets\Editor\ArenaDemoRunner.cs(153,72): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
-Assets\Editor\ArenaDemoRunner.cs(153,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
-Assets\Editor\ArenaDemoRunner.cs(159,65): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
-Assets\Editor\ArenaDemoRunner.cs(159,32): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
-Assets\Editor\CaptureCurrentArena.cs(24,20): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-Assets\Editor\CaptureCurrentArena.cs(34,72): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
-Assets\Editor\CaptureCurrentArena.cs(34,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
-Assets\Editor\CaptureCurrentArena.cs(43,19): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-Assets\Editor\CaptureCurrentArena.cs(57,72): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
-Assets\Editor\CaptureCurrentArena.cs(57,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
-Assets\Editor\CaptureCurrentArena.cs(62,65): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
-Assets\Editor\CaptureCurrentArena.cs(62,32): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
-Assets\Editor\NetworkedMatchDemoRunner.cs(203,84): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
-Assets\Editor\NetworkedMatchDemoRunner.cs(203,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
-Total cache size 187449023
-Total cache size after purge 187449023, took 00:00:00.2327387
-AssetDatabase: script compilation time: 6.573526s
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/ConfigurePostProcessors - 200 - application/grpc 1178.3271ms
+ExitCode: 0 Duration: 1s514ms
+[422/721    0s] WriteResponseFile Library/Bee/artifacts/rsp/4747638433968585886.rsp
+[576/721    1s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
+*** Tundra build success (1.46 seconds), 2 items updated, 721 evaluated
+AssetDatabase: script compilation time: 9.729057s
 Begin MonoManager ReloadAssembly
 Symbol file LoadedFromMemory is not a mono symbol file
 Native extension for Android target not found
@@ -427,113 +270,89 @@ Native extension for WindowsStandalone target not found
 Native extension for WebGL target not found
 ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
 Mono: successfully reloaded assembly
-- Finished resetting the current domain, in  4.093 seconds
-Domain Reload Profiling: 5132ms
-	BeginReloadAssembly (319ms)
-		DisableScriptedObjects (35ms)
-		CreateAndSetChildDomain (67ms)
-	RebuildCommonClasses (13ms)
-	RebuildNativeTypeToScriptingClass (25ms)
-	initialDomainReloadingComplete (60ms)
-	LoadAllAssembliesAndSetupDomain (620ms)
-		LoadAssemblies (369ms)
-		AnalyzeDomain (244ms)
-			TypeCache.Refresh (163ms)
-				TypeCache.ScanAssembly (143ms)
-			BuildScriptInfoCaches (67ms)
-			ResolveRequiredComponents (10ms)
-	FinalizeReload (4095ms)
+- Finished resetting the current domain, in  7.019 seconds
+Domain Reload Profiling: 10400ms
+	BeginReloadAssembly (547ms)
+		DisableScriptedObjects (54ms)
+		CreateAndSetChildDomain (176ms)
+	RebuildCommonClasses (17ms)
+	RebuildNativeTypeToScriptingClass (31ms)
+	initialDomainReloadingComplete (75ms)
+	LoadAllAssembliesAndSetupDomain (2710ms)
+		LoadAssemblies (2150ms)
+		AnalyzeDomain (586ms)
+			TypeCache.Refresh (503ms)
+				TypeCache.ScanAssembly (484ms)
+			BuildScriptInfoCaches (68ms)
+			ResolveRequiredComponents (11ms)
+	FinalizeReload (7021ms)
 		SetupLoadedEditorAssemblies (0ms)
-			InitializePlatformSupportModulesInManaged (21ms)
-			BeforeProcessingInitializeOnLoad (137ms)
-			ProcessInitializeOnLoadAttributes (2952ms)
-			ProcessInitializeOnLoadMethodAttributes (579ms)
-			AfterProcessingInitializeOnLoad (6ms)
-		AwakeInstancesAfterBackupRestoration (46ms)
+			InitializePlatformSupportModulesInManaged (24ms)
+			BeforeProcessingInitializeOnLoad (154ms)
+			ProcessInitializeOnLoadAttributes (4329ms)
+			ProcessInitializeOnLoadMethodAttributes (2017ms)
+			AfterProcessingInitializeOnLoad (5ms)
+		AwakeInstancesAfterBackupRestoration (60ms)
 Starting new worker id: 0 with log in D:/game/game-client/Logs/AssetImportWorkerHW0.log
 
-Asset Pipeline Refresh (id=fe534abda0a42394a92c8e0c68854fe7): Total: 13.042 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+Asset Pipeline Refresh (id=486ccdb4aefe4784cbc83983733e02b4): Total: 32.206 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
 	(Values over 0.05ms)
 	Summary:
 		Imports: total=0 (actual=0, local cache=0, cache server=0)
-		Asset DB Process Time: managed=0 ms, native=4701 ms
-		Asset DB Callback time: managed=572 ms, native=48 ms
-		Scripting: domain reloads=1, domain reload time=1079 ms, compile time=6575 ms, other=64 ms
+		Asset DB Process Time: managed=0 ms, native=18814 ms
+		Asset DB Callback time: managed=61 ms, native=92 ms
+		Scripting: domain reloads=1, domain reload time=3456 ms, compile time=9731 ms, other=49 ms
 		Project Asset Count: scripts=950, non-scripts=1811
-		Asset File Changes: new=0, changed=2, moved=0, deleted=0
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
 		Scan Filter Count: 0
-	InvokePackagesCallback: 39.657ms
-	ApplyChangesToAssetFolders: 0.868ms
-	Scan: 164.602ms
-	Collect global state as custom dependencies: 32.258ms
-	OnSourceAssetsModified: 1.770ms
-	CategorizeScriptCompilationAssets: 40.036ms
-	ProcessAssetsWithTransientArtifactChanges: 57.687ms
-	CategorizeAssets: 62.626ms
-	CompileScripts: 6575.471ms
-	ImportOutOfDateAssets: 4195.610ms (4109.805ms without children)
-		ReloadNativeAssets: 0.053ms
-		UnloadImportedAssets: 1.339ms
-		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.799ms
-		ImportSchedulerStart: 83.610ms
-	PostProcessAllAssets: 575.123ms
-		VCAutoAddAssetPostprocess 2.952ms
-		XRBuildSystem.XRAssetImported 0.115ms
-		PostProcessCallbackCreateDeferredMaterials 0.057ms
-		MonoPostProcessAllAssets: 571.171ms
-			BuilderAssetPostprocessor.OnPostprocessAllAssets 229.514ms
-			AssetPostprocessor.OnPostprocessAllAssets 217.713ms
-			StyleCatalogPostProcessor.OnPostprocessAllAssets 29.052ms
-			UniversalRenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 25.034ms
-			WindowAssetPostprocessingWatcher.OnPostprocessAllAssets 3.844ms
-			SpeedTree9Postprocessor.OnPostprocessAllAssets 3.542ms
-			ShaderGraphAssetPostProcessor.OnPostprocessAllAssets 3.524ms
-			AssetChangedListener.OnPostprocessAllAssets 3.317ms
-			RetainedModeAssetPostprocessor.OnPostprocessAllAssets 2.338ms
-			SyncVS.PostprocessSyncProject 2.297ms
-			EditModeScopePostprocessor.OnPostprocessAllAssets 2.126ms
-			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 1.563ms
-			MaterialPostprocessor.OnPostprocessAllAssets 1.465ms
-			CubeLutAssetImporter.OnPostprocessAllAssets 1.117ms
-			ShaderReflectionAssetPostProcessor.OnPostprocessAllAssets 1.089ms
-			ArtifactBrowserPostProcessor.OnPostprocessAllAssets 1.001ms
-			ConfigAssetsTracker.OnPostprocessAllAssets 0.776ms
-			AudioMixerPostprocessor.OnPostprocessAllAssets 0.670ms
-			TextAssetPostProcessor.OnPostprocessAllAssets 0.662ms
-			SampleDependencyImporterPostProcessor.OnPostprocessAllAssets 0.645ms
-			PostProcessor.OnPostprocessAllAssets 0.639ms
-			TMPro_TexturePostProcessor.OnPostprocessAllAssets 0.634ms
-			ReferencedClipsPostProcessor.OnPostprocessAllAssets 0.567ms
-			AssetEvents.OnPostprocessAllAssets 0.445ms
-			TerrainToolbarOverlayPostProcessor.OnPostprocessAllAssets 0.417ms
-			AssetDatabaseCallbacks.OnPostprocessAllAssets 0.332ms
-			SpeedTreePostProcessor.OnPostprocessAllAssets 0.285ms
-			ScenarioDriftAssetsTracker.OnPostprocessAllAssets 0.279ms
-			AudioContainerPostProcessor.OnPostprocessAllAssets 0.155ms
-	PostAssetChangesProfiler: 7.090ms
-	UnloadStreamsBegin: 6.104ms
-	PersistCurrentRevisions: 0.169ms
-	GenerateScriptTypeHashes: 2.106ms
-	GenerateScriptTypeSerializationHashes: 3.653ms
-	Untracked: 1278.338ms
+	InvokePackagesCallback: 94.921ms
+	ApplyChangesToAssetFolders: 0.914ms
+	Scan: 145.616ms
+	Collect global state as custom dependencies: 34.166ms
+	CategorizeScriptCompilationAssets: 1351.914ms
+	ProcessAssetsWithTransientArtifactChanges: 61.153ms
+	CategorizeAssets: 80.662ms
+	CompileScripts: 9731.360ms
+	ImportOutOfDateAssets: 7160.110ms (7048.665ms without children)
+		ReloadNativeAssets: 0.059ms
+		UnloadImportedAssets: 1.529ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.940ms
+		ImportSchedulerStart: 108.911ms
+	PostProcessAllAssets: 62.029ms
+		MonoPostProcessAllAssets: 61.902ms
+			UniversalRenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 24.473ms
+			WindowAssetPostprocessingWatcher.OnPostprocessAllAssets 4.288ms
+			SpeedTree9Postprocessor.OnPostprocessAllAssets 3.869ms
+			SyncVS.PostprocessSyncProject 2.456ms
+			EditModeScopePostprocessor.OnPostprocessAllAssets 1.885ms
+			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 1.466ms
+			ShaderReflectionAssetPostProcessor.OnPostprocessAllAssets 0.726ms
+			ReferencedClipsPostProcessor.OnPostprocessAllAssets 0.601ms
+			AssetDatabaseCallbacks.OnPostprocessAllAssets 0.421ms
+			TerrainToolbarOverlayPostProcessor.OnPostprocessAllAssets 0.402ms
+	UnloadStreamsBegin: 6.336ms
+	PersistCurrentRevisions: 0.259ms
+	GenerateScriptTypeHashes: 2.713ms
+	GenerateScriptTypeSerializationHashes: 4.674ms
+	Untracked: 13471.171ms
 
 Application.AssetDatabase Initial Refresh End
-Launched and connected shader compiler UnityShaderCompiler.exe after 0.02 seconds
-Scanning for USB devices : 6.832ms
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.08 seconds
+Scanning for USB devices : 6.944ms
 Initializing Unity extensions:
 [MODES] ModeService[none].Initialize
 [MODES] ModeService[none].LoadModes
 [MODES] Loading mode Default (0) for mode-current-id-game-client
-Unloading 38 Unused Serialized files (Serialized files now loaded: 0)
-Unloading 3438 unused Assets / (7.7 MB). Loaded Objects now: 4408.
-Memory consumption went from 354.2 MB to 346.5 MB.
-Total: 26.236000 ms (FindLiveObjects: 0.847700 ms CreateObjectMapping: 2.328000 ms MarkObjects: 16.773600 ms  DeleteObjects: 6.276000 ms)
-
 Worker ready: AssetImportWorkerHW0 0
+Unloading 38 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 3438 unused Assets / (8.4 MB). Loaded Objects now: 4408.
+Memory consumption went from 350.4 MB to 342.0 MB.
+Total: 19.979000 ms (FindLiveObjects: 0.611900 ms CreateObjectMapping: 1.742600 ms MarkObjects: 10.317600 ms  DeleteObjects: 7.301100 ms)
+
 Unloading 1 Unused Serialized files (Serialized files now loaded: 0)
 Unloading 0 unused Assets / (2.2 KB). Loaded Objects now: 4410.
-Memory consumption went from 334.7 MB to 334.7 MB.
-Total: 12.965900 ms (FindLiveObjects: 0.360000 ms CreateObjectMapping: 0.656500 ms MarkObjects: 11.930800 ms  DeleteObjects: 0.017200 ms)
+Memory consumption went from 330.8 MB to 330.8 MB.
+Total: 13.115400 ms (FindLiveObjects: 0.460900 ms CreateObjectMapping: 0.751100 ms MarkObjects: 11.884900 ms  DeleteObjects: 0.017000 ms)
 
 Tile_0_0: Destroy may not be called from edit mode! Use DestroyImmediate instead.
 Destroying an object in edit mode destroys it permanently
@@ -5339,9 +5158,10 @@ CaptureCurrentArena:Capture () (at Assets/Editor/CaptureCurrentArena.cs:107)
 
 (Filename: Assets/Editor/CaptureCurrentArena.cs Line: 107)
 
-MonoPathRemapper: Attempts to remap: 19329; Successful remaps: 0
+MonoPathRemapper: Attempts to remap: 19161; Successful remaps: 0
+[Licensing::Client] Successfully resolved entitlement details
 Serialized file version minimum: 23, current 23
-Killing ADB server in 2.1174202 seconds.
+Killing ADB server in 2.162782 seconds.
 [Physics::Module] Cleanup current backend.
 [Physics::Module] Id: 0xf2b8ea05
 Input System module state changed to: ShutdownInProgress.
@@ -5353,16 +5173,16 @@ Shut down.
 AcceleratorClientConnectionCallback - disconnected - :0
 Cleanup mono
 CodeReloadManager destroyed
-abort_threads: Failed aborting id: 000000000000531C, mono_thread_manage will ignore it
+abort_threads: Failed aborting id: 000000000000603C, mono_thread_manage will ignore it
 
-abort_threads: Failed aborting id: 0000000000002B44, mono_thread_manage will ignore it
+abort_threads: Failed aborting id: 0000000000008918, mono_thread_manage will ignore it
 
-abort_threads: Failed aborting id: 000000000000531C, mono_thread_manage will ignore it
+abort_threads: Failed aborting id: 000000000000603C, mono_thread_manage will ignore it
 
-abort_threads: Failed aborting id: 0000000000002B44, mono_thread_manage will ignore it
+abort_threads: Failed aborting id: 0000000000008918, mono_thread_manage will ignore it
 
-debugger-agent: Unable to listen on 3376
+debugger-agent: Unable to listen on 3428
 Checking for leaked weakptr:
   Found no leaked weakptrs.
 [Package Manager] Server process was shutdown
-##utp:{"type":"MemoryLeaks","version":2,"phase":"Immediate","time":1787579498319,"processId":12844,"allocatedMemory":17496989,"memoryLabels":[{"Default":217376},{"Permanent":15516},{"NewDelete":66843},{"Thread":4205216},{"Manager":819461},{"VertexData":8},{"Geometry":816},{"Texture":24},{"Shader":848986},{"Material":24},{"GfxDevice":58328},{"Animation":952},{"Audio":1544},{"FreeType":8},{"FontEngine":736},{"Physics":2146},{"Physics2D":16},{"Serialization":760},{"Input":42840},{"JobScheduler":256},{"TextLib":280},{"Mono":48},{"MonoCode":64},{"ScriptingNativeRuntime":1634444},{"BaseObject":1622616},{"Resource":1208},{"Renderer":3080},{"Transform":4685},{"File":1032},{"WebCam":616},{"Culling":32},{"Terrain":11442},{"Wind":24},{"STL":40},{"String":15642},{"StaticString":3808},{"Utility":2673238},{"Curl":2559},{"PoolAlloc":2360},{"AI":80},{"TypeTree":25285},{"CodeReload":448},{"RuntimeInitializeOnLoadManager":64},{"Sprites":102},{"SpriteAtlas":120},{"GI":7816},{"Director":8296},{"CloudService":8360},{"WebRequest":589},{"VR":47114},{"SceneManager":608},{"Video":64},{"LazyScriptCache":32},{"Camera":17},{"Secure":2377},{"SerializationCache":1576},{"APIUpdating":10320},{"Subsystems":336},{"VirtualTexturing":57888},{"StaticSafetyDebugInfo":278528},{"Analytics":552},{"Hierarchy":1176},{"UIElements":72},{"CoreStats":13688},{"Identifiers":6768},{"Gui":128},{"EditorUtility":136616},{"VersionControl":8},{"Undo":931},{"AssetDatabase":4571594},{"AssetImporter":40},{"EditorGi":328},{"UnityConnect":38905},{"Upm":1912},{"UpmDiagnostics":8},{"AssetCompliance":64},{"DrivenProperties":72},{"LocalIPC":211},{"ProfilerEditor":9746},{"CoreBusinessMetrics":3428},{"Windowing":456},{"Licensing":1232},{"AssetReference":32},{"IPCStream":32}]}
+##utp:{"type":"MemoryLeaks","version":2,"phase":"Immediate","time":1787864343953,"processId":26820,"allocatedMemory":17488041,"memoryLabels":[{"Default":217376},{"Permanent":15516},{"NewDelete":66843},{"Thread":4205216},{"Manager":819461},{"VertexData":8},{"Geometry":816},{"Texture":24},{"Shader":848986},{"Material":24},{"GfxDevice":58328},{"Animation":952},{"Audio":1544},{"FreeType":8},{"FontEngine":736},{"Physics":2146},{"Physics2D":16},{"Serialization":760},{"Input":42840},{"JobScheduler":256},{"TextLib":280},{"Mono":48},{"MonoCode":64},{"ScriptingNativeRuntime":1618060},{"BaseObject":1622616},{"Resource":1208},{"Renderer":3080},{"Transform":4685},{"File":1032},{"WebCam":616},{"Culling":32},{"Terrain":11442},{"Wind":24},{"STL":40},{"String":22790},{"StaticString":3808},{"Utility":2673238},{"Curl":2559},{"PoolAlloc":2360},{"AI":80},{"TypeTree":25285},{"CodeReload":448},{"RuntimeInitializeOnLoadManager":64},{"Sprites":102},{"SpriteAtlas":120},{"GI":7816},{"Director":8296},{"CloudService":8648},{"WebRequest":589},{"VR":47114},{"SceneManager":608},{"Video":64},{"LazyScriptCache":32},{"Camera":17},{"Secure":2377},{"SerializationCache":1576},{"APIUpdating":10320},{"Subsystems":336},{"VirtualTexturing":57888},{"StaticSafetyDebugInfo":278528},{"Analytics":552},{"Hierarchy":1176},{"UIElements":72},{"CoreStats":13688},{"Identifiers":6768},{"Gui":128},{"EditorUtility":136616},{"VersionControl":8},{"Undo":931},{"AssetDatabase":4571594},{"AssetImporter":40},{"EditorGi":328},{"UnityConnect":38905},{"Upm":1912},{"UpmDiagnostics":8},{"AssetCompliance":64},{"DrivenProperties":72},{"LocalIPC":211},{"ProfilerEditor":9746},{"CoreBusinessMetrics":3428},{"Windowing":456},{"Licensing":1232},{"AssetReference":32},{"IPCStream":32}]}

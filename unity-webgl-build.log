@@ -5,8 +5,8 @@ OS: 'Windows 11  (10.0.26200) Professional' Language: 'en' Physical Memory: 3236
 BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
 System  architecture: x64
 Process architecture: x64
-Date: 2026-08-23T20:38:30Z
-[Licensing::Module] Successfully launched the LicensingClient (PId: 25664)
+Date: 2026-08-27T21:50:19Z
+[Licensing::Module] Successfully launched the LicensingClient (PId: 12604)
 
 COMMAND LINE ARGUMENTS:
 D:\Program Files\Editor\6000.5.7f1\Editor\Unity.exe
@@ -58,29 +58,29 @@ D:/game/game-client
     "memorysetup-job-temp-allocator-block-size=2097152"
     "memorysetup-job-temp-allocator-block-size-background=1048576"
     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
-Logging is directed to a specific file, skipping project log.Player connection [19952]  Target information:
+Logging is directed to a specific file, skipping project log.Player connection [33240]  Target information:
 
-Player connection [19952]  * "[IP] 10.0.0.111 [Port] 55504 [Flags] 2 [Guid] 2203858915 [EditorId] 2203858915 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-VJHN5MG) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+Player connection [33240]  * "[IP] 10.0.0.111 [Port] 55504 [Flags] 2 [Guid] 3876026047 [EditorId] 3876026047 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-VJHN5MG) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
 
-Player connection [19952] Host joined multi-casting on [225.0.0.222:54997]...
-Player connection [19952] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Player connection [33240] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [33240] Host joined alternative multi-casting on [225.0.0.222:34997]...
 Input System module state changed to: Initialized.
 [Physics::Module] Initialized fallback backend.
 [Physics::Module] Id: 0xdecafbad
-[Licensing::IpcConnector] Successfully connected to: "LicenseClient-engmh" at "2026-08-23T20:38:32.3562803Z"
-[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 25664, path: "D:/Program Files/Editor/6000.5.7f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-engmh" at "2026-08-27T21:50:19.6816131Z"
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 12604, path: "D:/Program Files/Editor/6000.5.7f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
 [Licensing::Module] LicensingClient has failed validation; ignoring
-[Package Manager] Connected to IPC stream "Upm-27424" after 1.5 seconds.
+[Package Manager] Connected to IPC stream "Upm-34072" after 0.9 seconds.
 [Licensing::Module] Licensing is not yet initialized.
 [Licensing::Client] Handshaking with LicensingClient:
   Version:                 1.18.1+9fbee8e
-  Session Id:              b18eb99b3a384e06a45d6b66b6e5f966
-  Correlation Id:          e7b724425d9b67bd5456441ae4069d22
-  External correlation Id: 3603853701543125713
+  Session Id:              46b9f45a36954173bfcbc56464c2f0e4
+  Correlation Id:          767f8c7bafe5b7571713fdebc3bc3e38
+  External correlation Id: 7161615813896732544
   Machine Id:              BvCvD9V+nLWzZG/D2RgCqRIYhiE=
-[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-engmh" (connect: 1.94s, validation: 0.47s, handshake: 0.22s)
-[Licensing::IpcConnector] Successfully connected to: "LicenseClient-engmh-notifications" at "2026-08-23T20:38:33.0492517Z"
-[Licensing::Module] Connected to LicensingClient (PId: 25664, launch time: 0.02, total connection time: 2.64s)
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-engmh" (connect: 0.57s, validation: 0.38s, handshake: 0.37s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-engmh-notifications" at "2026-08-27T21:50:20.4308326Z"
+[Licensing::Module] Connected to LicensingClient (PId: 12604, launch time: 0.01, total connection time: 1.32s)
 [Licensing::Module] Error: Access token is unavailable; failed to update
 [Licensing::Client] Successfully resolved entitlement details
 [Licensing::Module] License group:
@@ -88,10 +88,10 @@ Input System module state changed to: Initialized.
   Product: Unity Personal
   Type: Assigned
   Expiration: Unlimited
-[Licensing::Client] Successfully updated license, isAsync: True, time: 0.04
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.02
 [Licensing::Client] Successfully resolved entitlement details
-[Licensing::Module] Licensing Background thread has ended after 2.89s
-[Licensing::Module] Licensing is initialized (took 0.65s).
+[Licensing::Module] Licensing Background thread has ended after 1.43s
+[Licensing::Module] Licensing is initialized (took 0.17s).
 [Licensing::Client] Successfully resolved entitlement details
 Library Redirect Path: Library/
 [Physics::Module] Selected backend.
@@ -120,7 +120,7 @@ Mono path[0] = 'D:/Program Files/Editor/6000.5.7f1/Editor/Data/Managed'
 Mono path[1] = 'D:/Program Files/Editor/6000.5.7f1/Editor/Data/BCLExtensions/runtime/netstandard2.1'
 Mono path[2] = 'D:/Program Files/Editor/6000.5.7f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
 Mono config path = 'D:/Program Files/Editor/6000.5.7f1/Editor/Data/MonoBleedingEdge/etc'
-Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56424
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56072
 CodeReloadManager initialized
 ImportWorker Server TCP listen port: 0
 AcceleratorClientConnectionCallback - disconnected - :0
@@ -132,7 +132,7 @@ Register platform support module: D:/Program Files/Editor/6000.5.7f1/Editor/Data
 Register platform support module: D:/Program Files/Editor/6000.5.7f1/Editor/Data/PlaybackEngines/MetroSupport/UnityEditor.UWP.Extensions.dll
 [Licensing::Client] Successfully resolved entitlement details
 Register platform support module: D:/Program Files/Editor/6000.5.7f1/Editor/Data/PlaybackEngines/AndroidPlayer/UnityEditor.Android.Extensions.dll
-Registered in 0.024006 seconds.
+Registered in 0.009113 seconds.
 Native extension for Android target not found
 Native extension for UWP target not found
 Native extension for WindowsStandalone target not found
@@ -140,25 +140,24 @@ Native extension for WebGL target not found
 Package Manager log level set to [2]
 ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:True
 Mono: successfully reloaded assembly
-- Finished resetting the current domain, in  1.975 seconds
-Domain Reload Profiling: 4162ms
-	BeginReloadAssembly (477ms)
-		CreateAndSetChildDomain (6ms)
-	RebuildCommonClasses (21ms)
-	RebuildNativeTypeToScriptingClass (74ms)
-	initialDomainReloadingComplete (271ms)
-	LoadAllAssembliesAndSetupDomain (1330ms)
-		LoadAssemblies (471ms)
-		AnalyzeDomain (974ms)
-			TypeCache.Refresh (967ms)
-				TypeCache.ScanAssembly (912ms)
-			BuildScriptInfoCaches (3ms)
-	FinalizeReload (1990ms)
+- Finished resetting the current domain, in  0.778 seconds
+Domain Reload Profiling: 1694ms
+	BeginReloadAssembly (220ms)
+		CreateAndSetChildDomain (18ms)
+	RebuildCommonClasses (8ms)
+	RebuildNativeTypeToScriptingClass (30ms)
+	initialDomainReloadingComplete (105ms)
+	LoadAllAssembliesAndSetupDomain (545ms)
+		LoadAssemblies (202ms)
+		AnalyzeDomain (393ms)
+			TypeCache.Refresh (390ms)
+				TypeCache.ScanAssembly (364ms)
+	FinalizeReload (786ms)
 		SetupLoadedEditorAssemblies (0ms)
-			InitializePlatformSupportModulesInManaged (222ms)
-			BeforeProcessingInitializeOnLoad (376ms)
-			ProcessInitializeOnLoadAttributes (395ms)
-			ProcessInitializeOnLoadMethodAttributes (593ms)
+			InitializePlatformSupportModulesInManaged (86ms)
+			BeforeProcessingInitializeOnLoad (171ms)
+			ProcessInitializeOnLoadAttributes (175ms)
+			ProcessInitializeOnLoadMethodAttributes (197ms)
 [Licensing::Client] Successfully resolved entitlement details
 Application.AssetDatabase Initial Refresh Start
 [Package Manager] Restoring resolved packages state from cache
@@ -223,19 +222,18 @@ Application.AssetDatabase Initial Refresh Start
     com.endel.nativewebsocket@https://github.com/endel/NativeWebSocket.git#upm (location: D:\game\game-client\Library\PackageCache\com.endel.nativewebsocket@ea014c9ae534)
 [Package Manager] com.unity.textmeshpro is deprecated: This package is no longer supported. TextMeshPro functionalities are now included in the com.unity.ugui package. To continue using them, consider adding it to your project dependencies.
 [Subsystems] No new subsystems found in resolved package list.
-[Package Manager] Done registering packages in 0.08 seconds
+[Package Manager] Done registering packages in 0.04 seconds
 [ScriptCompilation] Requested script compilation because: AssetDatabase observed changes in script compilation related files
 Starting: D:\Program Files\Editor\6000.5.7f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/2000b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
 WorkingDir: D:/game/game-client
 DisplayProgressbar: Compiling Scripts
-ExitCode: 0 Duration: 14s
-[367/721    0s] WriteResponseFile Library/Bee/artifacts/rsp/4747638433968585886.rsp
+ExitCode: 0 Duration: 6s847ms
+[421/721    0s] WriteResponseFile Library/Bee/artifacts/rsp/4747638433968585886.rsp
 [573/721    0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
-[BUSY       6s] Csc Library/Bee/artifacts/2000b0aE.dag/QuizBattle.Runtime.dll (+2 others)
-[709/721    9s] Csc Library/Bee/artifacts/2000b0aE.dag/QuizBattle.Runtime.dll (+2 others)
-Assets\Scripts\UI\UiFactory.cs(33,17): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+[709/721    4s] Csc Library/Bee/artifacts/2000b0aE.dag/QuizBattle.Runtime.dll (+2 others)
+Assets\Scripts\UI\UiFactory.cs(31,17): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
 
-Assets\Scripts\UI\UiFactory.cs(61,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
+Assets\Scripts\UI\UiFactory.cs(59,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
 
 Assets\Scripts\Arena\ArenaEnvironment.cs(82,67): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
 
@@ -243,12 +241,13 @@ Assets\Scripts\Arena\ArenaEnvironment.cs(82,35): warning CS0618: 'Object.FindObj
 
 Assets\Scripts\Arena\ArenaEnvironment.cs(128,28): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
 
+Assets\Scripts\Arena\Visuals\FloatingCombatText.cs(42,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
+
 Assets\Scripts\Arena\CharacterToken.cs(141,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
 
 Assets\Scripts\Arena\Vfx\VictoryFireworksController.cs(29,28): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-
-Assets\Scripts\Arena\Visuals\FloatingCombatText.cs(42,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
-[712/721    0s] ILPostProcess Library/Bee/artifacts/2000b0aE.dag/post-processed/QuizBattle.Runtime.dll (+pdb)
+[710/721    0s] Csc Library/Bee/artifacts/2000b0aE.dag/QuizBattle.Tests.EditMode.dll (+2 others)
+[711/721    0s] ILPostProcess Library/Bee/artifacts/2000b0aE.dag/post-processed/QuizBattle.Runtime.dll (+pdb)
 Processing assembly Library/Bee/artifacts/2000b0aE.dag/QuizBattle.Runtime.dll, with 117 defines and 290 references
 
 processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
@@ -256,6 +255,7 @@ processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.Burst
 running Unity.Jobs.CodeGen.JobsILPostProcessor
 
 running zzzUnity.Burst.CodeGen.BurstILPostProcessor
+[712/721    0s] CopyFiles Library/ScriptAssemblies/QuizBattle.Runtime.pdb
 [713/721    0s] ILPostProcess Library/Bee/artifacts/2000b0aE.dag/post-processed/QuizBattle.Tests.EditMode.dll (+pdb)
 Processing assembly Library/Bee/artifacts/2000b0aE.dag/QuizBattle.Tests.EditMode.dll, with 115 defines and 297 references
 
@@ -264,9 +264,40 @@ processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.Burst
 running Unity.Jobs.CodeGen.JobsILPostProcessor
 
 running zzzUnity.Burst.CodeGen.BurstILPostProcessor
-[715/721    0s] CopyFiles Library/ScriptAssemblies/QuizBattle.Runtime.pdb
+[714/721    0s] CopyFiles Library/ScriptAssemblies/QuizBattle.Tests.EditMode.pdb
+[715/721    0s] CopyFiles Library/ScriptAssemblies/QuizBattle.Tests.EditMode.dll
+[716/721    0s] Csc Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp-Editor.dll (+2 others)
+Assets\Editor\ArenaDemoRunner.cs(71,20): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+
+Assets\Editor\CaptureCurrentArena.cs(24,20): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+
+Assets\Editor\CaptureCurrentArena.cs(34,101): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\CaptureCurrentArena.cs(34,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\CaptureCurrentArena.cs(43,19): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+
+Assets\Editor\CaptureCurrentArena.cs(57,72): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\CaptureCurrentArena.cs(57,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\CaptureCurrentArena.cs(62,65): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\CaptureCurrentArena.cs(62,32): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ArenaDemoRunner.cs(153,72): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ArenaDemoRunner.cs(153,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\ArenaDemoRunner.cs(159,65): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\ArenaDemoRunner.cs(159,32): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\Editor\NetworkedMatchDemoRunner.cs(203,84): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\Editor\NetworkedMatchDemoRunner.cs(203,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
 [717/721    0s] CopyFiles Library/ScriptAssemblies/QuizBattle.Runtime.dll
-[718/721    3s] ILPostProcess Library/Bee/artifacts/2000b0aE.dag/post-processed/Assembly-CSharp-Editor.dll (+pdb)
+[718/721    0s] ILPostProcess Library/Bee/artifacts/2000b0aE.dag/post-processed/Assembly-CSharp-Editor.dll (+pdb)
 Processing assembly Library/Bee/artifacts/2000b0aE.dag/Assembly-CSharp-Editor.dll, with 115 defines and 342 references
 
 processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.BurstILPostProcessor
@@ -274,18 +305,35 @@ processors: Unity.Jobs.CodeGen.JobsILPostProcessor, zzzUnity.Burst.CodeGen.Burst
 running Unity.Jobs.CodeGen.JobsILPostProcessor
 
 running zzzUnity.Burst.CodeGen.BurstILPostProcessor
-*** Tundra build success (14.03 seconds), 8 items updated, 721 evaluated
-Assets\Scripts\UI\UiFactory.cs(33,17): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-Assets\Scripts\UI\UiFactory.cs(61,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
+[719/721    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb
+[720/721    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
+*** Tundra build success (6.78 seconds), 14 items updated, 721 evaluated
+Assets\Scripts\UI\UiFactory.cs(31,17): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets\Scripts\UI\UiFactory.cs(59,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
 Assets\Scripts\Arena\ArenaEnvironment.cs(82,67): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
 Assets\Scripts\Arena\ArenaEnvironment.cs(82,35): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
 Assets\Scripts\Arena\ArenaEnvironment.cs(128,28): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets\Scripts\Arena\Visuals\FloatingCombatText.cs(42,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
 Assets\Scripts\Arena\CharacterToken.cs(141,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
 Assets\Scripts\Arena\Vfx\VictoryFireworksController.cs(29,28): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-Assets\Scripts\Arena\Visuals\FloatingCombatText.cs(42,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
+Assets\Editor\ArenaDemoRunner.cs(71,20): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets\Editor\CaptureCurrentArena.cs(24,20): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets\Editor\CaptureCurrentArena.cs(34,101): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\CaptureCurrentArena.cs(34,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\CaptureCurrentArena.cs(43,19): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets\Editor\CaptureCurrentArena.cs(57,72): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\CaptureCurrentArena.cs(57,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\CaptureCurrentArena.cs(62,65): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\CaptureCurrentArena.cs(62,32): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ArenaDemoRunner.cs(153,72): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ArenaDemoRunner.cs(153,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\ArenaDemoRunner.cs(159,65): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\ArenaDemoRunner.cs(159,32): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\Editor\NetworkedMatchDemoRunner.cs(203,84): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\Editor\NetworkedMatchDemoRunner.cs(203,31): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
 Total cache size 187449023
-Total cache size after purge 187449023, took 00:00:00.2615030
-AssetDatabase: script compilation time: 16.030941s
+Total cache size after purge 187449023, took 00:00:00.3320718
+AssetDatabase: script compilation time: 8.576751s
 Begin MonoManager ReloadAssembly
 Native extension for Android target not found
 Native extension for UWP target not found
@@ -293,110 +341,113 @@ Native extension for WindowsStandalone target not found
 Native extension for WebGL target not found
 ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
 Mono: successfully reloaded assembly
-- Finished resetting the current domain, in  4.644 seconds
-Domain Reload Profiling: 5921ms
-	BeginReloadAssembly (394ms)
-		DisableScriptedObjects (43ms)
-		CreateAndSetChildDomain (82ms)
+- Finished resetting the current domain, in  5.014 seconds
+Domain Reload Profiling: 6428ms
+	BeginReloadAssembly (461ms)
+		DisableScriptedObjects (71ms)
+		CreateAndSetChildDomain (78ms)
 	RebuildCommonClasses (17ms)
-	RebuildNativeTypeToScriptingClass (34ms)
-	initialDomainReloadingComplete (79ms)
-	LoadAllAssembliesAndSetupDomain (750ms)
-		LoadAssemblies (458ms)
-		AnalyzeDomain (291ms)
-			TypeCache.Refresh (190ms)
-				TypeCache.ScanAssembly (166ms)
-			BuildScriptInfoCaches (84ms)
-			ResolveRequiredComponents (13ms)
-	FinalizeReload (4647ms)
+	RebuildNativeTypeToScriptingClass (36ms)
+	initialDomainReloadingComplete (81ms)
+	LoadAllAssembliesAndSetupDomain (815ms)
+		LoadAssemblies (507ms)
+		AnalyzeDomain (280ms)
+			TypeCache.Refresh (183ms)
+				TypeCache.ScanAssembly (161ms)
+			BuildScriptInfoCaches (80ms)
+			ResolveRequiredComponents (12ms)
+	FinalizeReload (5017ms)
 		SetupLoadedEditorAssemblies (0ms)
-			InitializePlatformSupportModulesInManaged (26ms)
-			BeforeProcessingInitializeOnLoad (172ms)
-			ProcessInitializeOnLoadAttributes (3411ms)
-			ProcessInitializeOnLoadMethodAttributes (552ms)
-			AfterProcessingInitializeOnLoad (5ms)
-		AwakeInstancesAfterBackupRestoration (52ms)
+			InitializePlatformSupportModulesInManaged (29ms)
+			BeforeProcessingInitializeOnLoad (213ms)
+			ProcessInitializeOnLoadAttributes (3616ms)
+			ProcessInitializeOnLoadMethodAttributes (621ms)
+			AfterProcessingInitializeOnLoad (4ms)
+		AwakeInstancesAfterBackupRestoration (50ms)
 Starting new worker id: 0 with log in D:/game/game-client/Logs/AssetImportWorkerHW0.log
 
-Asset Pipeline Refresh (id=53debb2c09ff404479572c662d295d2e): Total: 23.756 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+Asset Pipeline Refresh (id=51812a0508af1024198784e786ead480): Total: 16.562 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
 	(Values over 0.05ms)
 	Summary:
 		Imports: total=0 (actual=0, local cache=0, cache server=0)
-		Asset DB Process Time: managed=0 ms, native=5546 ms
-		Asset DB Callback time: managed=614 ms, native=99 ms
-		Scripting: domain reloads=1, domain reload time=1326 ms, compile time=16033 ms, other=134 ms
+		Asset DB Process Time: managed=0 ms, native=5790 ms
+		Asset DB Callback time: managed=568 ms, native=56 ms
+		Scripting: domain reloads=1, domain reload time=1489 ms, compile time=8587 ms, other=69 ms
 		Project Asset Count: scripts=950, non-scripts=1811
-		Asset File Changes: new=0, changed=1, moved=0, deleted=0
+		Asset File Changes: new=0, changed=2, moved=0, deleted=0
 		Scan Filter Count: 0
-	InvokePackagesCallback: 91.276ms
-	ApplyChangesToAssetFolders: 1.431ms
-	Scan: 276.266ms
-	Collect global state as custom dependencies: 45.006ms
-	OnSourceAssetsModified: 3.151ms
-	CategorizeScriptCompilationAssets: 68.574ms
-	ProcessAssetsWithTransientArtifactChanges: 66.297ms
-	CategorizeAssets: 80.573ms
-	CompileScripts: 16033.380ms
-	ImportOutOfDateAssets: 4754.814ms (4663.823ms without children)
-		UnloadImportedAssets: 1.181ms
-		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.914ms
-		ImportSchedulerStart: 88.845ms
-	PostProcessAllAssets: 615.604ms
-		VCAutoAddAssetPostprocess 2.473ms
-		XRBuildSystem.XRAssetImported 0.134ms
-		MonoPostProcessAllAssets: 612.101ms
-			AssetPostprocessor.OnPostprocessAllAssets 239.358ms
-			BuilderAssetPostprocessor.OnPostprocessAllAssets 225.499ms
-			StyleCatalogPostProcessor.OnPostprocessAllAssets 33.154ms
-			UniversalRenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 23.251ms
-			ConfigAssetsTracker.OnPostprocessAllAssets 13.111ms
-			WindowAssetPostprocessingWatcher.OnPostprocessAllAssets 7.247ms
-			AssetChangedListener.OnPostprocessAllAssets 4.306ms
-			SpeedTree9Postprocessor.OnPostprocessAllAssets 4.233ms
-			ShaderGraphAssetPostProcessor.OnPostprocessAllAssets 3.433ms
-			RetainedModeAssetPostprocessor.OnPostprocessAllAssets 2.580ms
-			SyncVS.PostprocessSyncProject 2.456ms
-			EditModeScopePostprocessor.OnPostprocessAllAssets 2.251ms
-			MaterialPostprocessor.OnPostprocessAllAssets 1.503ms
-			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 1.418ms
-			TMPro_TexturePostProcessor.OnPostprocessAllAssets 1.112ms
-			ArtifactBrowserPostProcessor.OnPostprocessAllAssets 1.041ms
-			CubeLutAssetImporter.OnPostprocessAllAssets 1.032ms
-			AudioMixerPostprocessor.OnPostprocessAllAssets 0.812ms
-			SampleDependencyImporterPostProcessor.OnPostprocessAllAssets 0.757ms
-			TextAssetPostProcessor.OnPostprocessAllAssets 0.735ms
-			ShaderReflectionAssetPostProcessor.OnPostprocessAllAssets 0.683ms
-			AssetDatabaseCallbacks.OnPostprocessAllAssets 0.641ms
-			ReferencedClipsPostProcessor.OnPostprocessAllAssets 0.634ms
-			AssetEvents.OnPostprocessAllAssets 0.517ms
-			PostProcessor.OnPostprocessAllAssets 0.467ms
-			TerrainToolbarOverlayPostProcessor.OnPostprocessAllAssets 0.419ms
-			ScenarioDriftAssetsTracker.OnPostprocessAllAssets 0.355ms
-			SpeedTreePostProcessor.OnPostprocessAllAssets 0.332ms
-			AudioContainerPostProcessor.OnPostprocessAllAssets 0.238ms
-	PostAssetChangesProfiler: 7.472ms
-	UnloadStreamsBegin: 12.786ms
-	PersistCurrentRevisions: 0.190ms
-	GenerateScriptTypeHashes: 2.762ms
-	GenerateScriptTypeSerializationHashes: 4.782ms
-	Untracked: 1693.456ms
+	InvokePackagesCallback: 46.188ms
+	ApplyChangesToAssetFolders: 0.992ms
+	Scan: 194.001ms
+	Collect global state as custom dependencies: 44.425ms
+	OnSourceAssetsModified: 1.374ms
+	CategorizeScriptCompilationAssets: 40.523ms
+	ProcessAssetsWithTransientArtifactChanges: 98.223ms
+	CategorizeAssets: 97.488ms
+	CompileScripts: 8586.989ms
+	ImportOutOfDateAssets: 5136.291ms (5034.011ms without children)
+		ReloadNativeAssets: 0.050ms
+		UnloadImportedAssets: 1.585ms
+		EnsureUptoDateAssetsAreRegisteredWithGuidPM: 0.920ms
+		ImportSchedulerStart: 99.718ms
+	PostProcessAllAssets: 573.157ms
+		VCAutoAddAssetPostprocess 4.250ms
+		XRBuildSystem.XRAssetImported 0.192ms
+		PostProcessCallbackCreateDeferredMaterials 0.097ms
+		ShaderAssetModifiedCallback 0.052ms
+		MonoPostProcessAllAssets: 567.568ms
+			AssetPostprocessor.OnPostprocessAllAssets 242.398ms
+			BuilderAssetPostprocessor.OnPostprocessAllAssets 178.206ms
+			StyleCatalogPostProcessor.OnPostprocessAllAssets 37.078ms
+			UniversalRenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 24.649ms
+			WindowAssetPostprocessingWatcher.OnPostprocessAllAssets 7.416ms
+			SpeedTree9Postprocessor.OnPostprocessAllAssets 3.882ms
+			ShaderGraphAssetPostProcessor.OnPostprocessAllAssets 3.858ms
+			AssetChangedListener.OnPostprocessAllAssets 3.351ms
+			EditModeScopePostprocessor.OnPostprocessAllAssets 2.601ms
+			RetainedModeAssetPostprocessor.OnPostprocessAllAssets 2.514ms
+			SyncVS.PostprocessSyncProject 2.496ms
+			MaterialPostprocessor.OnPostprocessAllAssets 1.536ms
+			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 1.525ms
+			ArtifactBrowserPostProcessor.OnPostprocessAllAssets 1.098ms
+			CubeLutAssetImporter.OnPostprocessAllAssets 0.980ms
+			TMPro_TexturePostProcessor.OnPostprocessAllAssets 0.942ms
+			SampleDependencyImporterPostProcessor.OnPostprocessAllAssets 0.911ms
+			ConfigAssetsTracker.OnPostprocessAllAssets 0.863ms
+			ReferencedClipsPostProcessor.OnPostprocessAllAssets 0.722ms
+			TextAssetPostProcessor.OnPostprocessAllAssets 0.721ms
+			AudioMixerPostprocessor.OnPostprocessAllAssets 0.687ms
+			ShaderReflectionAssetPostProcessor.OnPostprocessAllAssets 0.656ms
+			AssetEvents.OnPostprocessAllAssets 0.543ms
+			AssetDatabaseCallbacks.OnPostprocessAllAssets 0.500ms
+			PostProcessor.OnPostprocessAllAssets 0.464ms
+			TerrainToolbarOverlayPostProcessor.OnPostprocessAllAssets 0.424ms
+			ScenarioDriftAssetsTracker.OnPostprocessAllAssets 0.332ms
+			SpeedTreePostProcessor.OnPostprocessAllAssets 0.301ms
+			AudioContainerPostProcessor.OnPostprocessAllAssets 0.197ms
+	PostAssetChangesProfiler: 7.868ms
+	UnloadStreamsBegin: 7.109ms
+	PersistCurrentRevisions: 0.281ms
+	GenerateScriptTypeHashes: 2.931ms
+	GenerateScriptTypeSerializationHashes: 5.031ms
+	Untracked: 1719.181ms
 
 Application.AssetDatabase Initial Refresh End
 Launched and connected shader compiler UnityShaderCompiler.exe after 0.03 seconds
-Scanning for USB devices : 21.732ms
+Scanning for USB devices : 7.435ms
 Initializing Unity extensions:
 [MODES] ModeService[none].Initialize
 [MODES] ModeService[none].LoadModes
 [MODES] Loading mode Default (0) for mode-current-id-game-client
 Unloading 38 Unused Serialized files (Serialized files now loaded: 0)
-Unloading 3438 unused Assets / (7.9 MB). Loaded Objects now: 4408.
-Memory consumption went from 354.0 MB to 346.0 MB.
-Total: 21.320800 ms (FindLiveObjects: 0.657400 ms CreateObjectMapping: 1.812800 ms MarkObjects: 11.682900 ms  DeleteObjects: 7.161400 ms)
+Unloading 3438 unused Assets / (7.8 MB). Loaded Objects now: 4408.
+Memory consumption went from 355.2 MB to 347.3 MB.
+Total: 22.112900 ms (FindLiveObjects: 0.591600 ms CreateObjectMapping: 1.612300 ms MarkObjects: 14.057900 ms  DeleteObjects: 5.845900 ms)
 
 Worker ready: AssetImportWorkerHW0 0
 Importing 'GUID: cf2342422fda8d04eaa4f9b0f45e364e - Path: Assets/Settings/QuizBattle_URP.asset' with importer (NativeFormatImporter)
 Imported 'GUID: cf2342422fda8d04eaa4f9b0f45e364e' -> (Import Result ID: 'fd584a0ebb756d0e6b4c5aed8396a28b') in 0.012 seconds [static dependencies only]. Details - ImportResultOutputID=bd7714e165152afead7b5d18422af6cf DependenciesID=3918f9fffe4d19d916e62da0bd3558fd StaticDependenciesID=4ca6397c2d058c4a771e6f0071d07488 
-Asset Pipeline Refresh (id=2ed9cebdd6dd9eb43a97b7f29059797c): Total: 0.178 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Asset Pipeline Refresh (id=a605c5608659cfa4c8a306608f9be640): Total: 0.166 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
 1 URP assets included in build
 - QuizBattle_URP - Assets/Settings/QuizBattle_URP.asset
 	 - QuizBattle_Renderer - Assets/Settings/QuizBattle_Renderer.asset - UnityEngine.Rendering.Universal.UniversalRendererData
@@ -418,8 +469,8 @@ QuizBattle.EditorTools.Graphics.WebGLBuildCheck:Run () (at Assets/Editor/Graphic
 (Filename: ./Library/PackageCache/com.unity.render-pipelines.universal@73b4c4ff130e/Editor/BuildProcessors/URPPreprocessBuild.cs Line: 73)
 
 Importing 'GUID: cf2342422fda8d04eaa4f9b0f45e364e - Path: Assets/Settings/QuizBattle_URP.asset' with importer (NativeFormatImporter)
-Imported 'GUID: cf2342422fda8d04eaa4f9b0f45e364e' -> (Import Result ID: 'fd584a0ebb756d0e6b4c5aed8396a28b') in 0.003 seconds [static dependencies only]. Details - ImportResultOutputID=bd7714e165152afead7b5d18422af6cf DependenciesID=3918f9fffe4d19d916e62da0bd3558fd StaticDependenciesID=4ca6397c2d058c4a771e6f0071d07488 
-Asset Pipeline Refresh (id=071314c0cf7db0443adc729deae5df75): Total: 0.085 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Imported 'GUID: cf2342422fda8d04eaa4f9b0f45e364e' -> (Import Result ID: 'fd584a0ebb756d0e6b4c5aed8396a28b') in 0.002 seconds [static dependencies only]. Details - ImportResultOutputID=bd7714e165152afead7b5d18422af6cf DependenciesID=3918f9fffe4d19d916e62da0bd3558fd StaticDependenciesID=4ca6397c2d058c4a771e6f0071d07488 
+Asset Pipeline Refresh (id=1b1bbc922ad7dad4caf9be969767629e): Total: 0.080 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
 [TestRunBuilder] Creating new file 'Assets/Resources/PerformanceTestRunInfo.json' (2795 bytes)
 UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
 UnityEngine.StackTraceUtility:ExtractStackTrace ()
@@ -462,76 +513,76 @@ Importing 'GUID: 00000000000000006100000000000000 - Path: ProjectSettings/Graphi
 Imported 'GUID: 00000000000000006100000000000000' -> (Import Result ID: '917dab962521ffd745c5319654cd247d') in 0.001 seconds [static dependencies only]. Details - ImportResultOutputID=f9600466f06a676b7a4f639f6629ea48 DependenciesID=1b66da579ce9cfd02b12e2f794434bd1 StaticDependenciesID=abefacc7d477d32a1addf770cdf6f39c 
 Importing 'GUID: c05740c4af7833e41afeedbba91446e4 - Path: Assets/UniversalRenderPipelineGlobalSettings.asset' with importer (NativeFormatImporter)
 Imported 'GUID: c05740c4af7833e41afeedbba91446e4' -> (Import Result ID: 'bd18a8358771e2c109b3c626b361dc97') in 0.002 seconds [static dependencies only]. Details - ImportResultOutputID=2bd3fa82ca71d1e86d7a87a3d88ca2fe DependenciesID=cff2fe16b23661deaba4a45b39ed4637 StaticDependenciesID=8ace4b5fb269e7d2cf206c0c4f4515a1 
-Asset Pipeline Refresh (id=2430d4589ebb4bd44944745c31492082): Total: 0.095 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Asset Pipeline Refresh (id=63200bad73a6fd04fb8ede0aa521f7ac): Total: 0.091 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
 Starting: D:\Program Files\Editor\6000.5.7f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/2000b0aESkipCompile.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssembliesAndTypeDB
 WorkingDir: D:/game/game-client
-ExitCode: 0 Duration: 2s235ms
+ExitCode: 0 Duration: 2s155ms
 [2/3        2s] BuildPlayerDataGenerator Library/BuildPlayerData/Editor/TypeDb-All.json
-*** Tundra build success (2.17 seconds), 1 items updated, 3 evaluated
-Importing 'GUID: fad265928385c5943a2bf0785fcf92c2 - Path: Assets/Resources/PerformanceTestRunSettings.json' with importer (TextScriptImporter)
-Imported 'GUID: fad265928385c5943a2bf0785fcf92c2' -> (Import Result ID: 'd8bedc0589234d8afb867501e27c1de5') in 0.021 seconds [static dependencies only]. Details - ImportResultOutputID=12eb9e3176b1c8468d70a1b9726c72e4 DependenciesID=6dd276446847c723dce3d8ab9f5d21f0 StaticDependenciesID=80a19e5274b0448617a3bfc844955d11 
-Importing 'GUID: 2b77da5f688fe6f4782cced829ab058d - Path: Assets/Resources/PerformanceTestRunInfo.json' with importer (TextScriptImporter)
-Imported 'GUID: 2b77da5f688fe6f4782cced829ab058d' -> (Import Result ID: '871f273488cbadf08937b8388d358ec6') in 0.026 seconds [static dependencies only]. Details - ImportResultOutputID=d8bcab4321f34571d1fdcfb26aa4c461 DependenciesID=41f2ab34870dc565951d2a7ee3b99391 StaticDependenciesID=219ab5fa8334fee77f4feb8edff117d4 
-Asset Pipeline Refresh (id=c3b389d9c36e3614b89d28edb24191e7): Total: 0.218 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+*** Tundra build success (2.09 seconds), 1 items updated, 3 evaluated
+Importing 'GUID: 5692ae9c9e92590429c517e65982fdb7 - Path: Assets/Resources/PerformanceTestRunInfo.json' with importer (TextScriptImporter)
+Imported 'GUID: 5692ae9c9e92590429c517e65982fdb7' -> (Import Result ID: 'b4f52b204342f36a589deb5365de7b4f') in 0.020 seconds [static dependencies only]. Details - ImportResultOutputID=79ace6c5667aeb58b524f17fbaaf20d3 DependenciesID=5b20cacb0ebb720698a4d2dc071a0de3 StaticDependenciesID=ae4d9e0c8bcf9fff753fb1e9c5006e91 
+Importing 'GUID: cc1a60f33fd15d04398c24793211d427 - Path: Assets/Resources/PerformanceTestRunSettings.json' with importer (TextScriptImporter)
+Imported 'GUID: cc1a60f33fd15d04398c24793211d427' -> (Import Result ID: '99d25d5cd44078a2f036cb26d4dc23c2') in 0.021 seconds [static dependencies only]. Details - ImportResultOutputID=dc1151520b17cd8461072cd1b5c1dd1d DependenciesID=4124f239bf2a2c40c225fad88f9c018d StaticDependenciesID=273997f17cb127a806fd986d5d4f5af0 
+Asset Pipeline Refresh (id=01c3537b856ed0047b733a14478065f6): Total: 0.194 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
 [ScriptCompilation] Requested script compilation because: Recompiling scripts for player build.
 BuildPlayer: start building target 20
 Total cache size 187449023
-Total cache size after purge 187449023, took 00:00:00.3901902
+Total cache size after purge 187449023, took 00:00:00.4086838
 Starting: D:\Program Files\Editor\6000.5.7f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/2000b0aP.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssembliesAndTypeDB
 WorkingDir: D:/game/game-client
-ExitCode: 0 Duration: 6s526ms
+ExitCode: 0 Duration: 7s595ms
 [395/550    0s] WriteResponseFile Library/Bee/artifacts/rsp/4747638433968585886.rsp
 [477/550    0s] ILPP-Configuration Library/ilpp-configuration.nevergeneratedoutput
-[500/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.Runtime.Shared.dll
-[501/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Config.Runtime.dll
-[502/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InternalAPIEngineBridge.RenderPipelines.Core.Runtime.Shared.dll
+[497/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Mathematics.dll
+[498/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.Runtime.Shared.dll
+[502/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/ithappy.Creative_Characters_FREE.dll
 [503/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Postprocessing.Runtime.dll
-[504/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.SurfaceCache.Runtime.dll
-[505/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Runtime.dll
-[506/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Mathematics.dll
-[507/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Multiplayer.Center.Common.dll
-[508/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipeline.Universal.ShaderLibrary.dll
-[509/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/UnityEngine.UI.dll
-[510/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/ithappy.Creative_Characters_FREE.dll
-[511/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.GPUDriven.Runtime.dll
+[504/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.2D.Runtime.dll
+[505/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipeline.Universal.ShaderLibrary.dll
+[506/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.GPUDriven.Runtime.dll
+[507/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Runtime.dll
+[508/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InternalAPIEngineBridge.RenderPipelines.Core.Runtime.Shared.dll
+[509/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Collections.dll
+[510/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.SurfaceCache.Runtime.dll
+[511/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Multiplayer.Center.Common.dll
 [512/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.ShaderLibrary.dll
-[513/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.TextMeshPro.dll
-[514/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.Runtime.dll
-[515/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InternalAPIEngineBridge.004.dll
-[516/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/endel.nativewebsocket.dll
-[517/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Collections.dll
-[518/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Burst.dll
-[519/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll
-[520/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Shaders.dll
-[521/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.2D.Runtime.dll
+[513/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Config.Runtime.dll
+[514/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Shaders.dll
+[515/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.Runtime.dll
+[516/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/UnityEngine.UI.dll
+[517/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Burst.dll
+[518/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InternalAPIEngineBridge.004.dll
+[519/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.TextMeshPro.dll
+[520/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll
+[521/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/endel.nativewebsocket.dll
 [522/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Multiplayer.Center.Common.pdb
-[523/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Mathematics.pdb
-[524/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.SurfaceCache.Runtime.pdb
-[525/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InternalAPIEngineBridge.RenderPipelines.Core.Runtime.Shared.pdb
-[526/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/ithappy.Creative_Characters_FREE.pdb
-[527/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.Runtime.Shared.pdb
-[528/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.ShaderLibrary.pdb
-[529/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Postprocessing.Runtime.pdb
-[530/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InternalAPIEngineBridge.004.pdb
-[531/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Collections.pdb
-[532/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipeline.Universal.ShaderLibrary.pdb
+[523/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.ShaderLibrary.pdb
+[524/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.Runtime.Shared.pdb
+[525/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.SurfaceCache.Runtime.pdb
+[526/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Postprocessing.Runtime.pdb
+[527/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.2D.Runtime.pdb
+[528/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/ithappy.Creative_Characters_FREE.pdb
+[529/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Runtime.pdb
+[530/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Mathematics.pdb
+[531/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipeline.Universal.ShaderLibrary.pdb
+[532/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InternalAPIEngineBridge.RenderPipelines.Core.Runtime.Shared.pdb
 [533/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.GPUDriven.Runtime.pdb
-[534/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.Runtime.pdb
-[535/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.2D.Runtime.pdb
+[534/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Collections.pdb
+[535/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Core.Runtime.pdb
 [536/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Config.Runtime.pdb
-[537/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/endel.nativewebsocket.pdb
-[538/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/UnityEngine.UI.pdb
-[539/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Shaders.pdb
-[540/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.TextMeshPro.pdb
-[541/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.pdb
+[537/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.InternalAPIEngineBridge.004.pdb
+[538/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Shaders.pdb
+[539/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.pdb
+[540/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/UnityEngine.UI.pdb
+[541/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/endel.nativewebsocket.pdb
 [542/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.Burst.pdb
-[543/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.RenderPipelines.Universal.Runtime.pdb
+[543/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/Unity.TextMeshPro.pdb
 [544/550    1s] Csc Library/Bee/artifacts/2000b0aP.dag/QuizBattle.Runtime.dll (+2 others)
 Assets\Scripts\Arena\Vfx\VictoryFireworksController.cs(29,28): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
 
-Assets\Scripts\UI\UiFactory.cs(33,17): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets\Scripts\UI\UiFactory.cs(31,17): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
 
-Assets\Scripts\UI\UiFactory.cs(61,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
+Assets\Scripts\UI\UiFactory.cs(59,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
 
 Assets\Scripts\Arena\ArenaEnvironment.cs(82,67): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
 
@@ -553,18 +604,18 @@ running zzzUnity.Burst.CodeGen.BurstILPostProcessor
 [546/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/QuizBattle.Runtime.pdb
 [547/550    0s] CopyFiles Library/Bee/PlayerScriptAssemblies/QuizBattle.Runtime.dll
 [549/550    1s] BuildPlayerDataGenerator Library/BuildPlayerData/Player/RuntimeInitializeOnLoads.json (+1 other)
-*** Tundra build success (6.47 seconds), 51 items updated, 550 evaluated
+*** Tundra build success (7.54 seconds), 51 items updated, 550 evaluated
 Assets\Scripts\Arena\Vfx\VictoryFireworksController.cs(29,28): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-Assets\Scripts\UI\UiFactory.cs(33,17): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
-Assets\Scripts\UI\UiFactory.cs(61,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
+Assets\Scripts\UI\UiFactory.cs(31,17): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
+Assets\Scripts\UI\UiFactory.cs(59,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
 Assets\Scripts\Arena\ArenaEnvironment.cs(82,67): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
 Assets\Scripts\Arena\ArenaEnvironment.cs(82,35): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
 Assets\Scripts\Arena\CharacterToken.cs(141,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
 Assets\Scripts\Arena\ArenaEnvironment.cs(128,28): warning CS0618: 'Object.FindFirstObjectByType<T>()' is obsolete: 'FindFirstObjectByType has been deprecated because it relies on instance ID ordering. Use FindAnyObjectByType instead, which does not depend on ordering.'
 Assets\Scripts\Arena\Visuals\FloatingCombatText.cs(42,13): warning CS0618: 'TMP_Text.enableWordWrapping' is obsolete: 'The enabledWordWrapping property is now obsolete. Please use the textWrappingMode property instead.'
-Rebuilding Data files because Assets/Resources/PerformanceTestRunSettings.json is dirty (hash)
+Rebuilding Data files because Assets/Resources/PerformanceTestRunInfo.json is dirty (hash)
 Total cache size 187449023
-Total cache size after purge 187449023, took 00:00:00.3629509
+Total cache size after purge 187449023, took 00:00:00.5835882
 
 
 Mono dependencies included in the build
@@ -822,113 +873,113 @@ Dependency assembly - System.Diagnostics.Contracts.dll
 Opening scene 'Assets/Scenes/Boot.unity'
 Unloading 2 Unused Serialized files (Serialized files now loaded: 0)
 Loaded scene 'Assets/Scenes/Boot.unity'
-	Deserialize:            1.771 ms
-	Integration:            260.702 ms
-	Integration of assets:  0.003 ms
-	Thread Wait Time:       0.027 ms
-	Total Operation Time:   262.503 ms
-Unloading 37 unused Assets / (1.2 MB). Loaded Objects now: 4437.
-Memory consumption went from 354.0 MB to 352.8 MB.
-Total: 12.961200 ms (FindLiveObjects: 0.366600 ms CreateObjectMapping: 0.683100 ms MarkObjects: 11.146300 ms  DeleteObjects: 0.763600 ms)
+	Deserialize:            2.463 ms
+	Integration:            344.852 ms
+	Integration of assets:  0.002 ms
+	Thread Wait Time:       36.302 ms
+	Total Operation Time:   383.620 ms
+Unloading 37 unused Assets / (0.8 MB). Loaded Objects now: 4437.
+Memory consumption went from 355.6 MB to 354.8 MB.
+Total: 18.219400 ms (FindLiveObjects: 0.412300 ms CreateObjectMapping: 1.787000 ms MarkObjects: 15.017700 ms  DeleteObjects: 1.000600 ms)
 
 Opening scene 'Assets/Scenes/NameEntry.unity'
 Unloading 47 Unused Serialized files (Serialized files now loaded: 0)
 Loaded scene 'Assets/Scenes/NameEntry.unity'
-	Deserialize:            0.894 ms
-	Integration:            232.274 ms
-	Integration of assets:  0.002 ms
-	Thread Wait Time:       0.057 ms
-	Total Operation Time:   233.227 ms
-Unloading 1296 unused Assets / (2.9 MB). Loaded Objects now: 4440.
-Memory consumption went from 360.6 MB to 357.7 MB.
-Total: 14.133600 ms (FindLiveObjects: 0.452100 ms CreateObjectMapping: 1.017200 ms MarkObjects: 10.583400 ms  DeleteObjects: 2.079400 ms)
+	Deserialize:            1.664 ms
+	Integration:            394.925 ms
+	Integration of assets:  0.003 ms
+	Thread Wait Time:       0.039 ms
+	Total Operation Time:   396.631 ms
+Unloading 1296 unused Assets / (3.7 MB). Loaded Objects now: 4440.
+Memory consumption went from 361.9 MB to 358.2 MB.
+Total: 22.184100 ms (FindLiveObjects: 0.529500 ms CreateObjectMapping: 1.281200 ms MarkObjects: 16.366200 ms  DeleteObjects: 4.005600 ms)
 
 Opening scene 'Assets/Scenes/Connect.unity'
 Unloading 1 Unused Serialized files (Serialized files now loaded: 0)
 Loaded scene 'Assets/Scenes/Connect.unity'
-	Deserialize:            1.165 ms
-	Integration:            250.765 ms
-	Integration of assets:  0.002 ms
-	Thread Wait Time:       0.037 ms
-	Total Operation Time:   251.969 ms
+	Deserialize:            1.770 ms
+	Integration:            418.476 ms
+	Integration of assets:  0.007 ms
+	Thread Wait Time:       0.026 ms
+	Total Operation Time:   420.279 ms
 Unloading 1 unused Assets / (1.0 KB). Loaded Objects now: 4441.
-Memory consumption went from 355.8 MB to 355.8 MB.
-Total: 12.287100 ms (FindLiveObjects: 0.357300 ms CreateObjectMapping: 0.639100 ms MarkObjects: 11.257000 ms  DeleteObjects: 0.032400 ms)
+Memory consumption went from 356.7 MB to 356.7 MB.
+Total: 19.470900 ms (FindLiveObjects: 0.476800 ms CreateObjectMapping: 0.915500 ms MarkObjects: 18.021100 ms  DeleteObjects: 0.055300 ms)
 
 Opening scene 'Assets/Scenes/CharacterSelect.unity'
 Unloading 1 Unused Serialized files (Serialized files now loaded: 0)
 Loaded scene 'Assets/Scenes/CharacterSelect.unity'
-	Deserialize:            0.906 ms
-	Integration:            233.305 ms
-	Integration of assets:  0.002 ms
-	Thread Wait Time:       0.059 ms
-	Total Operation Time:   234.271 ms
+	Deserialize:            1.773 ms
+	Integration:            336.737 ms
+	Integration of assets:  0.003 ms
+	Thread Wait Time:       0.038 ms
+	Total Operation Time:   338.550 ms
 Unloading 1 unused Assets / (1.0 KB). Loaded Objects now: 4442.
-Memory consumption went from 355.9 MB to 355.9 MB.
-Total: 11.755900 ms (FindLiveObjects: 0.361600 ms CreateObjectMapping: 0.634400 ms MarkObjects: 10.727600 ms  DeleteObjects: 0.030800 ms)
+Memory consumption went from 356.7 MB to 356.7 MB.
+Total: 15.506600 ms (FindLiveObjects: 0.383800 ms CreateObjectMapping: 0.776100 ms MarkObjects: 14.311200 ms  DeleteObjects: 0.033700 ms)
 
 Opening scene 'Assets/Scenes/Lobby.unity'
 Unloading 1 Unused Serialized files (Serialized files now loaded: 0)
 Loaded scene 'Assets/Scenes/Lobby.unity'
-	Deserialize:            0.914 ms
-	Integration:            252.134 ms
-	Integration of assets:  0.003 ms
-	Thread Wait Time:       0.019 ms
-	Total Operation Time:   253.071 ms
+	Deserialize:            1.172 ms
+	Integration:            305.664 ms
+	Integration of assets:  0.002 ms
+	Thread Wait Time:       0.033 ms
+	Total Operation Time:   306.870 ms
 Unloading 1 unused Assets / (1.0 KB). Loaded Objects now: 4443.
-Memory consumption went from 355.9 MB to 355.9 MB.
-Total: 13.914100 ms (FindLiveObjects: 0.387700 ms CreateObjectMapping: 0.703700 ms MarkObjects: 12.771700 ms  DeleteObjects: 0.049600 ms)
+Memory consumption went from 356.7 MB to 356.7 MB.
+Total: 14.218200 ms (FindLiveObjects: 0.398400 ms CreateObjectMapping: 0.724900 ms MarkObjects: 13.054600 ms  DeleteObjects: 0.038600 ms)
 
 Opening scene 'Assets/Scenes/Arena.unity'
 Unloading 1 Unused Serialized files (Serialized files now loaded: 0)
 Loaded scene 'Assets/Scenes/Arena.unity'
-	Deserialize:            1.078 ms
-	Integration:            341.014 ms
-	Integration of assets:  0.004 ms
-	Thread Wait Time:       0.020 ms
-	Total Operation Time:   342.115 ms
+	Deserialize:            1.014 ms
+	Integration:            291.815 ms
+	Integration of assets:  0.002 ms
+	Thread Wait Time:       0.062 ms
+	Total Operation Time:   292.894 ms
 Unloading 1 unused Assets / (1.0 KB). Loaded Objects now: 4444.
-Memory consumption went from 355.9 MB to 355.9 MB.
-Total: 22.786700 ms (FindLiveObjects: 0.434900 ms CreateObjectMapping: 1.093000 ms MarkObjects: 21.209300 ms  DeleteObjects: 0.047600 ms)
+Memory consumption went from 356.7 MB to 356.7 MB.
+Total: 11.882300 ms (FindLiveObjects: 0.361900 ms CreateObjectMapping: 0.674400 ms MarkObjects: 10.814200 ms  DeleteObjects: 0.030700 ms)
 
 Opening scene 'Assets/Scenes/TeacherMode.unity'
 Unloading 1 Unused Serialized files (Serialized files now loaded: 0)
 Loaded scene 'Assets/Scenes/TeacherMode.unity'
-	Deserialize:            1.159 ms
-	Integration:            412.966 ms
+	Deserialize:            1.115 ms
+	Integration:            339.960 ms
 	Integration of assets:  0.002 ms
-	Thread Wait Time:       0.045 ms
-	Total Operation Time:   414.172 ms
+	Thread Wait Time:       0.063 ms
+	Total Operation Time:   341.140 ms
 Unloading 1 unused Assets / (1.0 KB). Loaded Objects now: 4445.
-Memory consumption went from 355.9 MB to 355.9 MB.
-Total: 17.069700 ms (FindLiveObjects: 0.554300 ms CreateObjectMapping: 0.904000 ms MarkObjects: 15.568700 ms  DeleteObjects: 0.041100 ms)
+Memory consumption went from 356.7 MB to 356.7 MB.
+Total: 14.076000 ms (FindLiveObjects: 0.382400 ms CreateObjectMapping: 0.758600 ms MarkObjects: 12.893200 ms  DeleteObjects: 0.040400 ms)
 
 Opening scene 'Assets/Scenes/PostMatch.unity'
 Unloading 1 Unused Serialized files (Serialized files now loaded: 0)
 Loaded scene 'Assets/Scenes/PostMatch.unity'
-	Deserialize:            1.246 ms
-	Integration:            305.964 ms
-	Integration of assets:  0.004 ms
-	Thread Wait Time:       0.040 ms
-	Total Operation Time:   307.254 ms
+	Deserialize:            1.148 ms
+	Integration:            290.943 ms
+	Integration of assets:  0.002 ms
+	Thread Wait Time:       0.069 ms
+	Total Operation Time:   292.162 ms
 Unloading 1 unused Assets / (1.0 KB). Loaded Objects now: 4446.
-Memory consumption went from 355.9 MB to 355.9 MB.
-Total: 14.145300 ms (FindLiveObjects: 0.413400 ms CreateObjectMapping: 0.716500 ms MarkObjects: 12.978200 ms  DeleteObjects: 0.035900 ms)
+Memory consumption went from 356.7 MB to 356.7 MB.
+Total: 12.920800 ms (FindLiveObjects: 0.375100 ms CreateObjectMapping: 0.689300 ms MarkObjects: 11.821000 ms  DeleteObjects: 0.034100 ms)
 
 Unloading 1 Unused Serialized files (Serialized files now loaded: 0)
 Unloading 0 unused Assets / (0 B). Loaded Objects now: 4443.
-Memory consumption went from 355.9 MB to 355.9 MB.
-Total: 13.621600 ms (FindLiveObjects: 0.408200 ms CreateObjectMapping: 0.875400 ms MarkObjects: 12.311100 ms  DeleteObjects: 0.024700 ms)
+Memory consumption went from 356.7 MB to 356.7 MB.
+Total: 12.065300 ms (FindLiveObjects: 0.534100 ms CreateObjectMapping: 0.950100 ms MarkObjects: 10.557800 ms  DeleteObjects: 0.021600 ms)
 
 Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
 Unloading 0 unused Assets / (Unknown). Loaded Objects now: 4443.
-Memory consumption went from 355.9 MB to 355.9 MB.
-Total: 13.094000 ms (FindLiveObjects: 0.403600 ms CreateObjectMapping: 0.812000 ms MarkObjects: 11.860300 ms  DeleteObjects: 0.016600 ms)
+Memory consumption went from 356.7 MB to 356.7 MB.
+Total: 13.274600 ms (FindLiveObjects: 0.541500 ms CreateObjectMapping: 0.933300 ms MarkObjects: 11.752500 ms  DeleteObjects: 0.014600 ms)
 
 Unloading 1 Unused Serialized files (Serialized files now loaded: 0)
 Unloading 173 unused Assets / (151.0 MB). Loaded Objects now: 4443.
-Memory consumption went from 508.3 MB to 357.3 MB.
-Total: 56.009500 ms (FindLiveObjects: 0.354200 ms CreateObjectMapping: 0.659600 ms MarkObjects: 16.461600 ms  DeleteObjects: 38.531800 ms)
+Memory consumption went from 509.1 MB to 358.1 MB.
+Total: 54.846000 ms (FindLiveObjects: 0.331200 ms CreateObjectMapping: 0.841100 ms MarkObjects: 16.701400 ms  DeleteObjects: 36.970700 ms)
 
 Compiling shader "Hidden/Universal Render Pipeline/Sampling"
   Pass "BoxDownsample" (vp)
@@ -937,7 +988,7 @@ Compiling shader "Hidden/Universal Render Pipeline/Sampling"
     After settings filtering:   1
     After built-in stripping:   1
     After scriptable stripping: 1
-    Processed in 0.10 seconds
+    Processed in 0.11 seconds
   Pass BoxDownsample (vp, gles3) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
 Serialized binary data for shader Hidden/Universal Render Pipeline/Sampling in 0.00s
@@ -1043,7 +1094,7 @@ Compiling shader "Hidden/TerrainEngine/Details/UniversalPipeline/BillboardWaving
     After built-in stripping:   1
     After scriptable stripping: 1
     Processed in 0.00 seconds
-  Pass ForwardLit (vp, gles3) finished in 0.00 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass ForwardLit (vp, gles3) finished in 0.01 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
     Prepared data for serialisation in 0.00s
   Pass DepthOnly (vp, gles3) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
@@ -1348,9 +1399,9 @@ Compiling shader "Hidden/Universal/CoreBlit"
     After built-in stripping:   2
     After scriptable stripping: 2
     Processed in 0.00 seconds
-  Pass Nearest (vp, gles3) finished in 0.05 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass Nearest (vp, gles3) finished in 0.06 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
-  Pass Bilinear (vp, gles3) finished in 0.05 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass Bilinear (vp, gles3) finished in 0.06 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
   Pass NearestQuad (vp, gles3) finished in 0.05 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
@@ -1358,7 +1409,7 @@ Compiling shader "Hidden/Universal/CoreBlit"
     Prepared data for serialisation in 0.00s
   Pass NearestQuadPadding (vp, gles3) finished in 0.05 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
-  Pass BilinearQuadPadding (vp, gles3) finished in 0.04 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass BilinearQuadPadding (vp, gles3) finished in 0.05 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
   Pass NearestQuadPaddingRepeat (vp, gles3) finished in 0.04 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
@@ -1366,7 +1417,7 @@ Compiling shader "Hidden/Universal/CoreBlit"
     Prepared data for serialisation in 0.00s
   Pass BilinearQuadPaddingOctahedral (vp, gles3) finished in 0.04 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
-  Pass NearestQuadPaddingAlphaBlend (vp, gles3) finished in 0.03 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass NearestQuadPaddingAlphaBlend (vp, gles3) finished in 0.04 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
   Pass BilinearQuadPaddingAlphaBlend (vp, gles3) finished in 0.03 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
@@ -1384,7 +1435,7 @@ Compiling shader "Hidden/Universal/CoreBlit"
     Prepared data for serialisation in 0.00s
   Pass CubeToOctahedralRed (vp, gles3) finished in 0.02 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
-  Pass BilinearQuadLuminance (vp, gles3) finished in 0.01 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass BilinearQuadLuminance (vp, gles3) finished in 0.02 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
   Pass BilinearQuadAlpha (vp, gles3) finished in 0.01 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
@@ -1463,7 +1514,7 @@ Compiling shader "Hidden/Universal/CoreBlitColorAndDepth"
     After built-in stripping:   4
     After scriptable stripping: 4
     Processed in 0.00 seconds
-  Pass ColorOnly (vp, gles3) finished in 0.00 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass ColorOnly (vp, gles3) finished in 0.01 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
   Pass ColorAndDepth (vp, gles3) finished in 0.00 seconds. Local cache hits 4 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
@@ -1595,7 +1646,7 @@ Compiling shader "Hidden/TerrainEngine/Details/UniversalPipeline/Vertexlit"
     Processed in 0.00 seconds
   Pass TerrainDetailVertex (vp, gles3) finished in 0.01 seconds. Local cache hits 8 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
-  Pass TerrainDetailVertex - GBuffer (vp, gles3) finished in 0.00 seconds. Local cache hits 8 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass TerrainDetailVertex - GBuffer (vp, gles3) finished in 0.01 seconds. Local cache hits 8 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
   Pass DepthOnly (vp, gles3) finished in 0.00 seconds. Local cache hits 1 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
@@ -1670,7 +1721,7 @@ Compiling shader "Universal Render Pipeline/Lit"
     After built-in stripping:   4
     After scriptable stripping: 0
     Processed in 0.00 seconds
-  Pass ForwardLit (vp, gles3) finished in 0.01 seconds. Local cache hits 16 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
+  Pass ForwardLit (vp, gles3) finished in 0.02 seconds. Local cache hits 16 (0.01s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
   Pass ShadowCaster (vp, gles3) finished in 0.01 seconds. Local cache hits 2 (0.00s CPU time), remote cache hits 0 (0.00s CPU time), compiled 0 variants (0.00s CPU time), skipped 0 variants.
     Prepared data for serialisation in 0.00s
@@ -2755,7 +2806,7 @@ Serialized binary data for shader QuizBattle/Toon in 0.00s
     gles3 (total internal programs: 12, unique: 12)
 
 ***Player size statistics***
-Level 0 'Assets/Scenes/Boot.unity' uses 497.9 KB compressed / 4.1 MB uncompressed.
+Level 0 'Assets/Scenes/Boot.unity' uses 498.2 KB compressed / 4.1 MB uncompressed.
 Level 1 'Assets/Scenes/NameEntry.unity' uses 0 B compressed / 0 B uncompressed.
 Level 2 'Assets/Scenes/Connect.unity' uses 0 B compressed / 0 B uncompressed.
 Level 3 'Assets/Scenes/CharacterSelect.unity' uses 0 B compressed / 0 B uncompressed.
@@ -2768,25 +2819,25 @@ SpriteAtlasDatabase::Cleanup
 Starting: D:\Program Files\Editor\6000.5.7f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --dagfile="Library/Bee/Playera8274c52.dag" --profile="Library/Bee/backend1.traceevents" Player
 WorkingDir: D:/game/game-client
 DisplayProgressbar: Incremental Player Build
-D:/game/game-client/Library/PackageCache/com.unity.burst@2f3d916873ea/.Runtime\bcl.exe exited after 5258 ms.
+D:/game/game-client/Library/PackageCache/com.unity.burst@2f3d916873ea/.Runtime\bcl.exe exited after 17517 ms.
 stdout:
 Starting 1 library requests
 Done
 stderr:
 
-ExitCode: 4 Duration: 5m:51s
+ExitCode: 4 Duration: 7m:34s
 Starting: D:\Program Files\Editor\6000.5.7f1\Editor\Data\netcorerun\netcorerun.exe "D:\Program Files\Editor\6000.5.7f1\Editor\Data\PlaybackEngines\WebGLSupport\WebGLPlayerBuildProgram.exe" "D:/Program Files/Editor/6000.5.7f1/Editor/Data/PlaybackEngines/WebGLSupport/Bee;D:/Program Files/Editor/6000.5.7f1/Editor/Data/Tools/BuildPipeline" "Library/Bee/Playera8274c52.dag.json" "Library/Bee/Playera8274c52-inputdata.json" "Library\Bee\buildprogram0.traceevents"
 WorkingDir: D:/game/game-client
-ExitCode: 0 Duration: 0s952ms
+ExitCode: 0 Duration: 0s833ms
 Starting: D:\Program Files\Editor\6000.5.7f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --dagfile="Library/Bee/Playera8274c52.dag" --dagfilejson="Library\Bee\Playera8274c52.dag.json" --profile="Library/Bee/backend2.traceevents" Player
 WorkingDir: D:/game/game-client
 Starting: D:\Program Files\Editor\6000.5.7f1\Editor\Data\netcorerun\netcorerun.exe "D:\Program Files\Editor\6000.5.7f1\Editor\Data\PlaybackEngines\WebGLSupport\WebGLPlayerBuildProgram.exe" "D:/Program Files/Editor/6000.5.7f1/Editor/Data/PlaybackEngines/WebGLSupport/Bee;D:/Program Files/Editor/6000.5.7f1/Editor/Data/Tools/BuildPipeline" "Library/Bee/Playera8274c52.dag.json" "Library/Bee/Playera8274c52-inputdata.json" "Library\Bee\buildprogram1.traceevents"
 WorkingDir: D:/game/game-client
-ExitCode: 4 Duration: 1s683ms
-ExitCode: 0 Duration: 1s257ms
+ExitCode: 4 Duration: 1s59ms
+ExitCode: 0 Duration: 0s863ms
 Starting: D:\Program Files\Editor\6000.5.7f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --dagfile="Library/Bee/Playera8274c52.dag" --dagfilejson="Library\Bee\Playera8274c52.dag.json" --profile="Library/Bee/backend3.traceevents" Player
 WorkingDir: D:/game/game-client
-ExitCode: 0 Duration: 0s344ms
+ExitCode: 0 Duration: 0s283ms
 D:\game\game-client\Library\Bee\artifacts\WebGL\il2cppOutput\cpp: [Unity.TextMeshPro] - System.Void TMPro.TMP_TextParsingUtilities::.cctor() - Method was given it's own cpp file because it is large and costly to compile
 UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
 UnityEngine.StackTraceUtility:ExtractStackTrace ()
@@ -2849,9 +2900,9 @@ QuizBattle.EditorTools.Graphics.WebGLBuildCheck:Run () (at Assets/Editor/Graphic
 
 [websockify wrapper] Start node and websockify.js
 [websockify wrapper] Proxying from :35020 to localhost:34999
-Asset Pipeline Refresh (id=821ddda6130eebc47aee771cef5efdcc): Total: 0.208 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
 Total cache size 187449023
-Total cache size after purge 187449023, took 00:00:00.2863674
+Total cache size after purge 187449023, took 00:00:00.2259747
+Asset Pipeline Refresh (id=9da210e2346f3dd4d9445eecf52338e5): Total: 0.180 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
 [Licensing::Client] Successfully resolved entitlement details
 [Licensing::Client] Successfully resolved entitlement details
 
@@ -2862,12 +2913,12 @@ Textures               8.2 mb	 72.7%
 Meshes                 1.6 mb	 14.0% 
 Animations             275.6 kb	 2.4% 
 Sounds                 0.0 kb	 0.0% 
-Shaders                357.0 kb	 3.1% 
+Shaders                357.1 kb	 3.1% 
 Other Assets           730.0 kb	 6.3% 
 Levels                 0.0 kb	 0.0% 
 File headers           69.7 kb	 0.6% 
 Total User Assets      11.3 mb	 100.0% 
-Complete build size    112.2 mb
+Complete build size    112.5 mb
 Used Assets and files from the Resources folder, sorted by uncompressed size:
  2.7 mb	 2.4% Built-in Texture2D: Splash Screen Unity Logo
  2.7 mb	 2.4% Assets/Resources/Textures/StoneFloor.png
@@ -2915,7 +2966,7 @@ Used Assets and files from the Resources folder, sorted by uncompressed size:
  6.3 kb	 0.0% Assets/Resources/Characters/Models/Outwear_004.prefab
  6.3 kb	 0.0% Assets/Resources/Characters/Models/Outfit_010.prefab
  6.3 kb	 0.0% Assets/Resources/Characters/Models/Mascot_002.prefab
- 5.1 kb	 0.0% Assets/Shaders/QB_GlowAdditive.shader
+ 5.2 kb	 0.0% Assets/Shaders/QB_GlowAdditive.shader
  4.6 kb	 0.0% Packages/com.unity.render-pipelines.universal/Shaders/Debug/DebugReplacement.shader
  4.4 kb	 0.0% Packages/com.unity.render-pipelines.universal/Shaders/Utils/CopyDepth.shader
  4.3 kb	 0.0% Packages/com.unity.render-pipelines.universal/Shaders/CameraMotionVectors.shader
@@ -3838,24 +3889,24 @@ Used Assets and files from the Resources folder, sorted by uncompressed size:
 -------------------------------------------------------------------------------
 Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
 Unloading 1309 unused Assets / (1.4 MB). Loaded Objects now: 4470.
-Memory consumption went from 365.0 MB to 363.5 MB.
-Total: 20.459800 ms (FindLiveObjects: 0.540000 ms CreateObjectMapping: 1.082800 ms MarkObjects: 16.512200 ms  DeleteObjects: 2.322100 ms)
+Memory consumption went from 366.3 MB to 364.9 MB.
+Total: 16.637300 ms (FindLiveObjects: 0.456600 ms CreateObjectMapping: 0.917500 ms MarkObjects: 13.607800 ms  DeleteObjects: 1.653400 ms)
 
 DisplayProgressNotification: Build Successful
 Build Finished, Result: Success.
-##utp:{"success":true,"type":"PlayerBuildInfo","version":2,"phase":"Immediate","time":1787517920606,"processId":27424,"steps":[{"description":"Preprocess Player","duration":519},{"description":"Prepare For Build","duration":1},{"description":"ProducePlayerScriptAssemblies","duration":9537},{"description":"Verify Build setup","duration":252},{"description":"Prepare assets for target platform","duration":4},{"description":"Prepare splash screen","duration":1},{"description":"Build scripts DLLs","duration":27},{"description":"Building scenes","duration":2598},{"description":"Build GlobalGameManagers file","duration":249},{"description":"Writing asset files","duration":542},{"description":"Building Resources/unity_builtin_extra","duration":211},{"description":"Creating compressed player package","duration":2006},{"description":"Write data build dirty tracking information","duration":114},{"description":"Postprocess built player","duration":357059}],"duration":373120}
+##utp:{"success":true,"type":"PlayerBuildInfo","version":2,"phase":"Immediate","time":1787867919812,"processId":34072,"steps":[{"description":"Preprocess Player","duration":525},{"description":"Prepare For Build","duration":1},{"description":"ProducePlayerScriptAssemblies","duration":10584},{"description":"Verify Build setup","duration":365},{"description":"Prepare assets for target platform","duration":4},{"description":"Prepare splash screen","duration":1},{"description":"Build scripts DLLs","duration":36},{"description":"Building scenes","duration":3132},{"description":"Build GlobalGameManagers file","duration":232},{"description":"Writing asset files","duration":564},{"description":"Building Resources/unity_builtin_extra","duration":224},{"description":"Creating compressed player package","duration":1864},{"description":"Write data build dirty tracking information","duration":123},{"description":"Postprocess built player","duration":458048}],"duration":475703}
 Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
 Loaded scene 'Temp/__Backupscenes/0.backup'
-	Deserialize:            0.774 ms
-	Integration:            272.734 ms
+	Deserialize:            0.648 ms
+	Integration:            263.664 ms
 	Integration of assets:  0.002 ms
-	Thread Wait Time:       0.035 ms
-	Total Operation Time:   273.545 ms
-Unloading 0 unused Assets / (16.5 KB). Loaded Objects now: 4462.
-Memory consumption went from 362.2 MB to 362.1 MB.
-Total: 13.545300 ms (FindLiveObjects: 0.384600 ms CreateObjectMapping: 0.640400 ms MarkObjects: 12.504900 ms  DeleteObjects: 0.014300 ms)
+	Thread Wait Time:       0.022 ms
+	Total Operation Time:   264.336 ms
+Unloading 0 unused Assets / (2.0 KB). Loaded Objects now: 4462.
+Memory consumption went from 363.4 MB to 363.4 MB.
+Total: 11.201200 ms (FindLiveObjects: 0.315100 ms CreateObjectMapping: 0.558200 ms MarkObjects: 10.312000 ms  DeleteObjects: 0.015000 ms)
 
-[WebGLBuildCheck] result=Succeeded errors=0 warnings=11 size=117632230
+[WebGLBuildCheck] result=Succeeded errors=0 warnings=11 size=117927193
 UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
 UnityEngine.StackTraceUtility:ExtractStackTrace ()
 UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
@@ -3866,11 +3917,11 @@ QuizBattle.EditorTools.Graphics.WebGLBuildCheck:Run () (at Assets/Editor/Graphic
 
 (Filename: Assets/Editor/Graphics/WebGLBuildCheck.cs Line: 46)
 
-MonoPathRemapper: Attempts to remap: 35051; Successful remaps: 3428
+MonoPathRemapper: Attempts to remap: 35089; Successful remaps: 3428
 Serialized file version minimum: 23, current 23
 [websockify wrapper] Kill
 [websockify wrapper] Process killed
-Killing ADB server in 2.0886285 seconds.
+Killing ADB server in 2.0844213 seconds.
 [Physics::Module] Cleanup current backend.
 [Physics::Module] Id: 0xf2b8ea05
 Input System module state changed to: ShutdownInProgress.
@@ -3885,5 +3936,5 @@ CodeReloadManager destroyed
 Checking for leaked weakptr:
   Found no leaked weakptrs.
 [Package Manager] Server process was shutdown
-##utp:{"type":"MemoryLeaks","version":2,"phase":"Immediate","time":1787517924923,"processId":27424,"allocatedMemory":16829216,"memoryLabels":[{"Default":226600},{"Permanent":15516},{"NewDelete":69691},{"Thread":4205176},{"Manager":32965},{"VertexData":8},{"Geometry":816},{"Texture":24},{"Shader":848986},{"Material":24},{"GfxDevice":57368},{"Animation":952},{"Audio":968},{"FreeType":8},{"FontEngine":736},{"Physics":2146},{"Physics2D":16},{"Serialization":5816},{"Input":42840},{"JobScheduler":256},{"TextLib":280},{"Mono":48},{"MonoCode":832},{"ScriptingNativeRuntime":1722668},{"BaseObject":1622728},{"Resource":1208},{"Renderer":3080},{"Transform":4685},{"File":24800},{"WebCam":616},{"Culling":32},{"Terrain":11442},{"Wind":24},{"STL":40},{"String":20254},{"StaticString":3808},{"Utility":2673238},{"Curl":2559},{"PoolAlloc":2264},{"AI":80},{"TypeTree":25285},{"CodeReload":448},{"RuntimeInitializeOnLoadManager":64},{"Sprites":102},{"SpriteAtlas":120},{"GI":7816},{"Director":8296},{"CloudService":9512},{"WebRequest":552},{"VR":47114},{"SceneManager":608},{"Video":64},{"LazyScriptCache":32},{"Camera":17},{"Secure":2377},{"SerializationCache":1576},{"APIUpdating":10320},{"Subsystems":336},{"VirtualTexturing":57888},{"StaticSafetyDebugInfo":278528},{"Analytics":552},{"Hierarchy":1176},{"UIElements":72},{"CoreStats":13688},{"Identifiers":6768},{"Gui":128},{"EditorUtility":121168},{"VersionControl":8},{"Undo":931},{"AssetDatabase":4571710},{"AssetImporter":40},{"EditorGi":328},{"UnityConnect":38905},{"Upm":1912},{"UpmDiagnostics":8},{"AssetCompliance":64},{"DrivenProperties":72},{"LocalIPC":211},{"ProfilerEditor":9746},{"CoreBusinessMetrics":3428},{"Windowing":456},{"Licensing":1232},{"AssetReference":32},{"IPCStream":32}]}
+##utp:{"type":"MemoryLeaks","version":2,"phase":"Immediate","time":1787867923775,"processId":34072,"allocatedMemory":16918621,"memoryLabels":[{"Default":226600},{"Permanent":15516},{"NewDelete":69691},{"Thread":4205176},{"Manager":32965},{"VertexData":8},{"Geometry":816},{"Texture":24},{"Shader":848986},{"Material":24},{"GfxDevice":57368},{"Animation":952},{"Audio":968},{"FreeType":8},{"FontEngine":736},{"Physics":2146},{"Physics2D":16},{"Serialization":5816},{"Input":42840},{"JobScheduler":256},{"TextLib":280},{"Mono":48},{"MonoCode":832},{"ScriptingNativeRuntime":1804636},{"BaseObject":1622728},{"Resource":1208},{"Renderer":3080},{"Transform":4685},{"File":24800},{"WebCam":616},{"Culling":32},{"Terrain":11442},{"Wind":24},{"STL":40},{"String":27403},{"StaticString":3808},{"Utility":2673238},{"Curl":2559},{"PoolAlloc":2264},{"AI":80},{"TypeTree":25285},{"CodeReload":448},{"RuntimeInitializeOnLoadManager":64},{"Sprites":102},{"SpriteAtlas":120},{"GI":7816},{"Director":8296},{"CloudService":9800},{"WebRequest":552},{"VR":47114},{"SceneManager":608},{"Video":64},{"LazyScriptCache":32},{"Camera":17},{"Secure":2377},{"SerializationCache":1576},{"APIUpdating":10320},{"Subsystems":336},{"VirtualTexturing":57888},{"StaticSafetyDebugInfo":278528},{"Analytics":552},{"Hierarchy":1176},{"UIElements":72},{"CoreStats":13688},{"Identifiers":6768},{"Gui":128},{"EditorUtility":121168},{"VersionControl":8},{"Undo":931},{"AssetDatabase":4571710},{"AssetImporter":40},{"EditorGi":328},{"UnityConnect":38905},{"Upm":1912},{"UpmDiagnostics":8},{"AssetCompliance":64},{"DrivenProperties":72},{"LocalIPC":211},{"ProfilerEditor":9746},{"CoreBusinessMetrics":3428},{"Windowing":456},{"Licensing":1232},{"AssetReference":32},{"IPCStream":32}]}
 ~StackAllocator(ALLOC_TEMP_MAIN) m_LastAlloc not NULL. Did you forget to call FreeAllStackAllocations()? To get more information, run app with -diag-temp-memory-leak-validation cmd line argument

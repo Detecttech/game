@@ -27,7 +27,6 @@ server/web-portal/node_modules/
 server/web-portal/dist/
 
 # Ignore databases and logs
-server/data/*.db
 server/data/*.db-journal
 server/data/*.db-wal
 server/data/*.db-shm
