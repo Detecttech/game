@@ -76,6 +76,8 @@ namespace QuizBattle.Arena
             _grid.BuildGrid(_store.GridWidth, _store.GridHeight, _store.GoalRow);
             PositionCamera(_store.GridWidth, _store.GridHeight);
 
+            foreach (var token in _tokens.Values)
+                if (token != null) Object.Destroy(token.gameObject);
             _tokens.Clear();
             foreach (var p in _store.Players.Values)
             {
@@ -84,6 +86,7 @@ namespace QuizBattle.Arena
                 token.SetHp(p.hp, p.maxHp);
                 if (p.streak >= 2) token.SetStreak(p.streak);
                 if (!p.alive) token.SetEliminated();
+                token.SetFrozen(p.frozen);
                 _tokens[p.playerId] = token;
             }
         }
@@ -107,6 +110,7 @@ namespace QuizBattle.Arena
 
             token.MoveTo(_grid.TileToWorldPos(a.NewGridPos.X, a.NewGridPos.Y));
             token.SetHp(a.Hp, a.MaxHp);
+            token.SetStreak(a.Streak);
 
             var orange = new Color(1.0f, 0.58f, 0.08f);
 
@@ -127,7 +131,6 @@ namespace QuizBattle.Arena
             {
                 if (a.Streak >= 2)
                 {
-                    token.SetStreak(a.Streak);
                     FloatingCombatText.Spawn(token.transform.position + Vector3.up * 1.6f, $"STREAK x{a.Streak}!", orange, 1.50f);
                 }
                 else
@@ -148,6 +151,7 @@ namespace QuizBattle.Arena
             if (_tokens.TryGetValue(a.TargetId, out var token))
             {
                 Vector3 from = _tokens.TryGetValue(a.AttackerId, out var attackerToken) ? attackerToken.transform.position : token.transform.position;
+                if (attackerToken != null) attackerToken.AttackToward(token.transform.position);
                 AbilityVfxPlayer.Play(a.VfxTag, from, token.transform.position, a.Eliminated);
 
                 token.SetHp(a.TargetHpAfter, _store.Players.TryGetValue(a.TargetId, out var p) ? p.maxHp : a.TargetHpAfter);
@@ -163,6 +167,7 @@ namespace QuizBattle.Arena
             if (_tokens.TryGetValue(f.TargetId, out var token))
             {
                 Vector3 from = _tokens.TryGetValue(f.CasterId, out var casterToken) ? casterToken.transform.position : token.transform.position;
+                if (casterToken != null) casterToken.AttackToward(token.transform.position);
                 AbilityVfxPlayer.Play("vfx_freeze", from, token.transform.position, eliminated: false);
                 token.SetFrozen(true);
                 FloatingCombatText.Spawn(token.transform.position + Vector3.up * 1.5f, "FROZEN!", QuizBattlePalette.WaterBlue, 1.15f);

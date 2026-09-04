@@ -198,11 +198,11 @@ namespace QuizBattle.UI.CharacterSelect
             var cam = camObj.AddComponent<Camera>();
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.10f, 0.12f, 0.22f); // Deep Royal Navy
-            cam.fieldOfView = 25f;
+            cam.fieldOfView = 36f;
             cam.nearClipPlane = 0.05f;
             cam.targetTexture = target;
-            cam.transform.position = stagePos + new Vector3(0f, 0.90f, -2.4f);
-            cam.transform.LookAt(stagePos + new Vector3(0f, 0.60f, 0f));
+            cam.transform.position = stagePos + new Vector3(0f, 1.05f, -2.6f);
+            cam.transform.LookAt(stagePos + new Vector3(0f, 0.68f, 0f));
         }
 
         private Button BuildCharacterCard(Transform parent, CharacterDefinitionSO def, Vector2 anchor, RenderTexture preview)

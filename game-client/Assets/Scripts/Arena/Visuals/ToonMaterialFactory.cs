@@ -120,8 +120,7 @@ namespace QuizBattle.Arena.Visuals
         public static Material Toon(Color baseColor, ToonStyle style) => Toon(baseColor, style, null, default);
 
         /// Textured variant — mainTex is multiplied into baseColor. Only meshes that
-        /// actually carry UV0 (e.g. grid tiles, imported model geometry) should use this;
-        /// PrimitiveMeshFactory's procedural cone/torus meshes have no UVs.
+        /// actually carry UV0 (e.g. grid tiles, imported model geometry) should use this.
         public static Material Toon(Color baseColor, ToonStyle style, Texture2D mainTex, Vector4 tiling)
         {
             string key = ToonKey(baseColor, style, mainTex, tiling);
@@ -137,12 +136,12 @@ namespace QuizBattle.Arena.Visuals
             return mat;
         }
 
-        public static Material Glow(Color color, float intensity = 1.5f, float softEdge = 0.5f, float pulseSpeed = 0f, float pulseAmount = 0f)
+        public static Material Glow(Color color, float intensity = 1.5f, float softEdge = 0.5f, float pulseSpeed = 0f, float pulseAmount = 0f, float radialMask = 1f)
         {
-            string key = $"glow|{color}|{intensity}|{softEdge}|{pulseSpeed}|{pulseAmount}";
+            string key = $"glow|{color}|{intensity}|{softEdge}|{pulseSpeed}|{pulseAmount}|{radialMask}";
             if (_cache.TryGetValue(key, out var cached) && cached != null) return cached;
 
-            var mat = BuildGlow(color, intensity, softEdge, pulseSpeed, pulseAmount);
+            var mat = BuildGlow(color, intensity, softEdge, pulseSpeed, pulseAmount, radialMask);
             _cache[key] = mat;
             return mat;
         }
@@ -153,12 +152,12 @@ namespace QuizBattle.Arena.Visuals
         public static Material Instance(Color baseColor, ToonStyle style) => BuildToon(baseColor, style, null, default);
 
         public static Material Instance(Color baseColor, ToonStyle style, Texture2D mainTex, Vector4 tiling) =>
-            BuildToon(baseColor, style, mainTex, tiling);
+        BuildToon(baseColor, style, mainTex, tiling);
 
         /// Non-shared glow instance for anything mutated per-object at runtime (e.g. an
         /// HP bar fill that recolors when its owner is eliminated).
-        public static Material GlowInstance(Color color, float intensity = 1.5f, float softEdge = 0.5f) =>
-            BuildGlow(color, intensity, softEdge, 0f, 0f);
+        public static Material GlowInstance(Color color, float intensity = 1.5f, float softEdge = 0.5f, float radialMask = 1f) =>
+        BuildGlow(color, intensity, softEdge, 0f, 0f, radialMask);
 
         private static Material BuildToon(Color baseColor, ToonStyle style, Texture2D mainTex, Vector4 tiling)
         {
@@ -194,7 +193,7 @@ namespace QuizBattle.Arena.Visuals
             return mat;
         }
 
-        private static Material BuildGlow(Color color, float intensity, float softEdge, float pulseSpeed, float pulseAmount)
+        private static Material BuildGlow(Color color, float intensity, float softEdge, float pulseSpeed, float pulseAmount, float radialMask)
         {
             var mat = new Material(GlowShader) { name = "QB_Glow_Instance", hideFlags = HideFlags.DontUnloadUnusedAsset };
             mat.SetColor("_TintColor", color);
@@ -202,10 +201,11 @@ namespace QuizBattle.Arena.Visuals
             mat.SetFloat("_SoftEdge", softEdge);
             mat.SetFloat("_PulseSpeed", pulseSpeed);
             mat.SetFloat("_PulseAmount", pulseAmount);
+            mat.SetFloat("_RadialMask", radialMask);
             return mat;
         }
 
         private static string ToonKey(Color baseColor, ToonStyle style, Texture2D mainTex, Vector4 tiling) =>
-            $"toon|{baseColor}|{style.ShadowTint}|{style.RimColor}|{style.RimIntensity}|{style.RimPower}|{style.SpecTint}|{style.Gloss}|{style.SpecIntensity}|{style.EmissionColor}|{style.EmissionIntensity}|{style.OutlineColor}|{style.OutlineWidth}|{style.OutlineEnabled}|{(mainTex != null ? mainTex.GetEntityId() : default)}|{tiling}";
+        $"toon|{baseColor}|{style.ShadowTint}|{style.RimColor}|{style.RimIntensity}|{style.RimPower}|{style.SpecTint}|{style.Gloss}|{style.SpecIntensity}|{style.EmissionColor}|{style.EmissionIntensity}|{style.OutlineColor}|{style.OutlineWidth}|{style.OutlineEnabled}|{(mainTex != null ? mainTex.GetEntityId() : default)}|{tiling}";
     }
 }

@@ -84,8 +84,8 @@ namespace QuizBattle.Arena
             {
                 var tex = ResolveFloorTexture();
                 renderer.sharedMaterial = tex != null
-                    ? ToonMaterialFactory.Toon(color, TileStyle, tex, TileTiling)
-                    : ToonMaterialFactory.Toon(color, TileStyle);
+                                          ? ToonMaterialFactory.Toon(color, TileStyle, tex, TileTiling)
+                                          : ToonMaterialFactory.Toon(color, TileStyle);
             }
 
             return tile;
@@ -116,8 +116,8 @@ namespace QuizBattle.Arena
             var glow = GameObject.CreatePrimitive(PrimitiveType.Cube);
             glow.name = $"ZoneGlow_{x}_{y}";
             glow.transform.SetParent(transform, false);
-            glow.transform.localPosition = new Vector3(x * tileSize, 0.035f, y * tileSize);
-            glow.transform.localScale = new Vector3(tileSize * 0.94f, 0.05f, tileSize * 0.94f);
+            glow.transform.localPosition = new Vector3(x * tileSize, 0.003f, y * tileSize);
+            glow.transform.localScale = new Vector3(tileSize * 0.94f, 0.004f, tileSize * 0.94f);
             Destroy(glow.GetComponent<Collider>());
             var glowStyle = new ToonStyle
             {
@@ -140,8 +140,8 @@ namespace QuizBattle.Arena
             var spotFan = GameObject.CreatePrimitive(PrimitiveType.Cube);
             spotFan.name = $"SpotFan_{x}_{y}";
             spotFan.transform.SetParent(transform, false);
-            spotFan.transform.localPosition = new Vector3(x * tileSize, 0.06f, y * tileSize + tileSize * 0.40f);
-            spotFan.transform.localScale = new Vector3(tileSize * 0.85f, 0.04f, tileSize * 0.35f);
+            spotFan.transform.localPosition = new Vector3(x * tileSize, 0.006f, y * tileSize + tileSize * 0.40f);
+            spotFan.transform.localScale = new Vector3(tileSize * 0.85f, 0.004f, tileSize * 0.35f);
             Destroy(spotFan.GetComponent<Collider>());
             var spotStyle = new ToonStyle
             {
@@ -158,10 +158,8 @@ namespace QuizBattle.Arena
             };
             spotFan.GetComponent<Renderer>().sharedMaterial = ToonMaterialFactory.Toon(new Color(1.00f, 0.95f, 0.35f), spotStyle);
 
-            if (isLeftEdge || isRightEdge)
-            {
-                CreateGoalPost(x, y, isLeftEdge);
-            }
+            if (isLeftEdge) CreateGoalPost(x, y, true);
+            if (isRightEdge) CreateGoalPost(x, y, false);
         }
 
         private void CreateGoalPost(int x, int y, bool isLeft)
@@ -243,7 +241,8 @@ namespace QuizBattle.Arena
             CreateCurbSegment(curbContainer.transform, new Vector3(cx - totalW * 0.5f - curbThick * 0.5f, 0.04f, cz), new Vector3(curbThick, curbH, totalH), curbMat);
 
             // 2 Golden corner studs on the North Finish Line
-            Vector3[] cornerStuds = {
+            Vector3[] cornerStuds =
+            {
                 new Vector3(cx - totalW * 0.5f - curbThick * 0.5f, 0.12f, cz + totalH * 0.5f + curbThick * 0.5f),
                 new Vector3(cx + totalW * 0.5f + curbThick * 0.5f, 0.12f, cz + totalH * 0.5f + curbThick * 0.5f),
             };
@@ -324,10 +323,10 @@ namespace QuizBattle.Arena
         }
 
         public Vector3 TileToWorldPos(int x, int y) =>
-            transform.TransformPoint(new Vector3(x * tileSize, 0.51f, y * tileSize));
+        transform.TransformPoint(new Vector3(x * tileSize, 0.01f, y * tileSize));
 
         public Vector3 GridCenter() =>
-            transform.TransformPoint(new Vector3((_width - 1) * tileSize / 2f, 0f, (_height - 1) * tileSize / 2f));
+        transform.TransformPoint(new Vector3((_width - 1) * tileSize / 2f, 0f, (_height - 1) * tileSize / 2f));
 
         public void ClearGrid()
         {

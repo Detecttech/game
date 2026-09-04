@@ -100,8 +100,9 @@ Shader "QuizBattle/Toon"
                 float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
                 float4 positionCS = TransformWorldToHClip(positionWS);
                 // Subtle, clean cartoon contour outline
-                float3 normalCS = TransformWorldToHClipDir(normalWS, true);
-                positionCS.xy += normalCS.xy * _OutlineWidth * 0.0022 * positionCS.w;
+                float2 normalSS = TransformWorldToHClipDir(normalWS).xy * _ScaledScreenParams.xy;
+                normalSS /= max(length(normalSS), 0.00001);
+                positionCS.xy += normalSS * _OutlineWidth * (2.0 / _ScaledScreenParams.xy) * positionCS.w;
                 output.positionCS = positionCS;
             #else
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);

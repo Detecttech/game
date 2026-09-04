@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using QuizBattle.Arena.Visuals;
 using QuizBattle.Characters;
 using TMPro;
@@ -5,10 +6,6 @@ using UnityEngine;
 
 namespace QuizBattle.Arena
 {
-    /// A per-archetype stylized body (see CharacterVisualBuilder) plus a billboarded
-    /// nameplate (name text + HP bar) above it. Features juicy Clash Royale-style
-    /// parabolic hopping, squash & stretch landing impacts, grounded blob contact shadows,
-    /// and hit reactions.
     public class CharacterToken : MonoBehaviour
     {
         private const float BarWidth = 1.45f;
@@ -28,6 +25,7 @@ namespace QuizBattle.Arena
         private int _maxHp;
         private int _streak;
         private bool _eliminated;
+        private bool _frozen;
         private GameObject _frozenIndicator;
 
         private Vector3 _moveStart;
@@ -38,11 +36,13 @@ namespace QuizBattle.Arena
         private float _landingBounceTime;
         private float _flinchTime;
         private float _goofyWobbleTime;
+        private float _attackTime;
+        private Vector3 _attackDirection;
 
         /// Fallback overload for any call site that only has a bare color (e.g. a missed
         /// migration) — degrades to a generic capsule instead of failing to compile.
         public static CharacterToken Create(string displayName, Color color, Vector3 worldPos) =>
-            Create(displayName, CharacterVisual.Fallback(color), worldPos);
+        Create(displayName, CharacterVisual.Fallback(color), worldPos);
 
         public static CharacterToken Create(string displayName, in CharacterVisual visual, Vector3 worldPos)
         {
@@ -52,6 +52,8 @@ namespace QuizBattle.Arena
             var bodyContainer = new GameObject("Body");
             bodyContainer.transform.SetParent(root.transform, false);
             var visualResult = CharacterVisualBuilder.Build(visual, bodyContainer.transform);
+            var groundRing = bodyContainer.transform.Find("TeamBaseRing");
+            if (groundRing != null) groundRing.SetParent(root.transform, false);
 
             var nameplate = new GameObject("Nameplate");
             nameplate.transform.SetParent(root.transform, false);
@@ -77,48 +79,36 @@ namespace QuizBattle.Arena
             return token;
         }
 
-        /// 3D Translucent Frosted Ice Block with crystal spikes and glowing frost ring
-        /// that encases the character completely when frozen.
         private static GameObject CreateFrozenIndicator(Transform parent)
         {
             var go = new GameObject("FrozenIceBlock");
             go.transform.SetParent(parent, false);
             go.transform.localPosition = Vector3.zero;
 
-            var iceMat = ToonMaterialFactory.Instance(new Color(0.65f, 0.92f, 1.0f, 0.75f), ToonStyle.IceBlockStyle);
-
-            // Main translucent ice block encasing the character
-            var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.name = "MainIceCube";
-            cube.transform.SetParent(go.transform, false);
-            cube.transform.localPosition = new Vector3(0f, 0.55f, 0f);
-            cube.transform.localScale = new Vector3(1.10f, 1.35f, 1.10f);
-            Object.Destroy(cube.GetComponent<Collider>());
-            cube.GetComponent<Renderer>().sharedMaterial = iceMat;
-
-            // 4 corner crystal spikes
-            float[] xz = { -0.50f, 0.50f };
+            var iceStyle = ToonStyle.Default;
+            iceStyle.RimIntensity = 0.4f;
+            iceStyle.EmissionColor = new Color(0.12f, 0.55f, 0.8f);
+            iceStyle.EmissionIntensity = 0.25f;
+            iceStyle.OutlineWidth = 0.8f;
+            var iceMat = ToonMaterialFactory.Toon(new Color(0.5f, 0.85f, 1f), iceStyle);
+            float[] xz = { -0.40f, 0.40f };
             for (int i = 0; i < 4; i++)
             {
-                var spike = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                spike.name = $"IceSpike_{i}";
+                var spike = new GameObject($"IceSpike_{i}");
                 spike.transform.SetParent(go.transform, false);
-                spike.transform.localPosition = new Vector3(xz[i % 2], 0.65f, xz[i / 2]);
-                spike.transform.localScale = new Vector3(0.20f, 0.80f, 0.20f);
+                spike.transform.localPosition = new Vector3(xz[i % 2], 0.03f, xz[i / 2]);
+                spike.transform.localScale = new Vector3(1f, i % 2 == 0 ? 1f : 0.7f, 1f);
                 spike.transform.localRotation = Quaternion.Euler((i % 2 == 0 ? 12f : -12f), 0f, (i / 2 == 0 ? 12f : -12f));
-                Object.Destroy(spike.GetComponent<Collider>());
-                spike.GetComponent<Renderer>().sharedMaterial = iceMat;
+                spike.AddComponent<MeshFilter>().sharedMesh = PrimitiveMeshFactory.Cone(5, 0.10f, 0f, 0.65f);
+                spike.AddComponent<MeshRenderer>().sharedMaterial = iceMat;
             }
 
-            // Glowing frosted base disc
-            var frostRing = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            frostRing.name = "FrostRing";
+            var frostRing = new GameObject("FrostRing");
             frostRing.transform.SetParent(go.transform, false);
             frostRing.transform.localPosition = new Vector3(0f, 0.04f, 0f);
-            frostRing.transform.localScale = new Vector3(1.35f, 0.03f, 1.35f);
-            Object.Destroy(frostRing.GetComponent<Collider>());
-            frostRing.GetComponent<Renderer>().sharedMaterial =
-                ToonMaterialFactory.Glow(new Color(0.4f, 0.85f, 1f), intensity: 1.5f, softEdge: 0.25f, pulseSpeed: 2f, pulseAmount: 0.4f);
+            frostRing.AddComponent<MeshFilter>().sharedMesh = PrimitiveMeshFactory.Torus(0.53f, 0.025f, 24, 6);
+            frostRing.AddComponent<MeshRenderer>().sharedMaterial =
+                ToonMaterialFactory.Glow(new Color(0.4f, 0.85f, 1f), intensity: 0.85f, softEdge: 0.25f, pulseSpeed: 2f, pulseAmount: 0.2f);
 
             go.SetActive(false);
             return go;
@@ -139,6 +129,7 @@ namespace QuizBattle.Arena
             text.outlineWidth = 0.28f;
             text.outlineColor = Color.black;
             text.enableWordWrapping = false;
+            text.richText = false;
             return text;
         }
 
@@ -197,6 +188,7 @@ namespace QuizBattle.Arena
             Object.Destroy(fill.GetComponent<Collider>());
             var fillRenderer = fill.GetComponent<Renderer>();
             fillRenderer.sharedMaterial = ToonMaterialFactory.GlowInstance(fillColor, intensity: 1.2f, softEdge: 0.02f);
+            fillRenderer.sharedMaterial.SetFloat("_RadialMask", 0f);
 
             return (fillPivot.transform, fillRenderer);
         }
@@ -215,10 +207,10 @@ namespace QuizBattle.Arena
 
             // Dynamic color coding: Green > 50%, Gold 25%-50%, Crimson <= 25%
             Color hpColor = fraction > 0.50f
-                ? new Color(0.20f, 0.90f, 0.30f)
-                : fraction > 0.25f
-                    ? new Color(1.00f, 0.78f, 0.15f)
-                    : new Color(1.00f, 0.25f, 0.25f);
+                            ? new Color(0.20f, 0.90f, 0.30f)
+                            : fraction > 0.25f
+                            ? new Color(1.00f, 0.78f, 0.15f)
+                            : new Color(1.00f, 0.25f, 0.25f);
             if (_hpFillRenderer != null && _hpFillRenderer.sharedMaterial != null)
             {
                 _hpFillRenderer.sharedMaterial.SetColor("_TintColor", hpColor);
@@ -241,28 +233,51 @@ namespace QuizBattle.Arena
 
         public void SetEliminated()
         {
+            if (_eliminated) return;
+            CompleteMovement();
             _eliminated = true;
-            var dim = new Color(0.3f, 0.3f, 0.3f, 0.4f);
+            _attackTime = 0f;
+            _goofyWobbleTime = 0f;
+            SetFrozen(false);
+            var dim = new Color(0.3f, 0.3f, 0.3f);
+            var properties = new MaterialPropertyBlock();
+            properties.SetColor("_BaseColor", dim);
+            properties.SetColor("_TintColor", dim);
+            properties.SetFloat("_EmissionIntensity", 0f);
+            properties.SetFloat("_RimIntensity", 0f);
             foreach (var renderer in _bodyRenderers)
             {
                 if (renderer == null) continue;
-                if (renderer.sharedMaterial.HasColor("_BaseColor")) renderer.sharedMaterial.SetColor("_BaseColor", dim);
-                if (renderer.sharedMaterial.HasColor("_TintColor")) renderer.sharedMaterial.SetColor("_TintColor", dim);
+                renderer.SetPropertyBlock(properties);
             }
-            _hpFillRenderer.sharedMaterial.SetColor("_TintColor", new Color(0.3f, 0.3f, 0.3f));
+            _hpFillRenderer.SetPropertyBlock(properties);
             RebuildLabel();
         }
 
         public void SetFrozen(bool frozen)
         {
-            if (_frozenIndicator != null) _frozenIndicator.SetActive(frozen);
-            if (_animator != null) _animator.SetPaused(frozen);
+            _frozen = frozen && !_eliminated;
+            if (_frozen) _attackTime = 0f;
+            if (_frozenIndicator != null) _frozenIndicator.SetActive(_frozen);
+            if (_animator != null) _animator.SetPaused(_frozen || _moving || _eliminated || _attackTime > 0f);
+        }
+
+        public void AttackToward(Vector3 target)
+        {
+            if (_eliminated || _frozen) return;
+            _attackDirection = transform.InverseTransformDirection(target - transform.position);
+            _attackDirection.y = 0f;
+            if (_attackDirection.sqrMagnitude < 0.001f) return;
+            _attackDirection.Normalize();
+            _attackTime = 0.36f;
+            if (_animator != null) _animator.SetPaused(true);
         }
 
         /// Animates the juicy parabolic hop from current position to worldPos with
         /// squash & stretch physics.
         public void MoveTo(Vector3 worldPos)
         {
+            if (_eliminated || (worldPos - (_moving ? _moveTarget : transform.position)).sqrMagnitude < 0.0001f) return;
             _moveStart = transform.position;
             _moveTarget = worldPos;
             _moveElapsed = 0f;
@@ -283,7 +298,7 @@ namespace QuizBattle.Arena
                 _bodyContainer.localScale = Vector3.one;
             }
             _moving = false;
-            if (_animator != null) _animator.SetPaused(false);
+            if (_animator != null) _animator.SetPaused(_frozen || _eliminated || _attackTime > 0f);
         }
 
         private void Update()
@@ -298,10 +313,11 @@ namespace QuizBattle.Arena
 
                 // Parabolic hop arc
                 float hop = Mathf.Sin(t * Mathf.PI) * HopHeight;
-                transform.position = currentPos + Vector3.up * hop;
+                transform.position = currentPos;
 
                 if (_bodyContainer != null)
                 {
+                    _bodyContainer.localPosition = Vector3.up * hop;
                     // Directional tilt while moving
                     Vector3 moveDir = (_moveTarget - _moveStart).normalized;
                     if (moveDir.sqrMagnitude > 0.001f)
@@ -340,7 +356,7 @@ namespace QuizBattle.Arena
                 {
                     _moving = false;
                     _landingBounceTime = 0.2f;
-                    if (_animator != null) _animator.SetPaused(false);
+                    if (_animator != null) _animator.SetPaused(_frozen || _eliminated || _attackTime > 0f);
                 }
             }
             else if (_landingBounceTime > 0f)
@@ -351,6 +367,7 @@ namespace QuizBattle.Arena
                 float spring = Mathf.Sin((1f - bounceT) * Mathf.PI * 2f) * 0.12f * bounceT;
                 if (_bodyContainer != null)
                 {
+                    _bodyContainer.localPosition = Vector3.zero;
                     _bodyContainer.localRotation = Quaternion.identity;
                     _bodyContainer.localScale = new Vector3(1f - spring, 1f + spring, 1f - spring);
                 }
@@ -366,6 +383,17 @@ namespace QuizBattle.Arena
                     _bodyContainer.localPosition = new Vector3(shake, -shake * 0.5f, 0f);
                     _bodyContainer.localScale = new Vector3(1f + flinchT * 0.15f, 1f - flinchT * 0.2f, 1f + flinchT * 0.15f);
                 }
+            }
+            else if (_attackTime > 0f)
+            {
+                _attackTime = Mathf.Max(0f, _attackTime - Time.deltaTime);
+                float t = 1f - _attackTime / 0.36f;
+                float thrust = Mathf.Sin(t * Mathf.PI * 2f) * -0.12f * (1f - t);
+                float yaw = Mathf.Atan2(-_attackDirection.x, -_attackDirection.z) * Mathf.Rad2Deg;
+                _bodyContainer.localPosition = _attackDirection * thrust;
+                _bodyContainer.localRotation = Quaternion.Euler(thrust * 90f, Mathf.LerpAngle(yaw, 0f, t * t), 0f);
+                _bodyContainer.localScale = new Vector3(1f - Mathf.Abs(thrust), 1f + Mathf.Abs(thrust), 1f - Mathf.Abs(thrust));
+                if (_attackTime == 0f && _animator != null) _animator.SetPaused(_frozen || _eliminated);
             }
             else if (_goofyWobbleTime > 0f)
             {
@@ -386,6 +414,23 @@ namespace QuizBattle.Arena
             {
                 _bodyContainer.localPosition = Vector3.zero;
                 _bodyContainer.localRotation = Quaternion.identity;
+                _bodyContainer.localScale = Vector3.one;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            var materials = new HashSet<Material>();
+            if (_bodyRenderers != null)
+                foreach (var renderer in _bodyRenderers)
+                    if (renderer != null)
+                        foreach (var material in renderer.sharedMaterials) materials.Add(material);
+            if (_hpFillRenderer != null) materials.Add(_hpFillRenderer.sharedMaterial);
+            foreach (var material in materials)
+            {
+                if (material == null) continue;
+                if (Application.isPlaying) Destroy(material);
+                else DestroyImmediate(material);
             }
         }
 

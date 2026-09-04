@@ -8,6 +8,7 @@ Shader "QuizBattle/GlowAdditive"
         _TintColor("Tint Color", Color) = (1, 1, 1, 1)
         _Intensity("Intensity", Range(0, 10)) = 1
         _SoftEdge("Soft Edge", Range(0.01, 1)) = 0.5
+        _RadialMask("Radial Mask", Range(0, 1)) = 1
         _PulseSpeed("Pulse Speed", Range(0, 10)) = 0
         _PulseAmount("Pulse Amount", Range(0, 1)) = 0
     }
@@ -37,6 +38,7 @@ Shader "QuizBattle/GlowAdditive"
                 half4 _TintColor;
                 half _Intensity;
                 half _SoftEdge;
+                half _RadialMask;
                 half _PulseSpeed;
                 half _PulseAmount;
             CBUFFER_END
@@ -77,12 +79,13 @@ Shader "QuizBattle/GlowAdditive"
 
                 half dist = length(input.uv - 0.5) * 2.0;
                 half falloff = (_SoftEdge > 0.01 && dist <= 1.5) ? (1.0 - smoothstep(1.0 - _SoftEdge, 1.0, saturate(dist))) : 1.0;
+                falloff = lerp(1.0, falloff, saturate(_RadialMask));
 
                 half pulse = 1.0 - _PulseAmount * 0.5 * (1.0 + sin(_Time.y * _PulseSpeed));
 
-                half3 rgb = _TintColor.rgb * input.color.rgb * _Intensity * pulse;
+                half3 rgb = _TintColor.rgb * input.color.rgb * _Intensity;
                 half a = saturate(_TintColor.a * input.color.a * falloff * pulse);
-                return half4(rgb * a, a);
+                return half4(rgb, a);
             }
             ENDHLSL
         }

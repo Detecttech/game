@@ -20,13 +20,6 @@ namespace QuizBattle.Arena
     /// headless demo runners build an empty scene with neither).
     public static class ArenaEnvironment
     {
-        private const float Pitch = 52f;
-        private const float FieldOfView = 32f;
-        // Fraction of the vertical frame reserved for the board, bottom-anchored — the
-        // HUD's question/choice UI occupies roughly the top 45% of the screen, so the
-        // board is framed into the bottom 55% rather than centered under it.
-        private const float BoardScreenFraction = 0.55f;
-
         public static ArenaRig Acquire(Color backgroundColor)
         {
             var rig = new ArenaRig
@@ -49,6 +42,7 @@ namespace QuizBattle.Arena
             {
                 framer = rig.Camera.gameObject.AddComponent<ArenaCameraAutoFramer>();
             }
+            framer.SetGridTransform(grid != null ? grid.transform : null);
             framer.SetDimensions(width, height, grid != null ? grid.tileSize : 1.32f);
         }
 
@@ -63,12 +57,11 @@ namespace QuizBattle.Arena
             }
 
             camera.orthographic = false;
-            camera.fieldOfView = 38f;
+            camera.fieldOfView = 32f;
             camera.nearClipPlane = 0.3f;
             camera.farClipPlane = 160f;
             camera.clearFlags = CameraClearFlags.SolidColor;
-            // Rich saturated Clash Royale cartoon blue sky horizon
-            camera.backgroundColor = new Color(0.35f, 0.78f, 0.98f);
+            camera.backgroundColor = QuizBattlePalette.SkyHorizon;
 
             var camData = camera.GetUniversalAdditionalCameraData();
             camData.renderPostProcessing = true;
@@ -81,7 +74,7 @@ namespace QuizBattle.Arena
             Light key = null;
             foreach (var light in Object.FindObjectsByType<Light>(FindObjectsSortMode.None))
             {
-                if (light.type == LightType.Directional) { key = light; break; }
+                if (light.type == LightType.Directional && light.name != "Fill Light") { key = light; break; }
             }
 
             if (key == null)
@@ -91,8 +84,8 @@ namespace QuizBattle.Arena
                 key.type = LightType.Directional;
             }
 
-            key.color = new Color(1.00f, 0.96f, 0.88f); // Warm sunlit golden key light
-            key.intensity = 1.35f;
+            key.color = new Color(1.00f, 0.88f, 0.72f);
+            key.intensity = 1.2f;
             key.shadows = LightShadows.None; // Crisp toon presentation without dynamic shadow blobs on tiles
             key.shadowStrength = 0f;
             key.transform.rotation = Quaternion.Euler(46f, -32f, 0f);
@@ -103,11 +96,15 @@ namespace QuizBattle.Arena
 
         private static Light AcquireFillLight()
         {
-            var go = new GameObject("Fill Light");
-            var fill = go.AddComponent<Light>();
+            Light fill = null;
+            foreach (var light in Object.FindObjectsByType<Light>(FindObjectsSortMode.None))
+            {
+                if (light.type == LightType.Directional && light.name == "Fill Light") { fill = light; break; }
+            }
+            if (fill == null) fill = new GameObject("Fill Light").AddComponent<Light>();
             fill.type = LightType.Directional;
-            fill.color = new Color(0.72f, 0.82f, 1.00f); // Bright saturated sky fill
-            fill.intensity = 0.55f;
+            fill.color = new Color(0.46f, 0.69f, 1.00f);
+            fill.intensity = 0.42f;
             fill.shadows = LightShadows.None;
             fill.transform.rotation = Quaternion.Euler(35f, 140f, 0f);
             return fill;
@@ -115,12 +112,11 @@ namespace QuizBattle.Arena
 
         private static void ConfigureAmbient()
         {
-            // Trilight with crisp sky, soft neutral equator, and lush grass ground bounce
             RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.62f, 0.74f, 0.95f);
-            RenderSettings.ambientEquatorColor = new Color(0.48f, 0.56f, 0.52f);
-            RenderSettings.ambientGroundColor = new Color(0.38f, 0.68f, 0.28f); // Vibrant lush emerald grass bounce
-            RenderSettings.ambientIntensity = 1.05f;
+            RenderSettings.ambientSkyColor = new Color(0.43f, 0.49f, 0.70f);
+            RenderSettings.ambientEquatorColor = new Color(0.32f, 0.37f, 0.49f);
+            RenderSettings.ambientGroundColor = new Color(0.19f, 0.27f, 0.31f);
+            RenderSettings.ambientIntensity = 1f;
         }
 
         private static void ConfigureVolume(Camera camera)
@@ -131,23 +127,22 @@ namespace QuizBattle.Arena
             var profile = ScriptableObject.CreateInstance<VolumeProfile>();
 
             var bloom = profile.Add<Bloom>(true);
-            bloom.threshold.value = 1.0f;
-            bloom.intensity.value = 0.65f;
-            bloom.scatter.value = 0.75f;
+            bloom.threshold.value = 1.15f;
+            bloom.intensity.value = 0.28f;
+            bloom.scatter.value = 0.55f;
             bloom.downscale.value = BloomDownscaleMode.Half;
-            bloom.maxIterations.value = 4;
+            bloom.maxIterations.value = 3;
 
             var tonemapping = profile.Add<Tonemapping>(true);
             tonemapping.mode.value = TonemappingMode.Neutral;
 
             var colorAdjustments = profile.Add<ColorAdjustments>(true);
-            // Clash-Royale punchy/saturated toon look
-            colorAdjustments.saturation.value = 28f;
-            colorAdjustments.contrast.value = 14f;
-            colorAdjustments.postExposure.value = 0.12f;
+            colorAdjustments.saturation.value = 8f;
+            colorAdjustments.contrast.value = 10f;
+            colorAdjustments.postExposure.value = 0.08f;
 
             var vignette = profile.Add<Vignette>(true);
-            vignette.intensity.value = 0.12f;
+            vignette.intensity.value = 0.08f;
             vignette.smoothness.value = 0.6f;
 
             var volumeObj = new GameObject("Post Volume");
@@ -171,6 +166,12 @@ namespace QuizBattle.Arena
         private int _lastWidth;
         private int _lastHeight;
         private float _lastAspect;
+        private Transform _gridTransform;
+        private Matrix4x4 _lastGridMatrix;
+        private Rect _lastViewport;
+        private QuizBattle.UI.HUD.HudController _hud;
+        private float _nextHudCheck;
+        private readonly Vector3[] _hudCorners = new Vector3[4];
 
         private void Awake()
         {
@@ -181,17 +182,70 @@ namespace QuizBattle.Arena
         {
             GridWidth = Mathf.Max(1, width);
             GridHeight = Mathf.Max(1, height);
-            TileSize = tileSize;
+            TileSize = Mathf.Max(0.01f, tileSize);
             ApplyFraming();
+        }
+
+        public void SetGridTransform(Transform gridTransform)
+        {
+            _gridTransform = gridTransform;
         }
 
         private void LateUpdate()
         {
             if (_cam == null) return;
-            if (Screen.width != _lastWidth || Screen.height != _lastHeight || Mathf.Abs(_cam.aspect - _lastAspect) > 0.005f)
+            if (Screen.width != _lastWidth || Screen.height != _lastHeight || Mathf.Abs(_cam.aspect - _lastAspect) > 0.005f
+                    || _lastViewport != GetBoardViewport()
+                    || _lastGridMatrix != (_gridTransform != null ? _gridTransform.localToWorldMatrix : Matrix4x4.identity))
             {
                 ApplyFraming();
             }
+        }
+
+        private Rect GetBoardViewport()
+        {
+            var pixels = _cam.pixelRect;
+            var safe = Screen.safeArea;
+            float pixelWidth = Mathf.Max(1f, pixels.width);
+            float pixelHeight = Mathf.Max(1f, pixels.height);
+            float left = Mathf.Max(0.06f, (safe.xMin - pixels.xMin) / pixelWidth + 0.02f);
+            float right = Mathf.Min(0.94f, (safe.xMax - pixels.xMin) / pixelWidth - 0.02f);
+            float bottom = Mathf.Max(0.08f, (safe.yMin - pixels.yMin) / pixelHeight + 0.02f);
+            float top = Mathf.Min(0.60f, (safe.yMax - pixels.yMin) / pixelHeight - 0.02f);
+
+            if (_hud == null && Time.unscaledTime >= _nextHudCheck)
+            {
+                _hud = Object.FindFirstObjectByType<QuizBattle.UI.HUD.HudController>();
+                _nextHudCheck = Time.unscaledTime + 0.5f;
+            }
+            if (_hud != null && _hud.isActiveAndEnabled)
+            {
+                var canvas = _hud.GetComponent<Canvas>();
+                var uiCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
+                for (int i = 0; i < _hud.transform.childCount; i++)
+                {
+                    var child = _hud.transform.GetChild(i) as RectTransform;
+                    if (child == null || !child.gameObject.activeInHierarchy) continue;
+                    bool lower = child.name == "WaitBanner";
+                    if (!lower && child.name != "QuestionPlacard" && child.name != "TimerBanner" && !child.name.StartsWith("Choice_")) continue;
+                    child.GetWorldCorners(_hudCorners);
+                    float minY = float.PositiveInfinity;
+                    float maxY = float.NegativeInfinity;
+                    for (int corner = 0; corner < 4; corner++)
+                    {
+                        float y = (RectTransformUtility.WorldToScreenPoint(uiCamera, _hudCorners[corner]).y - pixels.yMin) / pixelHeight;
+                        minY = Mathf.Min(minY, y);
+                        maxY = Mathf.Max(maxY, y);
+                    }
+                    if (lower) bottom = Mathf.Max(bottom, maxY + 0.02f);
+                    else top = Mathf.Min(top, minY - 0.02f);
+                }
+            }
+            left = Mathf.Clamp(left, 0.02f, 0.80f);
+            right = Mathf.Clamp(right, left + 0.10f, 0.98f);
+            bottom = Mathf.Clamp(bottom, 0.02f, 0.80f);
+            top = Mathf.Clamp(top, bottom + 0.10f, 0.98f);
+            return Rect.MinMaxRect(left, bottom, right, top);
         }
 
         public void ApplyFraming()
@@ -201,52 +255,54 @@ namespace QuizBattle.Arena
 
             _cam.fieldOfView = 32f;
             _cam.nearClipPlane = 0.3f;
-            _cam.farClipPlane = 200f;
 
             _lastWidth = Screen.width;
             _lastHeight = Screen.height;
             _lastAspect = _cam.aspect;
-
+            _lastViewport = GetBoardViewport();
+            _lastGridMatrix = _gridTransform != null ? _gridTransform.localToWorldMatrix : Matrix4x4.identity;
             float centerX = (GridWidth - 1) * TileSize * 0.5f;
-
-            float pitch = 50f;
-            float pitchRad = pitch * Mathf.Deg2Rad;
-            float fovRad = _cam.fieldOfView * Mathf.Deg2Rad;
-            float aspect = _cam.aspect > 0.05f ? _cam.aspect : (float)Screen.width / Mathf.Max(1, Screen.height);
-
-            // Bounding extents including castle walls, towers, spotlights, and moat
-            float zTop = (GridHeight - 0.5f) * TileSize + 2.2f;
-            float zBot = -0.5f * TileSize - 1.7f;
-            float zSpan = zTop - zBot;
-
-            float xSpan = GridWidth * TileSize + 4.6f;
-
-            // Safe vertical placement: North wall & towers cleanly below HUD, South wall above bottom screen edge
-            float yTargetTop = 0.20f;
-            float yTargetBot = -0.84f;
-            float xTargetMax = 0.88f;
-
-            float k = Mathf.Tan(fovRad * 0.5f);
-            float sinP = Mathf.Sin(pitchRad);
-            float cosP = Mathf.Cos(pitchRad);
-
-            float fTop = (yTargetTop * k) / Mathf.Max(0.01f, sinP - yTargetTop * k * cosP);
-            float fBot = (yTargetBot * k) / Mathf.Max(0.01f, sinP - yTargetBot * k * cosP);
-
-            float distV = zSpan / Mathf.Max(0.01f, fTop - fBot);
-            float distH = xSpan / Mathf.Max(0.01f, 2f * xTargetMax * k * aspect);
-
-            float dist = Mathf.Max(distV, distH);
-
-            // Center vertical framing safely between the target bounds
-            float aimZ = 0.5f * (zTop + zBot) - 0.5f * dist * (fTop + fBot);
-
-            var rotation = Quaternion.Euler(pitch, 0f, 0f);
-            Vector3 forward = rotation * Vector3.forward;
-            Vector3 lookAtPoint = new Vector3(centerX, 0f, aimZ);
-            Vector3 position = lookAtPoint - forward * dist;
-
+            float centerZ = (GridHeight - 1) * TileSize * 0.5f;
+            float halfW = GridWidth * TileSize * 0.5f;
+            float halfH = GridHeight * TileSize * 0.5f;
+            var localCenter = new Vector3(centerX, 0f, centerZ);
+            var center = _lastGridMatrix.MultiplyPoint3x4(localCenter);
+            var rotation = (_gridTransform != null ? _gridTransform.rotation : Quaternion.identity) * Quaternion.Euler(50f, 0f, 0f);
+            var inverseRotation = Quaternion.Inverse(rotation);
+            float tangent = Mathf.Tan(_cam.fieldOfView * Mathf.Deg2Rad * 0.5f);
+            float aspect = Mathf.Max(0.01f, _cam.aspect);
+            float left = _lastViewport.xMin * 2f - 1f;
+            float right = _lastViewport.xMax * 2f - 1f;
+            float bottom = _lastViewport.yMin * 2f - 1f;
+            float top = _lastViewport.yMax * 2f - 1f;
+            float offsetX = (left + right) * 0.5f;
+            float offsetY = (bottom + top) * 0.5f;
+            float distance = 1f;
+            float depth = 0f;
+            Bounds[] bounds =
+            {
+                new Bounds(Vector3.up * 0.6f, new Vector3(halfW * 2f + 1.2f, 4.8f, halfH * 2f + 1.2f)),
+                new Bounds(new Vector3(0f, -1.25f, 0.85f), new Vector3(halfW * 2f + 7.4f, 2.5f, halfH * 2f + 6.1f)),
+                new Bounds(new Vector3(0f, 2.85f, halfH + 2.9f), new Vector3(halfW * 2f + 7.4f, 5.7f, 4f)),
+            };
+            foreach (var bound in bounds)
+            {
+                for (int corner = 0; corner < 8; corner++)
+                {
+                    var local = localCenter + bound.center + Vector3.Scale(bound.extents, new Vector3(
+                                    (corner & 1) == 0 ? -1f : 1f, (corner & 2) == 0 ? -1f : 1f, (corner & 4) == 0 ? -1f : 1f));
+                    var point = inverseRotation * (_lastGridMatrix.MultiplyPoint3x4(local) - center);
+                    distance = Mathf.Max(distance, (point.x - right * tangent * aspect * point.z) / ((right - offsetX) * tangent * aspect));
+                    distance = Mathf.Max(distance, (left * tangent * aspect * point.z - point.x) / ((offsetX - left) * tangent * aspect));
+                    distance = Mathf.Max(distance, (point.y - top * tangent * point.z) / ((top - offsetY) * tangent));
+                    distance = Mathf.Max(distance, (bottom * tangent * point.z - point.y) / ((offsetY - bottom) * tangent));
+                    distance = Mathf.Max(distance, 1f - point.z);
+                    depth = Mathf.Max(depth, point.z);
+                }
+            }
+            var position = center + rotation * new Vector3(-offsetX * distance * tangent * aspect, -offsetY * distance * tangent, -distance);
             transform.SetPositionAndRotation(position, rotation);
+            _cam.farClipPlane = Mathf.Max(200f, distance + depth + 20f);
 
             foreach (var label in Object.FindObjectsByType<BillboardLabel>(FindObjectsInactive.Exclude))
                 label.Align(_cam);

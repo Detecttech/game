@@ -89,8 +89,8 @@ namespace QuizBattle.Arena.Visuals
                     int c = (i + 1) * ringSize + j + 1;
                     int d = i * ringSize + j + 1;
 
-                    triangles.Add(a); triangles.Add(b); triangles.Add(d);
-                    triangles.Add(b); triangles.Add(c); triangles.Add(d);
+                    triangles.Add(a); triangles.Add(d); triangles.Add(b);
+                    triangles.Add(b); triangles.Add(d); triangles.Add(c);
                 }
             }
 
@@ -100,7 +100,7 @@ namespace QuizBattle.Arena.Visuals
         }
 
         private static void AddCap(List<Vector3> vertices, List<Vector3> normals, List<int> triangles,
-            float radius, float y, int segments, float angleStep, Vector3 normal, bool capOnTop)
+                                   float radius, float y, int segments, float angleStep, Vector3 normal, bool capOnTop)
         {
             int centerIdx = vertices.Count;
             vertices.Add(new Vector3(0f, y, 0f));
@@ -132,10 +132,19 @@ namespace QuizBattle.Arena.Visuals
 
         private static Mesh BuildMesh(string name, List<Vector3> vertices, List<Vector3> normals, List<int> triangles)
         {
+            var uv = new Vector2[vertices.Count];
+            var colors = new Color[vertices.Count];
+            for (int i = 0; i < vertices.Count; i++)
+            {
+                uv[i] = new Vector2(0.5f, 0.5f);
+                colors[i] = Color.white;
+            }
             var mesh = new Mesh { name = name, hideFlags = HideFlags.DontUnloadUnusedAsset };
             mesh.SetVertices(vertices);
             mesh.SetNormals(normals);
             mesh.SetTriangles(triangles, 0);
+            mesh.uv = uv;
+            mesh.colors = colors;
             mesh.RecalculateBounds();
             return mesh;
         }
