@@ -1,31 +1,6 @@
-# ==========================================
-# Stage 1: Build Teacher Web Portal (React Vite)
-# ==========================================
-FROM node:20-bookworm-slim AS web-portal-builder
-WORKDIR /app/server/web-portal
-
-COPY server/web-portal/package*.json ./
-RUN npm install
-
-COPY server/web-portal ./
-RUN npm run build
-
-# ==========================================
-# Stage 2: Build Server TypeScript
-# ==========================================
-FROM node:20-bookworm-slim AS server-builder
-WORKDIR /app/server
-
-COPY server/package*.json ./
-RUN npm install
-
-COPY server/tsconfig.json ./
-COPY server/src ./src
-RUN npm run build && cp src/db/schema.sql dist/db/schema.sql
-
-# ==========================================
-# Stage 3: Production Runtime
-# ==========================================
+# ==============================================================================
+# QuizBattle - High-Speed Production Docker Image
+# ==============================================================================
 FROM node:20-bookworm-slim AS runner
 
 # Install C++ build tools required by native better-sqlite3 bindings
@@ -47,12 +22,11 @@ WORKDIR /app/server
 COPY server/package*.json ./
 RUN npm install --omit=dev && npm cache clean --force
 
-# Copy compiled artifacts from builders
-COPY --from=server-builder /app/server/dist ./dist
-COPY server/src/db/schema.sql ./dist/db/schema.sql
-COPY --from=web-portal-builder /app/server/web-portal/dist ./web-portal/dist
+# Copy pre-compiled server and web portal
+COPY server/dist ./dist
+COPY server/web-portal/dist ./web-portal/dist
 
-# Copy Unity WebGL build if present
+# Copy Unity WebGL build
 COPY game-client/webgl-build /app/game-client/webgl-build
 
 # Prepare persistent database storage directory

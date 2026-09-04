@@ -17,12 +17,10 @@ game-client/building
 *BurstDebugInformation*
 game-client/webgl-build/*BurstDebugInformation*
 
-# Node modules & build artifacts (built inside Docker)
+# Node modules (built inside Docker)
 node_modules
 server/node_modules
-server/dist
 server/web-portal/node_modules
-server/web-portal/dist
 server/data/*.db-journal
 server/data/*.db-wal
 server/data/*.db-shm

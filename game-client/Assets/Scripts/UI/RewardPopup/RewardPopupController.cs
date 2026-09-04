@@ -57,11 +57,11 @@ namespace QuizBattle.UI.RewardPopup
             _panel.SetActive(false);
         }
 
-        public void ShowAttackChoice(IReadOnlyList<(int playerId, string name)> opponents, Action<int> onTargetChosen) =>
-            ShowTargetChoice("Streak reward: choose a target to attack!", opponents, onTargetChosen);
+        public void ShowAttackChoice(IReadOnlyList<(int playerId, string name)> opponents, Action<int> onTargetChosen, string title = null) =>
+            ShowTargetChoice(title ?? "Streak reward: choose a target to attack!", opponents, onTargetChosen);
 
-        public void ShowFreezeChoice(IReadOnlyList<(int playerId, string name)> opponents, Action<int> onTargetChosen) =>
-            ShowTargetChoice("Streak reward: choose a target to freeze!", opponents, onTargetChosen);
+        public void ShowFreezeChoice(IReadOnlyList<(int playerId, string name)> opponents, Action<int> onTargetChosen, string title = null) =>
+            ShowTargetChoice(title ?? "Streak reward: choose a target to freeze!", opponents, onTargetChosen);
 
         private void ShowTargetChoice(string title, IReadOnlyList<(int playerId, string name)> opponents, Action<int> onTargetChosen)
         {
@@ -79,7 +79,7 @@ namespace QuizBattle.UI.RewardPopup
             for (int i = 0; i < opponents.Count; i++)
             {
                 var target = opponents[i];
-                var button = UiFactory.CreateButton(_buttonContainer, $"Target_{target.playerId}", new Vector2(0.5f, 0.5f), new Vector2(300, 40), target.name, new Vector2(0, -i * 46));
+                var button = UiFactory.CreateButton(_buttonContainer, $"Target_{target.playerId}", new Vector2(0.5f, 0.5f), new Vector2(340, 50), target.name, new Vector2(0, -i * 58));
                 button.onClick.AddListener(() =>
                 {
                     Hide();
@@ -96,7 +96,7 @@ namespace QuizBattle.UI.RewardPopup
 
             ClearButtons();
             _titleText.text = "Streak reward: bonus movement!";
-            var button = UiFactory.CreateButton(_buttonContainer, "Ack", new Vector2(0.5f, 0.5f), new Vector2(200, 40), "Nice!");
+            var button = UiFactory.CreateButton(_buttonContainer, "Ack", new Vector2(0.5f, 0.5f), new Vector2(240, 50), "Nice!");
             button.onClick.AddListener(() =>
             {
                 Hide();

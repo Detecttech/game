@@ -19,18 +19,28 @@ export function LeaderboardPage() {
   return (
     <div className="page">
       <h1>Leaderboard</h1>
-      <div className="field" style={{ maxWidth: 260 }}>
-        <label htmlFor="scope">Scope</label>
-        <select
-          id="scope"
-          value={scope}
-          onChange={(e) => setScope(e.target.value === "global" ? "global" : Number(e.target.value))}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+        <div className="field" style={{ maxWidth: 260, margin: 0 }}>
+          <label htmlFor="scope">Scope</label>
+          <select
+            id="scope"
+            value={scope}
+            onChange={(e) => setScope(e.target.value === "global" ? "global" : Number(e.target.value))}
+          >
+            <option value="global">All classes</option>
+            {classes.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+        <a
+          href={`/api/leaderboard/export${scope === "global" ? "" : `?classId=${scope}`}`}
+          download
+          className="btn btn-primary"
+          style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 16px" }}
         >
-          <option value="global">All classes</option>
-          {classes.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
+          📥 Download XP Leaderboard (CSV)
+        </a>
       </div>
       {entries.length === 0 ? (
         <p className="muted">No XP recorded yet.</p>

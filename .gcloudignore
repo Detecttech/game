@@ -22,9 +22,7 @@ game-client/webgl-build/*BurstDebugInformation*/
 # Ignore node_modules (built inside Docker container on Linux)
 node_modules/
 server/node_modules/
-server/dist/
 server/web-portal/node_modules/
-server/web-portal/dist/
 
 # Ignore databases and logs
 server/data/*.db-journal

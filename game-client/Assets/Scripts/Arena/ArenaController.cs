@@ -63,6 +63,11 @@ namespace QuizBattle.Arena
             // untracked tokens, which silently broke every HP/attack update.
             _view = new NetworkedArenaView(_grid, _hud, _rig, _store, _characterVisuals);
 
+            if (SessionManager.Role == "teacher" || SessionManager.PlayerId <= 0)
+            {
+                _hud.SetSpectatorMode(true);
+            }
+
             _hud.ChoiceSelected += OnChoiceSelected;
             _store.AnswerResultReceived += OnAnswerResult;
             _store.MatchEnded += OnMatchEnded;
@@ -131,7 +136,7 @@ namespace QuizBattle.Arena
 
             var rewardId = result.RewardOffered.RewardId;
 
-            if (result.RewardOffered.Type == "attack_choice")
+            if (result.RewardOffered.Type == "attack_choice" || result.RewardOffered.Type == "mega_attack")
             {
                 var opponents = GetTargetableOpponents();
                 if (opponents.Count == 0)
@@ -142,7 +147,7 @@ namespace QuizBattle.Arena
                     // MatchEngine.submitAnswer's `!player.pendingReward` gate), which is
                     // exactly what made streaks look completely broken after this case
                     // was hit once.
-                    _hud.Log("Streak reward offered, but no opponent left to target — skipped.");
+                    _hud.Log("Reward offered, but no opponent left to target — skipped.");
                     AppRoot.Instance.Client.Send("reward_consumed", new { rewardId, choice = "waive" });
                     return;
                 }
@@ -153,33 +158,41 @@ namespace QuizBattle.Arena
                 // it's easy to miss the popup entirely, letting the reward silently expire.
                 _rewardPopupOpen = true;
                 _hud.SetChoicesInteractable(false);
+                var attackTitle = result.RewardOffered.Type == "mega_attack"
+                    ? $"⚡ SUDDEN REWARD: Strike with MEGA ATTACK ({(result.RewardOffered.Damage > 0 ? result.RewardOffered.Damage : 35)} DMG)!"
+                    : "Streak reward: choose a target to attack!";
+
                 _rewardPopup.ShowAttackChoice(opponents, targetId =>
                 {
                     _lastTargetPlayerId = targetId;
                     AppRoot.Instance.Client.Send("use_attack", new { rewardId, targetPlayerId = targetId });
                     _rewardPopupOpen = false;
                     _hud.SetChoicesInteractable(true);
-                });
+                }, attackTitle);
             }
-            else if (result.RewardOffered.Type == "freeze")
+            else if (result.RewardOffered.Type == "freeze" || result.RewardOffered.Type == "super_freeze")
             {
                 var opponents = GetTargetableOpponents();
                 if (opponents.Count == 0)
                 {
-                    _hud.Log("Streak reward offered, but no opponent left to target — skipped.");
+                    _hud.Log("Reward offered, but no opponent left to target — skipped.");
                     AppRoot.Instance.Client.Send("reward_consumed", new { rewardId, choice = "waive" });
                     return;
                 }
 
                 _rewardPopupOpen = true;
                 _hud.SetChoicesInteractable(false);
+                var freezeTitle = result.RewardOffered.Type == "super_freeze"
+                    ? $"❄️ SUDDEN REWARD: Strike with SUPER FREEZE (Freeze + {(result.RewardOffered.Damage > 0 ? result.RewardOffered.Damage : 15)} DMG)!"
+                    : "Streak reward: choose a target to freeze!";
+
                 _rewardPopup.ShowFreezeChoice(opponents, targetId =>
                 {
                     _lastTargetPlayerId = targetId;
                     AppRoot.Instance.Client.Send("use_freeze", new { rewardId, targetPlayerId = targetId });
                     _rewardPopupOpen = false;
                     _hud.SetChoicesInteractable(true);
-                });
+                }, freezeTitle);
             }
             else if (result.RewardOffered.Type == "bonus_move")
             {

@@ -31,6 +31,7 @@ namespace QuizBattle.EditorTools.Graphics
             // wasm/data and fail to load. Fine to trade download size for zero server
             // config on a LAN classroom connection.
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Disabled;
+            PlayerSettings.WebGL.template = "PROJECT:Responsive";
 
             var options = new BuildPlayerOptions
             {

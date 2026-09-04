@@ -78,7 +78,7 @@ if [ -z "$JWT_SECRET" ]; then
 fi
 
 echo ""
-echo "Building container image using Google Cloud Build..."
+echo "Building container image using Google Cloud Build (standard worker)..."
 gcloud builds submit --tag "$IMAGE_TAG" --project="$PROJECT_ID" .
 
 echo ""

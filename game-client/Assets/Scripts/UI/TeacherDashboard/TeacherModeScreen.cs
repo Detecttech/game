@@ -31,6 +31,7 @@ namespace QuizBattle.UI.TeacherDashboard
         private TMP_Text _dashboardStatusText;
         private TMP_Text _playerListText;
         private Button _startMatchButton;
+        private Button _spectateArenaButton;
         private Button _killMatchButton;
         private int _watchingMatchId;
 
@@ -60,11 +61,15 @@ namespace QuizBattle.UI.TeacherDashboard
             var connectButton = UiFactory.CreateButton(_dashboardPanel.transform, "ConnectButton", new Vector2(0.72f, 0.83f), new Vector2(160, 45), "Watch");
             connectButton.onClick.AddListener(OnWatchClicked);
 
-            _startMatchButton = UiFactory.CreateButton(_dashboardPanel.transform, "StartMatchButton", new Vector2(0.35f, 0.73f), new Vector2(180, 45), "Start Match");
+            _startMatchButton = UiFactory.CreateButton(_dashboardPanel.transform, "StartMatchButton", new Vector2(0.24f, 0.73f), new Vector2(120, 45), "Start");
             _startMatchButton.onClick.AddListener(OnStartMatchClicked);
             _startMatchButton.gameObject.SetActive(false);
 
-            _killMatchButton = UiFactory.CreateButton(_dashboardPanel.transform, "KillMatchButton", new Vector2(0.68f, 0.73f), new Vector2(180, 45), "End Match");
+            _spectateArenaButton = UiFactory.CreateButton(_dashboardPanel.transform, "SpectateArenaButton", new Vector2(0.52f, 0.73f), new Vector2(170, 45), "3D Spectator");
+            _spectateArenaButton.onClick.AddListener(OnSpectateArenaClicked);
+            _spectateArenaButton.gameObject.SetActive(false);
+
+            _killMatchButton = UiFactory.CreateButton(_dashboardPanel.transform, "KillMatchButton", new Vector2(0.80f, 0.73f), new Vector2(120, 45), "End Match");
             var killImg = _killMatchButton.GetComponent<Image>();
             if (killImg) killImg.color = new Color(0.85f, 0.22f, 0.22f, 1f);
             _killMatchButton.onClick.AddListener(OnKillMatchClicked);
@@ -151,12 +156,18 @@ namespace QuizBattle.UI.TeacherDashboard
             client.Send("teacher_join_match", new { matchId });
             _dashboardStatusText.text = $"Watching match #{matchId}";
             _startMatchButton.gameObject.SetActive(true);
+            _spectateArenaButton.gameObject.SetActive(true);
             _killMatchButton.gameObject.SetActive(true);
         }
 
         private void OnStartMatchClicked()
         {
             AppRoot.Instance.Client.Send("teacher_start_match", new { });
+        }
+
+        private void OnSpectateArenaClicked()
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Arena");
         }
 
         private void OnKillMatchClicked()

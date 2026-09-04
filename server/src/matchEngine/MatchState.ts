@@ -3,18 +3,30 @@ export interface GridPos {
   y: number;
 }
 
-export type RewardType = "attack_choice" | "freeze" | "bonus_move";
+export type RewardType = "attack_choice" | "freeze" | "bonus_move" | "mega_attack" | "super_freeze";
 
 export interface PendingReward {
   rewardId: string;
   type: RewardType;
   expiresAtQuestion: number; // relative to the owning player's own questionsAnswered count
+  customDamage?: number;
+  customName?: string;
+  customVfxTag?: string;
+}
+
+export interface SuddenRewardConfig {
+  type: RewardType;
+  damage?: number;
+  name?: string;
+  vfxTag?: string;
 }
 
 export interface ActiveQuestion {
   questionId: number;
   correctIndex: number;
   questionNumber: number; // this player's own Nth question, not a match-wide round
+  isSudden?: boolean;
+  suddenRewardConfig?: SuddenRewardConfig;
 }
 
 export interface PlayerState {
@@ -31,9 +43,11 @@ export interface PlayerState {
   pendingReward: PendingReward | null;
   pendingDot: { damage: number; remainingRounds: number } | null;
   totalCorrectAnswers: number;
+  suddenCorrectAnswers: number;
   maxStreak: number;
   questionsAnswered: number; // drives reward expiry + the match-length forced-decision cap
   currentQuestion: ActiveQuestion | null; // independent per player, not shared
+  savedQuestion?: ActiveQuestion | null; // preserves student's active question during sudden question events
   goalReached: boolean;
   finishRank: number | null; // 1 for 1st place, 2 for 2nd place, etc.
   finishedAt: number | null;

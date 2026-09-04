@@ -81,12 +81,18 @@ namespace QuizBattle.Networking.Protocol
         // This player's own Nth question — every player answers independently, at their
         // own pace, on their own randomly-drawn question, so there is no shared round.
         [JsonProperty("questionNumber")] public int QuestionNumber;
+        [JsonProperty("isSudden")] public bool IsSudden;
+        [JsonProperty("suddenRewardType")] public string SuddenRewardType;
+        [JsonProperty("rewardDamage")] public int RewardDamage;
+        [JsonProperty("rewardName")] public string RewardName;
     }
 
     public class RewardOfferedPayload
     {
         [JsonProperty("rewardId")] public string RewardId;
-        [JsonProperty("type")] public string Type; // "attack_choice" | "freeze" | "bonus_move"
+        [JsonProperty("type")] public string Type; // "attack_choice" | "freeze" | "bonus_move" | "mega_attack" | "super_freeze"
+        [JsonProperty("damage")] public int Damage;
+        [JsonProperty("name")] public string Name;
     }
 
     public class AnswerResultPayload
@@ -207,5 +213,25 @@ namespace QuizBattle.Networking.Protocol
         [JsonProperty("matchId")] public int MatchId;
         [JsonProperty("status")] public string Status;
         [JsonProperty("players")] public List<LiveDashboardPlayerPayload> Players;
+    }
+
+    public class HazardTargetPayload
+    {
+        [JsonProperty("playerId")] public int PlayerId;
+        [JsonProperty("name")] public string Name;
+        [JsonProperty("characterId")] public string CharacterId;
+        [JsonProperty("damage")] public int Damage;
+        [JsonProperty("hpAfter")] public int HpAfter;
+        [JsonProperty("eliminated")] public bool Eliminated;
+    }
+
+    public class ArenaHazardPayload
+    {
+        [JsonProperty("hazardType")] public string HazardType;
+        [JsonProperty("hazardName")] public string HazardName;
+        [JsonProperty("damage")] public int Damage;
+        [JsonProperty("vfxTag")] public string VfxTag;
+        [JsonProperty("message")] public string Message;
+        [JsonProperty("targets")] public List<HazardTargetPayload> Targets;
     }
 }

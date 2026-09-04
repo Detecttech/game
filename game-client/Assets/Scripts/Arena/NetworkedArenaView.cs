@@ -35,10 +35,12 @@ namespace QuizBattle.Arena
             store.LobbyUpdated += s => _hud.Log($"Lobby: {s.Players.Count} player(s) joined");
             store.MatchStarted += OnMatchStarted;
             store.QuestionPushed += OnQuestionPushed;
+            store.AnswerResultReceived += r => _hud.ShowAnswerResult(r.Correct, r.RewardOffered?.Name, r.RewardOffered?.Damage ?? 0);
             store.PlayerAdvanced += OnPlayerAdvanced;
             store.AttackResolved += OnAttackResolved;
             store.FreezeResolved += OnFreezeResolved;
             store.PlayerEliminated += OnPlayerEliminated;
+            store.HazardTriggered += OnHazardTriggered;
             store.MatchEnded += OnMatchEnded;
             store.ServerError += e => _hud.Log($"[error] {e.Code}: {e.Message}");
 
@@ -88,7 +90,7 @@ namespace QuizBattle.Arena
 
         private void OnQuestionPushed(QuestionPushPayload q)
         {
-            _hud.ShowQuestion(q.QuestionNumber, q.Text, q.Choices);
+            _hud.ShowQuestion(q.QuestionNumber, q.Text, q.Choices, q.IsSudden, q.RewardName, q.RewardDamage, q.TimeLimitMs);
         }
 
         public bool TryGetToken(int playerId, out CharacterToken token)
@@ -172,6 +174,27 @@ namespace QuizBattle.Arena
         private void OnPlayerEliminated(int playerId)
         {
             if (_tokens.TryGetValue(playerId, out var token)) token.SetEliminated();
+        }
+
+        private void OnHazardTriggered(ArenaHazardPayload h)
+        {
+            if (h.Targets != null)
+            {
+                foreach (var t in h.Targets)
+                {
+                    if (_tokens.TryGetValue(t.PlayerId, out var token))
+                    {
+                        var fromSky = token.transform.position + Vector3.up * 4.5f;
+                        AbilityVfxPlayer.Play(string.IsNullOrEmpty(h.VfxTag) ? "vfx_fireball" : h.VfxTag, fromSky, token.transform.position, t.Eliminated);
+
+                        token.SetHp(t.HpAfter, _store.Players.TryGetValue(t.PlayerId, out var p) ? p.maxHp : t.HpAfter);
+                        FloatingCombatText.Spawn(token.transform.position + Vector3.up * 1.5f, $"-{t.Damage} HP 🔥", QuizBattlePalette.RoofTilesRed, 1.35f);
+                        if (t.Eliminated) token.SetEliminated();
+                    }
+                }
+            }
+            AudioManager.Instance.PlayAttack();
+            _hud.Log(string.IsNullOrEmpty(h.Message) ? $"🔥 Arena Hazard: {h.HazardName} struck all racers for {h.Damage} DMG!" : h.Message);
         }
 
         private void OnMatchEnded(MatchEndPayload end)

@@ -62,6 +62,7 @@ namespace QuizBattle.GameState
         public event Action<int> PlayerEliminated;
         public event Action<PlayerFinishedPayload> PlayerFinished;
         public event Action<MatchTimerStartPayload> MatchTimerStarted;
+        public event Action<ArenaHazardPayload> HazardTriggered;
         public event Action<MatchEndPayload> MatchEnded;
         public event Action<XpAwardPayload> XpAwarded;
         public event Action<LiveDashboardPayload> DashboardUpdated;
@@ -114,6 +115,9 @@ namespace QuizBattle.GameState
                     break;
                 case "freeze_result":
                     HandleFreezeResult(payload.ToObject<FreezeResultPayload>());
+                    break;
+                case "arena_hazard":
+                    HandleHazard(payload.ToObject<ArenaHazardPayload>());
                     break;
                 case "player_eliminated":
                     HandlePlayerEliminated(payload.ToObject<PlayerEliminatedPayload>());
@@ -209,6 +213,22 @@ namespace QuizBattle.GameState
             // player_advanced (once it's actually consumed/cleared server-side).
             if (Players.TryGetValue(freeze.TargetId, out var target)) target.frozen = true;
             FreezeResolved?.Invoke(freeze);
+        }
+
+        private void HandleHazard(ArenaHazardPayload hazard)
+        {
+            if (hazard.Targets != null)
+            {
+                foreach (var t in hazard.Targets)
+                {
+                    if (Players.TryGetValue(t.PlayerId, out var p))
+                    {
+                        p.hp = t.HpAfter;
+                        p.alive = !t.Eliminated;
+                    }
+                }
+            }
+            HazardTriggered?.Invoke(hazard);
         }
 
         private void HandlePlayerEliminated(PlayerEliminatedPayload elim)

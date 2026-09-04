@@ -34,6 +34,7 @@ export interface LiveMatch {
   // Reshuffled (fresh random order, all questions again) once a player exhausts it.
   playerQuestionOrders: Map<number, Question[]>;
   playerQuestionCursors: Map<number, number>;
+  savedPlayerQuestions: Map<number, { question: Question; questionNumber: number }>;
   eventSeq: number;
 }
 
@@ -80,6 +81,7 @@ export function getOrCreateLiveMatch(matchId: number): LiveMatch {
     playerTimers: new Map(),
     playerQuestionOrders: new Map(),
     playerQuestionCursors: new Map(),
+    savedPlayerQuestions: new Map(),
     eventSeq: 1,
   };
   liveMatches.set(matchId, live);
@@ -367,7 +369,33 @@ function handleAnswerTimeout(live: LiveMatch, playerId: number, emit: Emit) {
       endMatch(live, emit, result.result);
       return;
     }
-    pushQuestionToPlayer(live, playerId, emit);
+
+    const saved = live.savedPlayerQuestions.get(playerId);
+    if (saved) {
+      live.savedPlayerQuestions.delete(playerId);
+      Engine.pushQuestion(live.state, playerId, saved.question.id, saved.question.correct_index);
+      emit(
+        {
+          type: "question_push",
+          payload: {
+            questionId: saved.question.id,
+            text: saved.question.text,
+            choices: [saved.question.choice_0, saved.question.choice_1, saved.question.choice_2, saved.question.choice_3],
+            timeLimitMs: QUESTION_TIME_LIMIT_MS,
+            questionNumber: saved.questionNumber,
+            isSudden: false,
+          },
+        },
+        playerId
+      );
+      clearPlayerTimer(live, playerId);
+      live.playerTimers.set(
+        playerId,
+        setTimeout(() => handleAnswerTimeout(live, playerId, emit), QUESTION_TIME_LIMIT_MS)
+      );
+    } else {
+      pushQuestionToPlayer(live, playerId, emit);
+    }
   } catch (err) {
     console.error(`[matchEngine] handleAnswerTimeout failed for match ${live.matchId}, player ${playerId}:`, err);
     emit({ type: "error", payload: { code: "internal_error", message: "The match hit an unexpected error and had to end." } }, "broadcast");
@@ -423,6 +451,7 @@ function endMatch(live: LiveMatch, emit: Emit, result: NonNullable<MatchState["r
     const won = live.state.mode === "teams" ? result.winnerId === p.team : result.winnerId === p.playerId;
     const xp = computeMatchXp({
       totalCorrectAnswers: p.totalCorrectAnswers,
+      suddenCorrectAnswers: p.suddenCorrectAnswers,
       maxStreak: p.maxStreak,
       won,
       mode: live.state.mode,
@@ -479,7 +508,33 @@ export function handleSubmitAnswer(live: LiveMatch, playerId: number, choiceInde
     endMatch(live, emit, result.result);
     return result;
   }
-  pushQuestionToPlayer(live, playerId, emit);
+
+  const saved = live.savedPlayerQuestions.get(playerId);
+  if (saved) {
+    live.savedPlayerQuestions.delete(playerId);
+    Engine.pushQuestion(live.state, playerId, saved.question.id, saved.question.correct_index);
+    emit(
+      {
+        type: "question_push",
+        payload: {
+          questionId: saved.question.id,
+          text: saved.question.text,
+          choices: [saved.question.choice_0, saved.question.choice_1, saved.question.choice_2, saved.question.choice_3],
+          timeLimitMs: QUESTION_TIME_LIMIT_MS,
+          questionNumber: saved.questionNumber,
+          isSudden: false,
+        },
+      },
+      playerId
+    );
+    clearPlayerTimer(live, playerId);
+    live.playerTimers.set(
+      playerId,
+      setTimeout(() => handleAnswerTimeout(live, playerId, emit), QUESTION_TIME_LIMIT_MS)
+    );
+  } else {
+    pushQuestionToPlayer(live, playerId, emit);
+  }
   return result;
 }
 
@@ -487,12 +542,18 @@ export function handleUseAttack(live: LiveMatch, playerId: number, rewardId: str
   const result = Engine.useAttack(live.state, playerId, rewardId, targetId);
   if (result.ok) {
     log(live, "use_attack", { playerId, targetId, outcome: result.outcome });
+    const attacker = live.state.players.get(playerId);
+    const target = live.state.players.get(targetId);
     emit(
       {
         type: "attack_result",
         payload: {
           attackerId: playerId,
           targetId,
+          attackerName: attacker?.name ?? `Player ${playerId}`,
+          targetName: target?.name ?? `Player ${targetId}`,
+          attackerCharacterId: attacker?.characterId ?? null,
+          targetCharacterId: target?.characterId ?? null,
           damage: result.outcome!.damage,
           targetHpAfter: result.outcome!.targetHpAfter,
           vfxTag: result.outcome!.vfxTag,
@@ -517,7 +578,22 @@ export function handleUseFreeze(live: LiveMatch, playerId: number, rewardId: str
   const result = Engine.useFreeze(live.state, playerId, rewardId, targetId);
   if (result.ok) {
     log(live, "use_freeze", { playerId, targetId });
-    emit({ type: "freeze_result", payload: { casterId: playerId, targetId } }, "broadcast");
+    const caster = live.state.players.get(playerId);
+    const target = live.state.players.get(targetId);
+    emit(
+      {
+        type: "freeze_result",
+        payload: {
+          casterId: playerId,
+          targetId,
+          casterName: caster?.name ?? `Player ${playerId}`,
+          targetName: target?.name ?? `Player ${targetId}`,
+          casterCharacterId: caster?.characterId ?? null,
+          targetCharacterId: target?.characterId ?? null,
+        },
+      },
+      "broadcast"
+    );
   } else {
     emit({ type: "error", payload: { code: result.error, message: "use_freeze rejected" } }, playerId);
   }
@@ -577,14 +653,28 @@ export function liveDashboard(live: LiveMatch) {
   return {
     matchId: live.matchId,
     status: live.state.status,
+    mode: live.state.mode,
+    grid: {
+      width: live.state.grid.width,
+      height: live.state.grid.height,
+      goalRow: live.state.grid.height - 1,
+    },
+    timerSeconds: live.state.timerSeconds,
+    timerStartedAt: live.state.timerStartedAt,
+    finishOrder: live.state.finishOrder,
     players: [...live.state.players.values()].map((p) => ({
       playerId: p.playerId,
       name: p.name,
+      characterId: p.characterId,
+      team: p.team,
       hp: p.hp,
+      maxHp: p.maxHp,
       alive: p.alive,
       streak: p.consecutiveCorrect,
       pos: p.pos,
       goalReached: p.goalReached,
+      finishRank: p.finishRank,
+      frozen: p.frozen,
       questionsAnswered: p.questionsAnswered,
     })),
   };
@@ -621,4 +711,181 @@ export function killLiveMatch(live: LiveMatch, emit: Emit) {
   }
 
   endMatch(live, emit, { winnerId, reason: "teacher_stopped" });
+}
+
+export interface SuddenQuestionOptions {
+  questionId?: number;
+  text?: string;
+  choices?: string[];
+  correctIndex?: number;
+  rewardType?: "mega_attack" | "super_freeze" | "bonus_move";
+  rewardDamage?: number;
+  rewardName?: string;
+}
+
+export function handleTeacherTriggerHazard(
+  live: LiveMatch,
+  hazardType = "fireball_rain",
+  rawDamage = 5,
+  emit: Emit
+) {
+  if (live.state.status !== "active") {
+    return { ok: false, error: "match_not_active" };
+  }
+
+  const damage = Math.max(1, rawDamage);
+  const result = Engine.applyHazardDamage(live.state, damage, hazardType);
+
+  log(live, "teacher_hazard", { hazardType, rawDamage: damage, outcome: result });
+
+  // Broadcast hazard event to all clients and spectators
+  emit(
+    {
+      type: "arena_hazard",
+      payload: {
+        hazardType,
+        hazardName: hazardType === "fireball_rain" ? "Fireball Rain" : "Arena Hazard",
+        damage,
+        vfxTag: "vfx_fireball",
+        message: `🔥 Teacher Hazard: Fireballs rained down dealing ${damage} damage to all racers!`,
+        targets: result.targets,
+      },
+    },
+    "broadcast"
+  );
+
+  // Check if any player was eliminated by this hazard
+  for (const target of result.targets) {
+    if (target.eliminated) {
+      emit({ type: "player_eliminated", payload: { playerId: target.playerId } }, "broadcast");
+    }
+  }
+
+  if (result.result) {
+    endMatch(live, emit, result.result);
+  }
+
+  return { ok: true, result };
+}
+
+export function handleTeacherTriggerSuddenQuestion(
+  live: LiveMatch,
+  options: SuddenQuestionOptions,
+  emit: Emit
+) {
+  if (live.state.status !== "active") {
+    return { ok: false, error: "match_not_active" };
+  }
+
+  // Resolve question content
+  let q: { id: number; text: string; choices: string[]; correctIndex: number };
+  if (options.text && options.choices && options.choices.length >= 2) {
+    q = {
+      id: options.questionId ?? 99990 + Math.floor(Math.random() * 1000),
+      text: options.text,
+      choices: options.choices,
+      correctIndex: options.correctIndex ?? 0,
+    };
+  } else if (options.questionId) {
+    const found = live.questions.find((item) => item.id === options.questionId);
+    if (found) {
+      q = {
+        id: found.id,
+        text: found.text,
+        choices: [found.choice_0, found.choice_1, found.choice_2, found.choice_3],
+        correctIndex: found.correct_index,
+      };
+    } else {
+      return { ok: false, error: "question_not_found" };
+    }
+  } else {
+    // Pick random question from question bank
+    if (live.questions.length === 0) return { ok: false, error: "question_bank_empty" };
+    const randomIndex = Math.floor(Math.random() * live.questions.length);
+    const chosen = live.questions[randomIndex];
+    q = {
+      id: chosen.id,
+      text: chosen.text,
+      choices: [chosen.choice_0, chosen.choice_1, chosen.choice_2, chosen.choice_3],
+      correctIndex: chosen.correct_index,
+    };
+  }
+
+  const rewardType = options.rewardType ?? "mega_attack";
+  const rewardDamage = options.rewardDamage ?? (rewardType === "mega_attack" ? 35 : rewardType === "super_freeze" ? 15 : 0);
+  const rewardName = options.rewardName ?? (rewardType === "mega_attack" ? "Mega Strike" : rewardType === "super_freeze" ? "Super Freeze" : "Mega Dash");
+  const vfxTag = rewardType === "mega_attack" ? "vfx_fireball" : rewardType === "super_freeze" ? "vfx_freeze" : "vfx_wind_trail";
+
+  const suddenRewardConfig = {
+    type: rewardType,
+    damage: rewardDamage,
+    name: rewardName,
+    vfxTag,
+  };
+
+  log(live, "teacher_sudden_question", { question: q, suddenRewardConfig });
+
+  const activePlayers = [...live.state.players.values()].filter((p) => p.alive && !p.goalReached);
+  if (activePlayers.length === 0) {
+    return { ok: false, error: "no_active_players" };
+  }
+
+  const timeLimitMs = 20_000;
+
+  for (const player of activePlayers) {
+    clearPlayerTimer(live, player.playerId);
+
+    if (player.currentQuestion && !player.currentQuestion.isSudden) {
+      const currentQ = live.questions.find((x) => x.id === player.currentQuestion!.questionId);
+      if (currentQ) {
+        live.savedPlayerQuestions.set(player.playerId, {
+          question: currentQ,
+          questionNumber: player.currentQuestion.questionNumber,
+        });
+      }
+    }
+
+    Engine.pushQuestion(live.state, player.playerId, q.id, q.correctIndex, true, suddenRewardConfig);
+
+    emit(
+      {
+        type: "question_push",
+        payload: {
+          questionId: q.id,
+          text: q.text,
+          choices: q.choices,
+          timeLimitMs,
+          questionNumber: player.questionsAnswered + 1,
+          isSudden: true,
+          suddenRewardType: rewardType,
+          rewardDamage,
+          rewardName,
+        },
+      },
+      player.playerId
+    );
+
+    live.playerTimers.set(
+      player.playerId,
+      setTimeout(() => handleAnswerTimeout(live, player.playerId, emit), timeLimitMs)
+    );
+  }
+
+  emit(
+    {
+      type: "sudden_question_started",
+      payload: {
+        questionId: q.id,
+        text: q.text,
+        choices: q.choices,
+        rewardType,
+        rewardDamage,
+        rewardName,
+        timeLimitMs,
+      },
+    },
+    "broadcast"
+  );
+
+  return { ok: true, question: q };
 }

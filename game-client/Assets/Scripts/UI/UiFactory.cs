@@ -22,10 +22,9 @@ namespace QuizBattle.UI
             var scaler = obj.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution = new Vector2(1280, 720);
-            // Match height (1.0f) so the HUD occupies a fixed, predictable fraction (~27%)
-            // of the vertical screen across all landscape phone aspect ratios (from 4:3 iPad to 21:9 phones),
-            // leaving the lower viewport consistently open for the 3D arena board.
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             scaler.matchWidthOrHeight = 1.0f;
+            obj.AddComponent<ResponsiveCanvasScaler>();
             obj.AddComponent<GraphicRaycaster>();
 
             if (Object.FindFirstObjectByType<EventSystem>() == null)
@@ -214,6 +213,12 @@ namespace QuizBattle.UI
         {
             var container = CreateRect(parent, name, anchor, size, anchoredPos);
 
+            // Full-bounds invisible hit receiver directly on the container with the Button component.
+            // Guarantees 100% of taps/clicks hit the button directly without child raycasts canceling touches.
+            var hitImg = container.gameObject.AddComponent<Image>();
+            hitImg.color = Color.clear;
+            hitImg.raycastTarget = true;
+
             // 3D bottom bevel shadow under-plate
             var bottomPlate = CreateRect(container, "BottomBevel", Vector2.zero, Vector2.zero);
             bottomPlate.anchorMin = Vector2.zero;
@@ -224,6 +229,7 @@ namespace QuizBattle.UI
             bottomImg.sprite = RoundedSprite;
             bottomImg.type = Image.Type.Sliced;
             bottomImg.color = bevelShadowColor;
+            bottomImg.raycastTarget = false;
 
             // Main golden rim
             var rimRect = CreateRect(container, "Rim", Vector2.zero, Vector2.zero);
@@ -235,6 +241,7 @@ namespace QuizBattle.UI
             rimImg.sprite = RoundedSprite;
             rimImg.type = Image.Type.Sliced;
             rimImg.color = QuizBattlePalette.GoldTrim;
+            rimImg.raycastTarget = false;
 
             // Inset button surface
             var faceRect = CreateRect(rimRect, "Face", Vector2.zero, Vector2.zero);
@@ -246,6 +253,7 @@ namespace QuizBattle.UI
             faceImg.sprite = RoundedSprite;
             faceImg.type = Image.Type.Sliced;
             faceImg.color = mainColor;
+            faceImg.raycastTarget = false;
 
             // Top gloss reflection
             var glossRect = CreateRect(faceRect, "Gloss", Vector2.zero, Vector2.zero);
@@ -268,7 +276,7 @@ namespace QuizBattle.UI
             button.colors = colors;
 
             // Optional circular badge medallion (e.g. A, B, C, D)
-            float badgeSize = Mathf.Clamp(size.y - 12f, 22f, 34f);
+            float badgeSize = Mathf.Clamp(size.y - 12f, 22f, 36f);
             if (!string.IsNullOrEmpty(badgeText))
             {
                 var badgeRect = CreateRect(faceRect, "Badge", new Vector2(0f, 0.5f), new Vector2(badgeSize, badgeSize), new Vector2(badgeSize * 0.65f + 4f, 0));
@@ -276,6 +284,7 @@ namespace QuizBattle.UI
                 badgeBg.sprite = RoundedSprite;
                 badgeBg.type = Image.Type.Sliced;
                 badgeBg.color = QuizBattlePalette.GoldTrim;
+                badgeBg.raycastTarget = false;
 
                 var badgeInner = CreateRect(badgeRect, "BadgeInner", Vector2.zero, Vector2.zero);
                 badgeInner.anchorMin = Vector2.zero;
@@ -286,12 +295,14 @@ namespace QuizBattle.UI
                 badgeInnerImg.sprite = RoundedSprite;
                 badgeInnerImg.type = Image.Type.Sliced;
                 badgeInnerImg.color = bevelShadowColor;
+                badgeInnerImg.raycastTarget = false;
 
                 var badgeTxt = CreateText(badgeInner, "BadgeText", new Vector2(0.5f, 0.5f), new Vector2(badgeSize, badgeSize), Mathf.RoundToInt(badgeSize * 0.5f));
                 badgeTxt.text = badgeText;
                 badgeTxt.fontStyle = FontStyles.Bold;
                 badgeTxt.color = QuizBattlePalette.GoldTrim;
                 badgeTxt.alignment = TextAlignmentOptions.Center;
+                badgeTxt.raycastTarget = false;
             }
 
             // Main Label
@@ -302,6 +313,7 @@ namespace QuizBattle.UI
             text.color = Color.white;
             text.outlineWidth = 0.2f;
             text.outlineColor = Color.black;
+            text.raycastTarget = false;
 
             return (button, text);
         }

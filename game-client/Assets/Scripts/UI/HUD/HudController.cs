@@ -52,10 +52,13 @@ namespace QuizBattle.UI.HUD
             _questionText.outlineWidth = 0.18f;
             _questionText.outlineColor = Color.black;
 
-            // 2x2 grid of 3D-beveled tactile Clash Royale choice buttons (compacted into top 24%)
+            // 2x2 grid of 3D-beveled tactile Clash Royale choice buttons (centered under placard)
             _choiceButtons = new Button[4];
             _choiceLabels = new TMP_Text[4];
-            (float x, float y)[] gridPositions = { (0.285f, 0.842f), (0.715f, 0.842f), (0.285f, 0.762f), (0.715f, 0.762f) };
+            (float xOffset, float yAnchor)[] gridOffsets = {
+                (-220f, 0.840f), (+220f, 0.840f),
+                (-220f, 0.745f), (+220f, 0.745f)
+            };
             string[] badges = { "A", "B", "C", "D" };
             Color[] colors = {
                 new Color(0.16f, 0.44f, 0.88f), // Royal Blue
@@ -73,16 +76,17 @@ namespace QuizBattle.UI.HUD
             for (int i = 0; i < 4; i++)
             {
                 int index = i;
-                var (x, y) = gridPositions[i];
+                var (xOffset, yAnchor) = gridOffsets[i];
                 var (button, label) = QuizBattle.UI.UiFactory.CreateClashButton(
-                    parent, $"Choice_{i}", new Vector2(x, y), new Vector2(360, 42), "", colors[i], shadows[i], badges[i]);
-                label.fontSize = 16;
+                    parent, $"Choice_{i}", new Vector2(0.5f, yAnchor), new Vector2(420, 56), "", colors[i], shadows[i], badges[i], new Vector2(xOffset, 0));
+                label.fontSize = 18;
                 button.onClick.AddListener(() => ChoiceSelected?.Invoke(index));
                 _choiceButtons[i] = button;
                 _choiceLabels[i] = label;
             }
 
             _celebrationOverlay = AnswerCelebrationOverlay.Create(parent);
+            _suddenOverlay = SuddenQuestionOverlay.Create(parent);
 
             // Floating countdown banner under the question card
             var (timerPlacard, timerInner) = QuizBattle.UI.UiFactory.CreatePlacardPanel(
@@ -107,6 +111,7 @@ namespace QuizBattle.UI.HUD
 
         private GameObject _questionPlacard;
         private AnswerCelebrationOverlay _celebrationOverlay;
+        private SuddenQuestionOverlay _suddenOverlay;
         private GameObject _timerBanner;
         private TMP_Text _timerText;
         private float _remainingTimerSeconds = 0f;
@@ -168,22 +173,70 @@ namespace QuizBattle.UI.HUD
             }
         }
 
+        public void SetSpectatorMode(bool isSpectator)
+        {
+            if (isSpectator)
+            {
+                SetChoicesInteractable(false);
+                if (_choiceButtons != null)
+                {
+                    foreach (var b in _choiceButtons)
+                    {
+                        if (b != null) b.gameObject.SetActive(false);
+                    }
+                }
+                if (_questionPlacard != null) _questionPlacard.SetActive(false);
+
+                if (_finishedWaitingBanner != null)
+                {
+                    _finishedWaitingBanner.SetActive(true);
+                    if (_finishedWaitingText != null)
+                    {
+                        _finishedWaitingText.text = "🎥 TEACHER SPECTATOR MODE — WATCHING LIVE ARENA";
+                    }
+                }
+            }
+        }
+
         public void ShowFeedback(bool correct, int streak, int chosenIndex = -1)
         {
             // Big overlay is suppressed per user request — crisp orange pop-up animation is
             // rendered directly above the character's head in the arena instead!
         }
 
-        public void ShowQuestion(int questionNumber, string text, IReadOnlyList<string> choices)
+        public void ShowQuestion(int questionNumber, string text, IReadOnlyList<string> choices, bool isSudden = false, string rewardName = null, int rewardDamage = 0, int timeLimitMs = 20000)
         {
-            // "Question N" not "Round N" — every player answers independently at their
-            // own pace now, so there's no shared match-wide round to label.
+            if (isSudden)
+            {
+                // Unique full-takeover overlay for students — does NOT alter regular question state!
+                if (_suddenOverlay != null)
+                {
+                    _suddenOverlay.Show(text, choices, rewardName, rewardDamage, timeLimitMs, index => ChoiceSelected?.Invoke(index));
+                }
+                return;
+            }
+
+            // If returning from sudden question, ensure overlay is closed
+            if (_suddenOverlay != null && _suddenOverlay.gameObject.activeSelf)
+            {
+                _suddenOverlay.Hide();
+            }
+
             _roundText.text = $"Question {questionNumber}";
+            _roundText.color = Color.white;
             _questionText.text = text;
             for (int i = 0; i < _choiceLabels.Length; i++)
             {
                 _choiceLabels[i].text = i < choices.Count ? choices[i] : "";
                 _choiceButtons[i].interactable = i < choices.Count;
+            }
+        }
+
+        public void ShowAnswerResult(bool correct, string rewardName = null, int rewardDamage = 0)
+        {
+            if (_suddenOverlay != null && _suddenOverlay.gameObject.activeSelf)
+            {
+                _suddenOverlay.ShowResult(correct, rewardName, rewardDamage);
             }
         }
 

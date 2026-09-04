@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { leaderboardForClass, leaderboardGlobal } from "../../db/repositories/leaderboardRepo";
+import { leaderboardForClass, leaderboardGlobal, exportLeaderboardCsv } from "../../db/repositories/leaderboardRepo";
 
 export const leaderboardRoutes = Router();
 
@@ -13,3 +13,15 @@ leaderboardRoutes.get("/leaderboard", (req, res) => {
   }
   res.json(leaderboardGlobal());
 });
+
+// Download student XP leaderboard as CSV
+leaderboardRoutes.get(["/leaderboard/export", "/leaderboard/csv"], (req, res) => {
+  const classId = req.query.classId ? Number(req.query.classId) : undefined;
+  const csvData = exportLeaderboardCsv(classId);
+
+  const filename = classId ? `quizbattle-class-${classId}-leaderboard.csv` : `quizbattle-all-students-leaderboard.csv`;
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+  res.status(200).send(csvData);
+});
+

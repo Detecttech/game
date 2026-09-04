@@ -4,6 +4,8 @@ import {
   type GridPos,
   type MatchState,
   type PlayerState,
+  type PendingReward,
+  type SuddenRewardConfig,
 } from "./MatchState";
 import { getCharacter } from "./characters/characterConfig";
 import { rollReward, expireStaleRewards, consumeReward } from "./RewardResolver";
@@ -42,6 +44,7 @@ export function addPlayer(
     pendingReward: null,
     pendingDot: null,
     totalCorrectAnswers: 0,
+    suddenCorrectAnswers: 0,
     maxStreak: 0,
     questionsAnswered: 0,
     currentQuestion: null,
@@ -75,10 +78,35 @@ export function advancePlayer(player: PlayerState, state: MatchState, steps: num
   }
 }
 
-export function pushQuestion(state: MatchState, playerId: number, questionId: number, correctIndex: number): void {
+export function pushQuestion(
+  state: MatchState,
+  playerId: number,
+  questionId: number,
+  correctIndex: number,
+  isSudden = false,
+  suddenRewardConfig?: SuddenRewardConfig
+): void {
   const player = state.players.get(playerId);
   if (!player) return;
-  player.currentQuestion = { questionId, correctIndex, questionNumber: player.questionsAnswered + 1 };
+  if (isSudden) {
+    if (player.currentQuestion && !player.currentQuestion.isSudden) {
+      player.savedQuestion = player.currentQuestion;
+    }
+    player.currentQuestion = {
+      questionId,
+      correctIndex,
+      questionNumber: player.questionsAnswered + 1,
+      isSudden: true,
+      suddenRewardConfig,
+    };
+  } else {
+    player.currentQuestion = {
+      questionId,
+      correctIndex,
+      questionNumber: player.questionsAnswered + 1,
+      isSudden: false,
+    };
+  }
 }
 
 export interface SubmitAnswerResult {
@@ -86,7 +114,7 @@ export interface SubmitAnswerResult {
   error?: string;
   correct?: boolean;
   streakCount?: number;
-  rewardOffered?: { rewardId: string; type: string } | null;
+  rewardOffered?: { rewardId: string; type: string; damage?: number; name?: string } | null;
   newPos?: GridPos;
   goalReached?: boolean;
   dotDamage?: number;
@@ -103,18 +131,46 @@ export function submitAnswer(
   if (!player || !player.alive) return { ok: false, error: "not_in_match" };
   if (!player.currentQuestion) return { ok: false, error: "no_active_question" };
 
+  const isSudden = !!player.currentQuestion.isSudden;
+  const suddenRewardConfig = player.currentQuestion.suddenRewardConfig;
+
   const correct = choiceIndex === player.currentQuestion.correctIndex;
-  player.currentQuestion = null;
-  player.questionsAnswered += 1;
+  const savedQuestionToRestore = isSudden && player.savedQuestion ? player.savedQuestion : null;
+  player.currentQuestion = savedQuestionToRestore;
+  player.savedQuestion = null;
+
+  if (!isSudden) {
+    player.questionsAnswered += 1;
+  }
 
   player.consecutiveCorrect = correct ? player.consecutiveCorrect + 1 : 0;
   if (correct) {
-    player.totalCorrectAnswers += 1;
+    if (isSudden) {
+      player.suddenCorrectAnswers = (player.suddenCorrectAnswers || 0) + 1;
+    } else {
+      player.totalCorrectAnswers += 1;
+    }
     player.maxStreak = Math.max(player.maxStreak, player.consecutiveCorrect);
   }
 
   let rewardOffered: SubmitAnswerResult["rewardOffered"] = null;
-  if (correct && player.consecutiveCorrect >= 2 && !player.pendingReward) {
+  if (correct && isSudden && suddenRewardConfig) {
+    const reward: PendingReward = {
+      rewardId: `sudden-reward-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      type: suddenRewardConfig.type,
+      expiresAtQuestion: player.questionsAnswered + 5,
+      customDamage: suddenRewardConfig.damage,
+      customName: suddenRewardConfig.name,
+      customVfxTag: suddenRewardConfig.vfxTag,
+    };
+    player.pendingReward = reward;
+    rewardOffered = {
+      rewardId: reward.rewardId,
+      type: reward.type,
+      damage: reward.customDamage,
+      name: reward.customName,
+    };
+  } else if (correct && player.consecutiveCorrect >= 2 && !player.pendingReward) {
     const reward = rollReward(player, player.questionsAnswered, rng);
     player.pendingReward = reward;
     rewardOffered = { rewardId: reward.rewardId, type: reward.type };
@@ -158,8 +214,14 @@ export function timeoutAnswer(state: MatchState, playerId: number): SubmitAnswer
   const player = state.players.get(playerId);
   if (!player || !player.alive || !player.currentQuestion) return { ok: false, error: "no_active_question" };
 
-  player.currentQuestion = null;
-  player.questionsAnswered += 1;
+  const isSudden = !!player.currentQuestion.isSudden;
+  const savedQuestionToRestore = isSudden && player.savedQuestion ? player.savedQuestion : null;
+  player.currentQuestion = savedQuestionToRestore;
+  player.savedQuestion = null;
+
+  if (!isSudden) {
+    player.questionsAnswered += 1;
+  }
   player.consecutiveCorrect = 0;
 
   // A reward the player never acted on (missed/ignored the popup) must not linger —
@@ -226,16 +288,22 @@ export function useAttack(state: MatchState, playerId: number, rewardId: string,
   if (!attacker || !attacker.alive) return { ok: false, error: "not_in_match" };
   const targetError = validateTarget(state, attacker, target);
   if (targetError) return { ok: false, error: targetError };
-  if (!attacker.pendingReward || attacker.pendingReward.rewardId !== rewardId || attacker.pendingReward.type !== "attack_choice") {
+  if (
+    !attacker.pendingReward ||
+    attacker.pendingReward.rewardId !== rewardId ||
+    (attacker.pendingReward.type !== "attack_choice" && attacker.pendingReward.type !== "mega_attack")
+  ) {
     return { ok: false, error: "no_such_reward" };
   }
 
+  const customDamage = attacker.pendingReward.customDamage;
+  const customVfx = attacker.pendingReward.customVfxTag;
   const consumed = consumeReward(attacker, rewardId);
   if (!consumed.ok) return { ok: false, error: consumed.error };
   attacker.lastTargetedPlayerId = targetId;
 
   const ability = attackFor(attacker.characterId);
-  const outcome = resolveAttack(attacker, target!, ability);
+  const outcome = resolveAttack(attacker, target!, ability, customDamage, customVfx);
 
   const result = checkWinCondition(state);
   state.result = result;
@@ -247,27 +315,50 @@ export function useAttack(state: MatchState, playerId: number, rewardId: string,
 export interface UseFreezeResult {
   ok: boolean;
   error?: string;
+  damageDealt?: number;
+  targetHpAfter?: number;
+  eliminated?: boolean;
 }
 
-/** Freezes the target: their next correct answer won't advance them. Doesn't
- * touch HP/position itself, so — unlike attack/bonus_move — it can never
- * itself produce a match result. */
+/** Freezes the target: their next correct answer won't advance them.
+ * If super_freeze with customDamage, also deals damage. */
 export function useFreeze(state: MatchState, playerId: number, rewardId: string, targetId: number): UseFreezeResult {
   const attacker = state.players.get(playerId);
   const target = state.players.get(targetId);
   if (!attacker || !attacker.alive) return { ok: false, error: "not_in_match" };
   const targetError = validateTarget(state, attacker, target);
   if (targetError) return { ok: false, error: targetError };
-  if (!attacker.pendingReward || attacker.pendingReward.rewardId !== rewardId || attacker.pendingReward.type !== "freeze") {
+  if (
+    !attacker.pendingReward ||
+    attacker.pendingReward.rewardId !== rewardId ||
+    (attacker.pendingReward.type !== "freeze" && attacker.pendingReward.type !== "super_freeze")
+  ) {
     return { ok: false, error: "no_such_reward" };
   }
 
+  const customDamage = attacker.pendingReward.customDamage;
   const consumed = consumeReward(attacker, rewardId);
   if (!consumed.ok) return { ok: false, error: consumed.error };
   attacker.lastTargetedPlayerId = targetId;
 
   target!.frozen = true;
-  return { ok: true };
+
+  let damageDealt = 0;
+  let eliminated = false;
+  if (customDamage && customDamage > 0) {
+    damageDealt = customDamage;
+    const targetCharacter = getCharacter(target!.characterId);
+    if (targetCharacter.ability.type === "passive" && targetCharacter.ability.damageReductionPct) {
+      damageDealt = Math.round(damageDealt * (1 - targetCharacter.ability.damageReductionPct / 100));
+    }
+    target!.hp = Math.max(0, target!.hp - damageDealt);
+    if (target!.hp === 0) {
+      target!.alive = false;
+      eliminated = true;
+    }
+  }
+
+  return { ok: true, damageDealt, targetHpAfter: target!.hp, eliminated };
 }
 
 export interface ConsumeBonusMoveResult {
@@ -404,4 +495,56 @@ export function checkWinCondition(state: MatchState): MatchState["result"] {
   }
 
   return null;
+}
+
+export interface HazardTargetOutcome {
+  playerId: number;
+  name: string;
+  characterId: string;
+  damage: number;
+  hpAfter: number;
+  eliminated: boolean;
+}
+
+export interface ApplyHazardResult {
+  hazardType: string;
+  damageDealt: number;
+  targets: HazardTargetOutcome[];
+  result?: MatchState["result"];
+}
+
+/** Applies arena hazard damage (e.g. Fireball Rain) to all living racers. */
+export function applyHazardDamage(
+  state: MatchState,
+  rawDamage: number,
+  hazardType = "fireball_rain"
+): ApplyHazardResult {
+  const targets: HazardTargetOutcome[] = [];
+  for (const player of state.players.values()) {
+    if (!player.alive) continue;
+    let damage = rawDamage;
+    const char = getCharacter(player.characterId);
+    if (char.ability.type === "passive" && char.ability.damageReductionPct) {
+      damage = Math.max(1, Math.round(damage * (1 - char.ability.damageReductionPct / 100)));
+    }
+    player.hp = Math.max(0, player.hp - damage);
+    const eliminated = player.hp === 0;
+    if (eliminated) {
+      player.alive = false;
+    }
+    targets.push({
+      playerId: player.playerId,
+      name: player.name,
+      characterId: player.characterId,
+      damage,
+      hpAfter: player.hp,
+      eliminated,
+    });
+  }
+
+  const result = checkWinCondition(state);
+  state.result = result;
+  if (result) state.status = "completed";
+
+  return { hazardType, damageDealt: rawDamage, targets, result };
 }

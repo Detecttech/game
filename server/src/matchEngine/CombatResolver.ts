@@ -26,8 +26,14 @@ export interface AttackOutcome {
   vfxTag: string;
 }
 
-export function resolveAttack(attacker: PlayerState, target: PlayerState, ability: AbilityConfig): AttackOutcome {
-  let damage = ability.baseDamage ?? 0;
+export function resolveAttack(
+  attacker: PlayerState,
+  target: PlayerState,
+  ability: AbilityConfig,
+  overrideDamage?: number,
+  overrideVfxTag?: string
+): AttackOutcome {
+  let damage = overrideDamage !== undefined ? overrideDamage : (ability.baseDamage ?? 0);
 
   const targetCharacter = getCharacter(target.characterId);
   if (targetCharacter.ability.type === "passive" && targetCharacter.ability.damageReductionPct) {
@@ -48,7 +54,7 @@ export function resolveAttack(attacker: PlayerState, target: PlayerState, abilit
     attacker.hp = Math.min(attacker.maxHp, attacker.hp + healedAttacker);
   }
 
-  return { damage, targetHpAfter: target.hp, eliminated, healedAttacker, vfxTag: ability.vfxTag };
+  return { damage, targetHpAfter: target.hp, eliminated, healedAttacker, vfxTag: overrideVfxTag ?? ability.vfxTag };
 }
 
 /** Applies any burn/DoT ticks queued on a player, e.g. from Blaze's Fireball. Returns damage dealt, if any. */
