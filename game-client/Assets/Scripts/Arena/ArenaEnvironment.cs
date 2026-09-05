@@ -153,10 +153,6 @@ namespace QuizBattle.Arena
         }
     }
 
-    /// Dynamically and responsively calculates camera framing and distance whenever the
-    /// window or screen size/aspect ratio changes (including live window resize in WebGL and mobile).
-    /// Guarantees that the North wall and Win Line are always comfortably visible below the HUD
-    /// and that the arena boundaries fit within any aspect ratio (from 4:3 iPad to 21:9 ultra-wide phones).
     public class ArenaCameraAutoFramer : MonoBehaviour
     {
         public int GridWidth = 8;
@@ -171,7 +167,6 @@ namespace QuizBattle.Arena
         private Rect _lastViewport;
         private QuizBattle.UI.HUD.HudController _hud;
         private float _nextHudCheck;
-        private readonly Vector3[] _hudCorners = new Vector3[4];
 
         private void Awake()
         {
@@ -202,64 +197,43 @@ namespace QuizBattle.Arena
             }
         }
 
-        private Rect GetBoardViewport()
+        private Rect GetBoardViewport(bool refreshHud = false)
         {
-            var pixels = _cam.pixelRect;
-            var safe = Screen.safeArea;
-            float pixelWidth = Mathf.Max(1f, pixels.width);
-            float pixelHeight = Mathf.Max(1f, pixels.height);
-            float left = Mathf.Max(0.06f, (safe.xMin - pixels.xMin) / pixelWidth + 0.02f);
-            float right = Mathf.Min(0.94f, (safe.xMax - pixels.xMin) / pixelWidth - 0.02f);
-            float bottom = Mathf.Max(0.08f, (safe.yMin - pixels.yMin) / pixelHeight + 0.02f);
-            float top = Mathf.Min(0.60f, (safe.yMax - pixels.yMin) / pixelHeight - 0.02f);
-
-            if (_hud == null && Time.unscaledTime >= _nextHudCheck)
+            if (_hud == null && (refreshHud || Time.unscaledTime >= _nextHudCheck))
             {
                 _hud = Object.FindFirstObjectByType<QuizBattle.UI.HUD.HudController>();
                 _nextHudCheck = Time.unscaledTime + 0.5f;
             }
             if (_hud != null && _hud.isActiveAndEnabled)
             {
-                var canvas = _hud.GetComponent<Canvas>();
-                var uiCamera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
-                for (int i = 0; i < _hud.transform.childCount; i++)
-                {
-                    var child = _hud.transform.GetChild(i) as RectTransform;
-                    if (child == null || !child.gameObject.activeInHierarchy) continue;
-                    bool lower = child.name == "WaitBanner";
-                    if (!lower && child.name != "QuestionPlacard" && child.name != "TimerBanner" && !child.name.StartsWith("Choice_")) continue;
-                    child.GetWorldCorners(_hudCorners);
-                    float minY = float.PositiveInfinity;
-                    float maxY = float.NegativeInfinity;
-                    for (int corner = 0; corner < 4; corner++)
-                    {
-                        float y = (RectTransformUtility.WorldToScreenPoint(uiCamera, _hudCorners[corner]).y - pixels.yMin) / pixelHeight;
-                        minY = Mathf.Min(minY, y);
-                        maxY = Mathf.Max(maxY, y);
-                    }
-                    if (lower) bottom = Mathf.Max(bottom, maxY + 0.02f);
-                    else top = Mathf.Min(top, minY - 0.02f);
-                }
+                return _hud.GetBoardViewport(_cam);
             }
-            left = Mathf.Clamp(left, 0.02f, 0.80f);
-            right = Mathf.Clamp(right, left + 0.10f, 0.98f);
-            bottom = Mathf.Clamp(bottom, 0.02f, 0.80f);
-            top = Mathf.Clamp(top, bottom + 0.10f, 0.98f);
-            return Rect.MinMaxRect(left, bottom, right, top);
+            var pixels = QuizBattle.UI.HUD.HudController.GetCameraPixelRect(_cam);
+            var safe = _cam.targetTexture != null ? pixels : Screen.safeArea;
+            var layout = QuizBattle.UI.HUD.HudController.CalculateLayout(pixels, safe, false, false, false);
+            return QuizBattle.UI.HUD.HudController.NormalizeViewport(layout.Board, pixels);
         }
 
         public void ApplyFraming()
         {
             if (_cam == null) _cam = GetComponent<Camera>();
             if (_cam == null) return;
+            ApplyFraming(GetBoardViewport(true));
+        }
 
-            _cam.fieldOfView = 32f;
+        public void ApplyFraming(Rect boardViewport)
+        {
+            if (_cam == null) _cam = GetComponent<Camera>();
+            if (_cam == null) return;
+
+            _cam.orthographic = true;
             _cam.nearClipPlane = 0.3f;
 
             _lastWidth = Screen.width;
             _lastHeight = Screen.height;
             _lastAspect = _cam.aspect;
-            _lastViewport = GetBoardViewport();
+            _lastViewport = boardViewport;
+            if (_lastViewport.width <= 0f || _lastViewport.height <= 0f) return;
             _lastGridMatrix = _gridTransform != null ? _gridTransform.localToWorldMatrix : Matrix4x4.identity;
             float centerX = (GridWidth - 1) * TileSize * 0.5f;
             float centerZ = (GridHeight - 1) * TileSize * 0.5f;
@@ -269,40 +243,29 @@ namespace QuizBattle.Arena
             var center = _lastGridMatrix.MultiplyPoint3x4(localCenter);
             var rotation = (_gridTransform != null ? _gridTransform.rotation : Quaternion.identity) * Quaternion.Euler(50f, 0f, 0f);
             var inverseRotation = Quaternion.Inverse(rotation);
-            float tangent = Mathf.Tan(_cam.fieldOfView * Mathf.Deg2Rad * 0.5f);
-            float aspect = Mathf.Max(0.01f, _cam.aspect);
-            float left = _lastViewport.xMin * 2f - 1f;
-            float right = _lastViewport.xMax * 2f - 1f;
-            float bottom = _lastViewport.yMin * 2f - 1f;
-            float top = _lastViewport.yMax * 2f - 1f;
-            float offsetX = (left + right) * 0.5f;
-            float offsetY = (bottom + top) * 0.5f;
-            float distance = 1f;
-            float depth = 0f;
-            Bounds[] bounds =
+            var min = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+            var max = new Vector3(float.NegativeInfinity, float.NegativeInfinity, float.NegativeInfinity);
+            for (int corner = 0; corner < 8; corner++)
             {
-                new Bounds(Vector3.up * 0.6f, new Vector3(halfW * 2f + 1.2f, 4.8f, halfH * 2f + 1.2f)),
-                new Bounds(new Vector3(0f, -1.25f, 0.85f), new Vector3(halfW * 2f + 7.4f, 2.5f, halfH * 2f + 6.1f)),
-                new Bounds(new Vector3(0f, 2.85f, halfH + 2.9f), new Vector3(halfW * 2f + 7.4f, 5.7f, 4f)),
-            };
-            foreach (var bound in bounds)
-            {
-                for (int corner = 0; corner < 8; corner++)
-                {
-                    var local = localCenter + bound.center + Vector3.Scale(bound.extents, new Vector3(
-                                    (corner & 1) == 0 ? -1f : 1f, (corner & 2) == 0 ? -1f : 1f, (corner & 4) == 0 ? -1f : 1f));
-                    var point = inverseRotation * (_lastGridMatrix.MultiplyPoint3x4(local) - center);
-                    distance = Mathf.Max(distance, (point.x - right * tangent * aspect * point.z) / ((right - offsetX) * tangent * aspect));
-                    distance = Mathf.Max(distance, (left * tangent * aspect * point.z - point.x) / ((offsetX - left) * tangent * aspect));
-                    distance = Mathf.Max(distance, (point.y - top * tangent * point.z) / ((top - offsetY) * tangent));
-                    distance = Mathf.Max(distance, (bottom * tangent * point.z - point.y) / ((offsetY - bottom) * tangent));
-                    distance = Mathf.Max(distance, 1f - point.z);
-                    depth = Mathf.Max(depth, point.z);
-                }
+                var local = localCenter + new Vector3(
+                                (corner & 1) == 0 ? -halfW - 0.45f : halfW + 0.45f,
+                                (corner & 2) == 0 ? -0.12f : 2.6f,
+                                (corner & 4) == 0 ? -halfH - 0.15f : halfH + 0.15f);
+                var point = inverseRotation * (_lastGridMatrix.MultiplyPoint3x4(local) - center);
+                min = Vector3.Min(min, point);
+                max = Vector3.Max(max, point);
             }
-            var position = center + rotation * new Vector3(-offsetX * distance * tangent * aspect, -offsetY * distance * tangent, -distance);
+            float aspect = _cam.aspect;
+            if (aspect <= 0f) return;
+            _cam.orthographicSize = Mathf.Max((max.y - min.y) / _lastViewport.height,
+                                              (max.x - min.x) / (_lastViewport.width * aspect)) * 0.5f;
+            var midpoint = (min + max) * 0.5f;
+            float distance = 20f - min.z;
+            var position = center + rotation * new Vector3(
+                               midpoint.x - (_lastViewport.center.x * 2f - 1f) * _cam.orthographicSize * aspect,
+                               midpoint.y - (_lastViewport.center.y * 2f - 1f) * _cam.orthographicSize, -distance);
             transform.SetPositionAndRotation(position, rotation);
-            _cam.farClipPlane = Mathf.Max(200f, distance + depth + 20f);
+            _cam.farClipPlane = Mathf.Max(200f, distance + max.z + 20f);
 
             foreach (var label in Object.FindObjectsByType<BillboardLabel>(FindObjectsInactive.Exclude))
                 label.Align(_cam);

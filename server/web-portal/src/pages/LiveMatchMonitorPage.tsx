@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getToken } from "../api/client";
+import { getMatch, type Match } from "../api/matches";
+import { getClass, type ClassRoster } from "../api/classes";
 import { ArenaTrackView } from "../components/ArenaTrackView";
 import type {
   SpectatorPlayer,
@@ -45,10 +47,22 @@ export function LiveMatchMonitorPage() {
   const matchIdParam = params.get("matchId") ?? "";
   const [matchIdInput, setMatchIdInput] = useState(matchIdParam);
   const [inputError, setInputError] = useState<string | null>(null);
-  const [connected, setConnected] = useState(false);
+  const [attachedMatchId, setAttachedMatchId] = useState<string | null>(null);
+  const connected = attachedMatchId === matchIdParam;
+  const [connecting, setConnecting] = useState(false);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [retryAttempt, setRetryAttempt] = useState(0);
+  const [match, setMatch] = useState<Match | null>(null);
+  const [roster, setRoster] = useState<ClassRoster | null>(null);
+  const [detailsError, setDetailsError] = useState<string | null>(null);
+  const [copyMessage, setCopyMessage] = useState<string | null>(null);
+  const [starting, setStarting] = useState(false);
+  const startPendingRef = useRef(false);
+  const startTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const completedMatchIdRef = useRef<string | null>(null);
 
   // Match State
-  const [status, setStatus] = useState<string>("lobby");
+  const [status, setStatus] = useState<string>("loading");
   const [mode, setMode] = useState<"ffa" | "teams">("ffa");
   const [lobby, setLobby] = useState<LobbyPlayer[] | null>(null);
   const [players, setPlayers] = useState<SpectatorPlayer[]>([]);
@@ -154,21 +168,99 @@ export function LiveMatchMonitorPage() {
   }
 
   useEffect(() => {
+    if (completedMatchIdRef.current === matchIdParam) {
+      setAttachedMatchId(null);
+      setConnecting(false);
+      return;
+    }
+    completedMatchIdRef.current = null;
+
+    function resetLiveState() {
+      setAttachedMatchId(null);
+      setStatus("loading");
+      setMode("ffa");
+      setLobby(null);
+      setPlayers([]);
+      setGrid({ width: 8, height: 7, goalRow: 6 });
+      setActiveAttacks([]);
+      setFloatingTexts([]);
+      setCombatEvents([]);
+      setSelectedPlayerId(null);
+      setCountdown(null);
+      setMatchEnd(null);
+      setQuestion(null);
+      setActiveHazard(null);
+      setSuddenQuestionEvent(null);
+      setHazardCooldown(false);
+      setSuddenCooldown(false);
+      setShowCustomModal(false);
+      setStarting(false);
+      startPendingRef.current = false;
+      if (startTimeoutRef.current) clearTimeout(startTimeoutRef.current);
+    }
+
+    resetLiveState();
+    setMatchIdInput(matchIdParam);
+    setConnectionError(null);
+    setMatch(null);
+    setRoster(null);
+    setDetailsError(null);
+    setCopyMessage(null);
+    setConnecting(false);
     if (!matchIdParam) return;
+    if (!/^\d+$/.test(matchIdParam) || !Number.isSafeInteger(Number(matchIdParam)) || Number(matchIdParam) <= 0) {
+      setConnectionError("Enter a valid positive numeric match ID from Match Setup.");
+      return;
+    }
+    let disposed = false;
+    let attached = false;
+    let dashboardActive = false;
+    setConnecting(true);
+    getMatch(Number(matchIdParam)).then(async (loadedMatch) => {
+      if (disposed) return;
+      setMatch(loadedMatch);
+      const loadedRoster = await getClass(loadedMatch.class_roster_id);
+      if (!disposed) setRoster(loadedRoster);
+    }).catch((err) => {
+      if (!disposed) setDetailsError(`Could not load invitation details: ${err instanceof Error ? err.message : String(err)}`);
+    });
     const ws = new WebSocket(wsUrl());
     wsRef.current = ws;
+    const attachTimeout = setTimeout(() => disconnect("Could not attach to this match. Retry to reconnect."), 10000);
+
+    function disconnect(message: string) {
+      if (disposed || wsRef.current !== ws) return;
+      clearTimeout(attachTimeout);
+      wsRef.current = null;
+      const completed = completedMatchIdRef.current === matchIdParam;
+      if (completed) setAttachedMatchId(null);
+      else resetLiveState();
+      setConnecting(false);
+      setConnectionError(completed ? "Completed match is offline. Results are preserved in this view; reconnecting is unavailable." : message);
+      ws.close();
+    }
 
     ws.onopen = () => {
+      if (disposed || wsRef.current !== ws) return;
       ws.send(JSON.stringify({ type: "hello", payload: { role: "teacher", token: getToken() } }));
     };
 
     ws.onmessage = (evt) => {
+      if (disposed || wsRef.current !== ws) return;
       const msg = JSON.parse(evt.data);
+      if (msg.type === "lobby_state" || msg.type === "live_dashboard") {
+        if (msg.payload.matchId !== Number(matchIdParam)) return;
+        attached = true;
+        clearTimeout(attachTimeout);
+        setAttachedMatchId(matchIdParam);
+        setConnecting(false);
+      } else if (!attached && msg.type !== "hello_ack" && msg.type !== "error") {
+        return;
+      }
 
       switch (msg.type) {
         case "hello_ack":
           ws.send(JSON.stringify({ type: "teacher_join_match", payload: { matchId: Number(matchIdParam) } }));
-          setConnected(true);
           break;
 
         case "lobby_state":
@@ -176,9 +268,19 @@ export function LiveMatchMonitorPage() {
           if (msg.payload.mode) setMode(msg.payload.mode);
           break;
 
+        case "character_locked":
+          setLobby((prev) => prev?.map((p) => p.playerId === msg.payload.playerId ? { ...p, characterId: msg.payload.characterId } : p) ?? null);
+          break;
+
         case "live_dashboard": {
           const payload = msg.payload;
+          dashboardActive = payload.status === "active";
+          if (payload.status === "completed") completedMatchIdRef.current = matchIdParam;
           setStatus(payload.status);
+          if (dashboardActive && payload.timerStartedAt) {
+            const remainingSeconds = Math.max(0, Math.ceil((payload.timerStartedAt + payload.timerSeconds * 1000 - Date.now()) / 1000));
+            setCountdown(remainingSeconds > 0 ? { remainingSeconds, message: "Race to the finish!" } : null);
+          }
           if (payload.mode) setMode(payload.mode);
           if (payload.grid) {
             setGrid({
@@ -209,6 +311,10 @@ export function LiveMatchMonitorPage() {
         }
 
         case "match_start": {
+          startPendingRef.current = false;
+          setStarting(false);
+          if (startTimeoutRef.current) clearTimeout(startTimeoutRef.current);
+          if (dashboardActive) break;
           setStatus("active");
           const payload = msg.payload;
           if (payload.teams !== undefined) setMode(payload.teams ? "teams" : "ffa");
@@ -515,10 +621,16 @@ export function LiveMatchMonitorPage() {
         }
 
         case "match_end": {
+          completedMatchIdRef.current = matchIdParam;
+          startPendingRef.current = false;
+          setStarting(false);
+          if (startTimeoutRef.current) clearTimeout(startTimeoutRef.current);
           playVictorySound();
           setStatus("completed");
           setMatchEnd(msg.payload);
           setCountdown(null);
+          setSuddenQuestionEvent(null);
+          setShowCustomModal(false);
           setCombatEvents((prev) => [
             {
               id: `ev_${Date.now()}`,
@@ -532,6 +644,15 @@ export function LiveMatchMonitorPage() {
         }
 
         case "error": {
+          const message = `${msg.payload.code}: ${msg.payload.message}`;
+          if (!attached) {
+            disconnect(message);
+            break;
+          }
+          setConnectionError(message);
+          startPendingRef.current = false;
+          setStarting(false);
+          if (startTimeoutRef.current) clearTimeout(startTimeoutRef.current);
           setCombatEvents((prev) => [
             {
               id: `ev_${Date.now()}`,
@@ -546,15 +667,22 @@ export function LiveMatchMonitorPage() {
       }
     };
 
-    ws.onclose = () => setConnected(false);
+    ws.onerror = () => disconnect("WebSocket connection failed. Retry to reconnect.");
+    ws.onclose = () => disconnect("Disconnected from this match. Retry to reconnect.");
 
-    return () => ws.close();
-  }, [matchIdParam]);
+    return () => {
+      disposed = true;
+      clearTimeout(attachTimeout);
+      if (startTimeoutRef.current) clearTimeout(startTimeoutRef.current);
+      if (wsRef.current === ws) wsRef.current = null;
+      ws.close();
+    };
+  }, [matchIdParam, retryAttempt]);
 
   function connectToMatch() {
     const trimmed = matchIdInput.trim();
     if (!trimmed) return;
-    if (!/^\d+$/.test(trimmed)) {
+    if (!/^\d+$/.test(trimmed) || !Number.isSafeInteger(Number(trimmed)) || Number(trimmed) <= 0) {
       setInputError(
         `"${trimmed}" isn't a valid match ID — that's the numeric ID shown after creating a match (e.g. "12"), not the join code students use.`
       );
@@ -564,19 +692,49 @@ export function LiveMatchMonitorPage() {
     setParams({ matchId: trimmed });
   }
 
+  const readyCount = lobby?.filter((p) => p.ready && p.characterId).length ?? 0;
+  const excludedCount = (lobby?.length ?? 0) - readyCount;
+  const canStart = connected && status === "lobby" && readyCount >= 2 && !starting;
+  const joinLink = match?.id === Number(matchIdParam) && roster?.class_code && match.join_code
+    ? `${window.location.origin}/play/?${new URLSearchParams({ classCode: roster.class_code, joinCode: match.join_code })}`
+    : "";
+
+  async function copyJoinLink() {
+    const ws = wsRef.current;
+    try {
+      await navigator.clipboard.writeText(joinLink);
+      if (wsRef.current === ws) setCopyMessage("Student link copied.");
+    } catch {
+      if (wsRef.current === ws) setCopyMessage("Could not copy automatically. Select and copy the student link below.");
+    }
+  }
+
   function startMatch() {
-    wsRef.current?.send(JSON.stringify({ type: "teacher_start_match", payload: {} }));
+    const ws = wsRef.current;
+    if (!canStart || startPendingRef.current || ws?.readyState !== WebSocket.OPEN) return;
+    if (excludedCount > 0 && !window.confirm(`Start with ${readyCount} ready players? ${excludedCount} student(s) without both Ready and a character pick will be excluded.`)) return;
+    startPendingRef.current = true;
+    setStarting(true);
+    setConnectionError(null);
+    ws.send(JSON.stringify({ type: "teacher_start_match", payload: {} }));
+    startTimeoutRef.current = setTimeout(() => {
+      if (wsRef.current !== ws) return;
+      setConnectionError("No start confirmation received. Retry to check the match before starting again.");
+      ws.close();
+    }, 10000);
   }
 
   function killMatch() {
+    if (!connected || wsRef.current?.readyState !== WebSocket.OPEN) return;
     if (!window.confirm("Are you sure you want to end this match immediately for all students?")) return;
     wsRef.current?.send(JSON.stringify({ type: "teacher_kill_match", payload: { matchId: Number(matchIdParam) } }));
   }
 
   function triggerHazard(dmg = hazardDamage) {
-    if (hazardCooldown) return;
+    if (hazardCooldown || !connected || wsRef.current?.readyState !== WebSocket.OPEN) return;
     setHazardCooldown(true);
-    setTimeout(() => setHazardCooldown(false), 3000);
+    const ws = wsRef.current;
+    setTimeout(() => { if (wsRef.current === ws) setHazardCooldown(false); }, 3000);
 
     wsRef.current?.send(
       JSON.stringify({
@@ -587,9 +745,10 @@ export function LiveMatchMonitorPage() {
   }
 
   function triggerQuickSuddenQuestion() {
-    if (suddenCooldown) return;
+    if (suddenCooldown || !connected || wsRef.current?.readyState !== WebSocket.OPEN) return;
     setSuddenCooldown(true);
-    setTimeout(() => setSuddenCooldown(false), 5000);
+    const ws = wsRef.current;
+    setTimeout(() => { if (wsRef.current === ws) setSuddenCooldown(false); }, 5000);
 
     wsRef.current?.send(
       JSON.stringify({
@@ -605,9 +764,11 @@ export function LiveMatchMonitorPage() {
   }
 
   function submitCustomSuddenQuestion() {
+    if (suddenCooldown || !connected || wsRef.current?.readyState !== WebSocket.OPEN) return;
     setShowCustomModal(false);
     setSuddenCooldown(true);
-    setTimeout(() => setSuddenCooldown(false), 5000);
+    const ws = wsRef.current;
+    setTimeout(() => { if (wsRef.current === ws) setSuddenCooldown(false); }, 5000);
 
     const payload: any = {
       matchId: Number(matchIdParam),
@@ -667,11 +828,11 @@ export function LiveMatchMonitorPage() {
             <div>
               <h1 className="spectator-title">
                 Live Match #{matchIdParam}
-                <span className={`status-badge status-${status}`}>{status.toUpperCase()}</span>
+                <span className={`status-badge status-${status}`}>{connected ? status.toUpperCase() : status === "completed" ? "COMPLETED (OFFLINE)" : connecting ? "CONNECTING" : "OFFLINE"}</span>
               </h1>
               <div className="spectator-subtitle">
                 <span className={`connection-dot ${connected ? "connected" : "disconnected"}`} />
-                {connected ? "Connected to Server" : "Reconnecting..."} · Mode: <strong>{mode.toUpperCase()}</strong> · Racers: <strong>{players.length}</strong>
+                {connected ? "Connected to match" : connecting ? "Connecting to match..." : "Disconnected"} · Mode: <strong>{connected || status === "completed" ? mode.toUpperCase() : "--"}</strong> · Racers: <strong>{connected || status === "completed" ? status === "lobby" ? lobby?.length ?? 0 : players.length : "--"}</strong>
               </div>
             </div>
           </div>
@@ -679,6 +840,7 @@ export function LiveMatchMonitorPage() {
 
         {/* Action Controls */}
         <div className="spectator-controls-group">
+          {!connected && status !== "completed" && <button className="btn" onClick={() => setRetryAttempt((n) => n + 1)} disabled={connecting}>Retry</button>}
           <button
             className="btn btn-tool"
             onClick={toggleMute}
@@ -695,9 +857,9 @@ export function LiveMatchMonitorPage() {
             {isFullscreen ? "🗗 Exit Fullscreen" : "⛶ Projector Fullscreen"}
           </button>
 
-          {status === "lobby" && (
-            <button className="btn btn-primary" style={{ fontWeight: 700 }} onClick={startMatch}>
-              ▶ Start Match
+          {(status === "lobby" || status === "loading") && (
+            <button className="btn btn-primary" style={{ fontWeight: 700 }} onClick={startMatch} disabled={!canStart}>
+              {starting ? "Starting..." : "▶ Start Match"}
             </button>
           )}
 
@@ -706,12 +868,30 @@ export function LiveMatchMonitorPage() {
               className="btn btn-danger"
               style={{ fontWeight: 600 }}
               onClick={killMatch}
+              disabled={!connected || starting}
             >
-              {status === "lobby" ? "Cancel Match" : "End Match"}
+              {status === "active" ? "End Match" : "Cancel Match"}
             </button>
           )}
         </div>
       </div>
+
+      {connectionError && <p className="error-text" role="alert">{connectionError}</p>}
+
+      {status !== "completed" && (status === "lobby" || !connected) && (
+        <div className="card">
+          <h2>Invite students{roster ? ` to ${roster.name}` : ""}</h2>
+          {detailsError ? <p className="error-text" role="alert">{detailsError} <button className="btn" onClick={() => setRetryAttempt((n) => n + 1)}>Retry details</button></p> : !roster && !connectionError && <p role="status">Loading invitation details...</p>}
+          <div className="row" style={{ gap: "2rem" }}>
+            <div>Class code<strong style={{ display: "block", fontSize: "1.75rem", letterSpacing: "0.08em" }}>{roster?.class_code ?? "--"}</strong></div>
+            <div>Match join code<strong style={{ display: "block", fontSize: "1.75rem", letterSpacing: "0.08em" }}>{match?.join_code ?? "--"}</strong></div>
+            <button className="btn btn-primary" disabled={!joinLink} onClick={copyJoinLink}>Copy student link</button>
+          </div>
+          {joinLink && <div className="field" style={{ marginTop: "1rem" }}><label htmlFor="student-link">Student link (no PIN or login token)</label><input id="student-link" readOnly value={joinLink} onFocus={(e) => e.currentTarget.select()} /></div>}
+          {copyMessage && <p role="status">{copyMessage}</p>}
+          <p className="muted">Students open the link, sign in, choose a character{mode === "teams" ? " and a team" : ""}, then select Ready. Only you can start the match.</p>
+        </div>
+      )}
 
       {/* Countdown Alert Banner */}
       {countdown && (
@@ -741,7 +921,9 @@ export function LiveMatchMonitorPage() {
       {status === "lobby" && lobby && (
         <div className="card" style={{ marginBottom: "1.25rem" }}>
           <h2>Racers in Lobby ({lobby.length})</h2>
-          <p className="muted">Students are picking their heroes. Click "Start Match" when ready.</p>
+          <p role="status"><strong>{readyCount} / {lobby.length} ready with a character picked.</strong> At least 2 are required to start.</p>
+          {excludedCount > 0 && <p className="muted">{excludedCount} student(s) will be excluded if you start before they are ready with a character picked.</p>}
+          {lobby.length === 0 && <p className="muted">Waiting for students to join using the link or codes above.</p>}
           <table style={{ width: "100%", marginTop: "0.5rem" }}>
             <thead>
               <tr>
@@ -758,7 +940,7 @@ export function LiveMatchMonitorPage() {
                   <td>{p.characterId ?? <span className="muted">Choosing...</span>}</td>
                   <td>{p.team ?? <span className="muted">—</span>}</td>
                   <td>
-                    {p.ready ? (
+                    {p.ready && p.characterId ? (
                       <span style={{ color: "#22c55e", fontWeight: 700 }}>✓ READY</span>
                     ) : (
                       <span className="muted">Not ready</span>
@@ -828,7 +1010,7 @@ export function LiveMatchMonitorPage() {
                 <button
                   type="button"
                   className="btn btn-hazard-fire"
-                  disabled={hazardCooldown}
+                  disabled={!connected || hazardCooldown}
                   onClick={() => triggerHazard(hazardDamage)}
                 >
                   {hazardCooldown ? "⏳ Recharging..." : `🔥 Send Fireballs (-${hazardDamage} HP to Everyone)`}
@@ -851,7 +1033,7 @@ export function LiveMatchMonitorPage() {
                     type="button"
                     className="btn btn-sudden-gold"
                     style={{ flex: 1 }}
-                    disabled={suddenCooldown}
+                    disabled={!connected || suddenCooldown}
                     onClick={triggerQuickSuddenQuestion}
                   >
                     {suddenCooldown ? "⏳ Recharging..." : "⚡ Quick Sudden Question (35 DMG Mega Strike)"}
@@ -860,6 +1042,7 @@ export function LiveMatchMonitorPage() {
                     type="button"
                     className="btn btn-tool"
                     title="Customize sudden question text and rewards"
+                    disabled={!connected || suddenCooldown}
                     onClick={() => setShowCustomModal(true)}
                   >
                     ⚙️ Custom
@@ -1062,7 +1245,7 @@ export function LiveMatchMonitorPage() {
               <button className="btn" onClick={() => setShowCustomModal(false)}>
                 Cancel
               </button>
-              <button className="btn btn-primary" onClick={submitCustomSuddenQuestion}>
+              <button className="btn btn-primary" onClick={submitCustomSuddenQuestion} disabled={!connected || suddenCooldown}>
                 🚀 Launch Sudden Question to Everyone
               </button>
             </div>
@@ -1114,7 +1297,7 @@ export function LiveMatchMonitorPage() {
           )}
 
           {/* Live Combat Event Feed */}
-          <CombatFeed events={combatEvents} onClear={() => setCombatEvents([])} />
+          <CombatFeed events={combatEvents} onClear={status === "completed" ? undefined : () => setCombatEvents([])} />
         </div>
       </div>
     </div>

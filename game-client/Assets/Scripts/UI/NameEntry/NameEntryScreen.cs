@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using QuizBattle.Arena;
 using QuizBattle.Bootstrap;
 using QuizBattle.Networking;
+using QuizBattle.Networking.Protocol;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -24,29 +25,26 @@ namespace QuizBattle.UI.NameEntry
         private TMP_InputField _matchCodeField;
         private TMP_Text _statusText;
         private Button _joinButton;
+        private bool _joining;
+        private bool _stopped;
+        private Action _unsubscribeJoin;
 
         private void Start()
         {
             SessionManager.AutoDetectEndpoint();
             Build();
-            _ = PreconnectWs();
+            var codes = JoinUrlPrefill.Parse(Application.absoluteURL);
+            _classCodeField.text = codes.classCode;
+            _matchCodeField.text = codes.joinCode;
         }
 
-        private async Task PreconnectWs()
+        private void OnDisable()
         {
-            var client = AppRoot.Instance.Client;
-            if (!client.IsConnected)
-            {
-                try
-                {
-                    await client.Connect(SessionManager.WsUrl);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogWarning($"[NameEntryScreen] Background pre-connect: {ex.Message}");
-                }
-            }
+            _stopped = true;
+            _unsubscribeJoin?.Invoke();
         }
+
+        private void OnDestroy() => OnDisable();
 
         private void Build()
         {
@@ -54,123 +52,157 @@ namespace QuizBattle.UI.NameEntry
 
             // Main center placard card
             var (cardRect, innerCard) = UiFactory.CreatePlacardPanel(
-                canvas.transform, "CenterCard", new Vector2(0.5f, 0.5f), new Vector2(480, 540), QuizBattlePalette.PanelDeep);
+                                            canvas.transform, "CenterCard", new Vector2(0.5f, 0.5f), new Vector2(480, 540), QuizBattlePalette.PanelDeep);
 
             // Title Ribbon Banner at the top of the card
             var (bannerRect, _) = UiFactory.CreateBannerPanel(
-                cardRect, "TitleBanner", new Vector2(0.5f, 1f), new Vector2(340, 48), QuizBattlePalette.BannerBlue, new Vector2(0, 8));
+                                      cardRect, "TitleBanner", new Vector2(0.5f, 1f), new Vector2(340, 48), QuizBattlePalette.BannerBlue, new Vector2(0, 8));
             var titleText = UiFactory.CreateText(bannerRect, "TitleText", new Vector2(0.5f, 0.5f), new Vector2(320, 36), 22);
             titleText.text = "JOIN MATCH";
             titleText.fontStyle = FontStyles.Bold;
             titleText.color = QuizBattlePalette.GoldTrim;
 
             // Subtitle
-            var subText = UiFactory.CreateText(innerCard.transform, "SubText", new Vector2(0.5f, 0.88f), new Vector2(420, 30), 14);
-            subText.text = "Enter your details to jump into the arena:";
+            var subText = UiFactory.CreateText(innerCard.transform, "SubText", new Vector2(0.5f, 0.88f), new Vector2(420, 48), 14);
+            subText.text = "Returning? Use your existing nickname and PIN.\nNew nickname? Choose a PIN (up to 4 digits).";
             subText.color = QuizBattlePalette.CreamText;
 
             _classCodeField = UiFactory.CreateInputField(innerCard.transform, "ClassCodeField", new Vector2(0.5f, 0.74f), new Vector2(360, 46), "Class code (e.g. MATH101)");
             _nameField = UiFactory.CreateInputField(innerCard.transform, "NameField", new Vector2(0.5f, 0.60f), new Vector2(360, 46), "Your nickname (e.g. Alex)");
-            _pinField = UiFactory.CreateInputField(innerCard.transform, "PinField", new Vector2(0.5f, 0.46f), new Vector2(360, 46), "PIN (4 digits)");
+            _pinField = UiFactory.CreateInputField(innerCard.transform, "PinField", new Vector2(0.5f, 0.46f), new Vector2(360, 46), "PIN (existing, or new on first use)");
             _pinField.contentType = TMP_InputField.ContentType.IntegerNumber;
+            _pinField.inputType = TMP_InputField.InputType.Password;
             _pinField.characterLimit = 4;
             _matchCodeField = UiFactory.CreateInputField(innerCard.transform, "MatchCodeField", new Vector2(0.5f, 0.32f), new Vector2(360, 46), "Match code (e.g. LOBBY1)");
 
             var (joinBtn, joinLabel) = UiFactory.CreateClashButton(
-                innerCard.transform, "JoinButton", new Vector2(0.5f, 0.16f), new Vector2(260, 52), "JOIN GAME >>",
-                new Color(0.18f, 0.68f, 0.28f), new Color(0.10f, 0.44f, 0.18f), "");
+                                           innerCard.transform, "JoinButton", new Vector2(0.5f, 0.16f), new Vector2(260, 52), "JOIN GAME >>",
+                                           new Color(0.18f, 0.68f, 0.28f), new Color(0.10f, 0.44f, 0.18f), "");
             joinLabel.fontSize = 20;
             _joinButton = joinBtn;
             _joinButton.onClick.AddListener(OnJoinClicked);
 
             _statusText = UiFactory.CreateText(innerCard.transform, "Status", new Vector2(0.5f, 0.04f), new Vector2(440, 30), 13);
             _statusText.color = QuizBattlePalette.CreamText;
+            _statusText.richText = false;
         }
 
         public void OnJoinClicked()
         {
+            if (_stopped || _joining) return;
             _ = Join(_classCodeField.text.Trim(), _nameField.text.Trim(), _pinField.text.Trim(), _matchCodeField.text.Trim());
+        }
+
+        private static string ValidateDetails(string classCode, string name, string pin, string matchCode)
+        {
+            if (string.IsNullOrWhiteSpace(classCode) || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(matchCode))
+                return "Please fill in all fields.";
+            if (string.IsNullOrWhiteSpace(pin))
+                return "Enter your existing PIN, or choose one for a new nickname.";
+            return null;
         }
 
         public async Task Join(string classCode, string name, string pin, string matchCode)
         {
-            if (string.IsNullOrWhiteSpace(classCode) || string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(matchCode))
+            if (_stopped || _joining) return;
+            var validationError = ValidateDetails(classCode, name, pin, matchCode);
+            if (validationError != null)
             {
-                _statusText.text = "Please fill in all fields.";
+                _statusText.text = validationError;
                 return;
             }
 
+            _joining = true;
             _joinButton.interactable = false;
             _statusText.text = "Connecting & signing in...";
 
             SessionManager.AutoDetectEndpoint();
             var client = AppRoot.Instance.Client;
-
-            if (!client.IsConnected)
-            {
-                try
-                {
-                    await client.Connect(SessionManager.WsUrl);
-                }
-                catch (Exception e)
-                {
-                    _statusText.text = $"Could not reach server: {e.Message}";
-                    _joinButton.interactable = true;
-                    return;
-                }
-            }
-
-            AuthClient.StudentLoginResult login;
-            try
-            {
-                login = await AuthClient.StudentLogin(classCode, name, pin);
-            }
-            catch (Exception e)
-            {
-                _statusText.text = e.Message;
-                _joinButton.interactable = true;
-                return;
-            }
-
-            SessionManager.AuthToken = login.Token;
-            SessionManager.StudentName = login.Name;
-            SessionManager.Role = "student";
-            SessionManager.JoinCode = matchCode;
-
             var store = AppRoot.Instance.Store;
-
             bool acked = false;
-            void OnAck(Networking.Protocol.Envelope env)
+            bool joiningLobby = false;
+            LobbyStatePayload snapshot = null;
+            string error = null;
+            void OnMessage(Envelope env)
             {
-                if (env.Type == "hello_ack")
+                if (_stopped) return;
+                if (env.Type == "error") error = env.Payload?["code"]?.ToString() == "not_found"
+                                                     ? "Match not found. Check the match code from your teacher."
+                                                     : env.Payload?["message"]?.ToString() ?? "Server rejected the request. Please try again.";
+                if (env.Type == "hello_ack" && !acked)
                 {
                     SessionManager.PlayerId = env.Payload["playerId"].ToObject<int>();
                     acked = true;
                 }
             }
-            client.MessageReceived += OnAck;
-            client.Send("hello", new { role = "student", token = login.Token });
-            if (!await WsClient.WaitUntil(client, () => acked, 5000))
+            void OnLobby(LobbyStatePayload payload)
             {
-                client.MessageReceived -= OnAck;
-                _statusText.text = "Lost connection to the server. Please try again.";
-                _joinButton.interactable = true;
-                return;
+                if (!_stopped && joiningLobby)
+                    snapshot = payload.Players.Exists(p => p.PlayerId == SessionManager.PlayerId) ? payload : null;
             }
-            client.MessageReceived -= OnAck;
-
-            _statusText.text = "Joining match lobby...";
-            client.Send("join_lobby", new { joinCode = matchCode, name = login.Name });
-            bool inLobby = await WsClient.WaitUntil(client, () => store.LobbyPlayers.Exists(p => p.playerId == SessionManager.PlayerId), 5000);
-
-            if (!inLobby)
+            void OnError(string message) => error = $"Connection problem: {message}";
+            void OnDisconnected(string reason) => error = "Connection lost. Please try joining again.";
+            Action unsubscribe = () =>
             {
-                _statusText.text = "Could not join that match. Check the match code.";
-                _joinButton.interactable = true;
-                return;
-            }
+                client.MessageReceived -= OnMessage;
+                client.Error -= OnError;
+                client.Disconnected -= OnDisconnected;
+                store.LobbyUpdated -= OnLobby;
+            };
+            _unsubscribeJoin = unsubscribe;
+            try
+            {
+                if (client.IsConnected) await client.Close();
+                if (_stopped) return;
+                await client.Connect(SessionManager.WsUrl);
+                if (_stopped) return;
 
-            SceneManager.LoadScene("CharacterSelect");
+                var login = await AuthClient.StudentLogin(classCode.Trim(), name.Trim(), pin);
+                if (_stopped) return;
+                if (!client.IsConnected) throw new Exception("Connection lost during sign-in. Please try again.");
+
+                SessionManager.AuthToken = login.Token;
+                SessionManager.StudentName = login.Name;
+                SessionManager.Role = "student";
+                SessionManager.JoinCode = matchCode.Trim();
+                SessionManager.SelectedCharacterId = null;
+
+                client.MessageReceived += OnMessage;
+                client.Error += OnError;
+                client.Disconnected += OnDisconnected;
+                store.LobbyUpdated += OnLobby;
+                client.Send("hello", new { role = "student", token = login.Token });
+                await WsClient.WaitUntil(client, () => _stopped || error != null || acked || !client.IsConnected, 5000);
+                if (_stopped) return;
+                if (error != null || !acked || !client.IsConnected)
+                    throw new Exception(error ?? "Sign-in confirmation timed out. Please try again.");
+
+                _statusText.text = "Joining match lobby...";
+                joiningLobby = true;
+                client.Send("join_lobby", new { joinCode = SessionManager.JoinCode, name = login.Name });
+                await WsClient.WaitUntil(client, () => _stopped || error != null || snapshot != null || !client.IsConnected, 5000);
+                if (_stopped) return;
+                if (error != null || snapshot == null || !client.IsConnected)
+                    throw new Exception(error ?? "No lobby confirmation. Check the match code and try again.");
+
+                SessionManager.MatchId = snapshot.MatchId;
+                _stopped = true;
+                unsubscribe();
+                SceneManager.LoadScene("CharacterSelect");
+            }
+            catch (Exception e)
+            {
+                if (!_stopped) _statusText.text = e is TimeoutException
+                                                      ? "Server did not respond. Check your connection and try again."
+                                                      : e.Message;
+            }
+            finally
+            {
+                unsubscribe();
+                _unsubscribeJoin = null;
+                _joining = false;
+                if (!_stopped) _joinButton.interactable = true;
+            }
         }
     }
 }
