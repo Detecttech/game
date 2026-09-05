@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { getClass, type ClassRoster } from "../api/classes";
 import { addStudent, listRoster, removeStudent, resetStudentPin, type StudentSummary } from "../api/roster";
 import { ApiError } from "../api/client";
+import "./resources.css";
 
 export function RosterEditorPage() {
   const { id } = useParams();
@@ -11,83 +12,141 @@ export function RosterEditorPage() {
   const [students, setStudents] = useState<StudentSummary[]>([]);
   const [newName, setNewName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [pending, setPending] = useState(false);
 
   function refresh() {
-    getClass(classId).then(setCls).catch(() => {});
-    listRoster(classId)
-      .then(setStudents)
-      .catch((e) => setError(e instanceof ApiError ? e.message : String(e)));
+    setLoadAttempt((n) => n + 1);
   }
 
-  useEffect(refresh, [classId]);
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setLoadError(null);
+    Promise.all([getClass(classId), listRoster(classId)])
+      .then(([roster, data]) => {
+        if (cancelled) return;
+        setCls(roster);
+        setStudents(data);
+      })
+      .catch((e) => { if (!cancelled) setLoadError(e instanceof ApiError ? e.message : String(e)); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [classId, loadAttempt]);
+
+  useEffect(() => {
+    setCls(null);
+    setNewName("");
+    setError(null);
+  }, [classId]);
 
   async function onAdd(e: FormEvent) {
     e.preventDefault();
-    if (!newName.trim()) return;
+    if (!newName.trim() || pending || loading || loadError) return;
+    setError(null);
+    setPending(true);
     try {
       await addStudent(classId, newName.trim());
       setNewName("");
       refresh();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : String(err));
+    } finally {
+      setPending(false);
     }
   }
 
   async function onRemove(studentId: number) {
     if (!confirm("Remove this student from the class?")) return;
-    await removeStudent(studentId);
-    refresh();
+    setError(null);
+    setPending(true);
+    try {
+      await removeStudent(studentId);
+      refresh();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : String(err));
+    } finally {
+      setPending(false);
+    }
   }
 
   async function onResetPin(studentId: number) {
-    await resetStudentPin(studentId);
-    refresh();
+    setError(null);
+    setPending(true);
+    try {
+      await resetStudentPin(studentId);
+      refresh();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : String(err));
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
-    <div className="page">
-      <p><Link to="/rosters">&larr; All classes</Link></p>
-      <h1>{cls?.name ?? "Class"}</h1>
-      {cls && (
-        <p className="muted">
-          Students join with class code <span className="badge">{cls.class_code}</span>, their name from this list, and a PIN they set on first login.
-        </p>
-      )}
-
-      <form onSubmit={onAdd} className="row card">
-        <input placeholder="Student name" value={newName} onChange={(e) => setNewName(e.target.value)} />
-        <button className="btn btn-primary" type="submit">Add student</button>
+    <div className="page resource-page">
+      <p className="resource-back"><Link to="/rosters">&larr; All classes</Link></p>
+      <header className="page-heading resource-heading">
+        <div>
+          <p className="eyebrow">Resources / Class roster</p>
+          <h1>{cls?.name ?? "Class roster"}</h1>
+          <p className="resource-intro">Your players, their progress, and everything they need to join.</p>
+        </div>
+        {cls && <div className="resource-join-code"><span className="resource-meta">Class code</span><strong>{cls.class_code}</strong></div>}
+      </header>
+      <div className="resource-note">
+        <strong>Joining this class</strong>
+        <p>Students use the class code, their name from this roster, and a PIN they set on first login. Reset a forgotten PIN so they can choose a new one.</p>
+      </div>
+      <form onSubmit={onAdd} className="card resource-create">
+        <div className="field">
+          <label htmlFor="student-name">Student name</label>
+          <input id="student-name" placeholder="Name students will use to sign in" required value={newName} onChange={(e) => setNewName(e.target.value)} disabled={pending || loading || !!loadError} />
+        </div>
+        <button className="btn btn-primary" type="submit" disabled={pending || loading || !!loadError || !newName.trim()}>{pending ? "Working..." : "Add student"}</button>
       </form>
-      {error && <p className="error-text">{error}</p>}
+      {error && <p className="resource-error" role="alert">{error}</p>}
 
-      {students.length === 0 ? (
-        <p className="muted">No students yet.</p>
+      <div className="section-heading resource-section-heading">
+        <h2>Student roster</h2>
+        {!loading && !loadError && <span className="resource-meta">{students.length} {students.length === 1 ? "student" : "students"}</span>}
+      </div>
+      {loading ? (
+        <p className="card resource-status" role="status">Loading class roster...</p>
+      ) : loadError ? (
+        <div className="resource-error" role="alert"><p>Could not load class roster: {loadError}</p><button className="btn" onClick={refresh}>Retry loading</button></div>
+      ) : students.length === 0 ? (
+        <div className="empty-state"><h3>Who's joining the race?</h3><p>Add your first student above. Their XP and unlocked characters will appear here.</p></div>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>XP</th>
-              <th>Unlocked characters</th>
-              <th>PIN</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((s) => (
-              <tr key={s.id}>
-                <td>{s.name}</td>
-                <td>{s.xpTotal}</td>
-                <td>{s.unlockedCharacters.length > 0 ? s.unlockedCharacters.join(", ") : <span className="muted">default only</span>}</td>
-                <td>{s.pinSet ? "set" : <span className="muted">not set yet</span>}</td>
-                <td className="row">
-                  <button className="btn" onClick={() => onResetPin(s.id)} disabled={!s.pinSet}>Reset PIN</button>
-                  <button className="btn btn-danger" onClick={() => onRemove(s.id)}>Remove</button>
-                </td>
+        <div className="table-scroll resource-table" role="region" aria-label="Student roster" tabIndex={0}>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Student</th>
+                <th scope="col">Total XP</th>
+                <th scope="col">Unlocked characters</th>
+                <th scope="col">PIN status</th>
+                <th scope="col"><span className="sr-only">Actions</span></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {students.map((s) => (
+                <tr key={s.id}>
+                  <th scope="row" className="resource-text-cell">{s.name}</th>
+                  <td className="resource-numeric">{s.xpTotal.toLocaleString()}</td>
+                  <td>{s.unlockedCharacters.length > 0 ? s.unlockedCharacters.join(", ") : <span className="resource-detail">Default only</span>}</td>
+                  <td><span className={`resource-pin${s.pinSet ? " is-set" : ""}`}>{s.pinSet ? "Set" : "Not set yet"}</span></td>
+                  <td><div className="resource-table-actions">
+                    <button className="btn" onClick={() => onResetPin(s.id)} disabled={!s.pinSet || pending} aria-label={`Reset PIN for ${s.name}`}>Reset PIN</button>
+                    <button className="btn btn-danger" onClick={() => onRemove(s.id)} disabled={pending} aria-label={`Remove ${s.name}`}>Remove</button>
+                  </div></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

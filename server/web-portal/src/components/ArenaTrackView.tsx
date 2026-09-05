@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { getCharacterMeta } from "../utils/characters";
 
 export interface SpectatorPlayer {
@@ -58,6 +58,22 @@ export function ArenaTrackView({
   mode,
   activeHazard,
 }: ArenaTrackViewProps) {
+  const trackScrollRef = useRef<HTMLDivElement | null>(null);
+  const selectedTokenRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const track = trackScrollRef.current;
+    const token = selectedTokenRef.current;
+    if (selectedPlayerId === null || !track || !token) return;
+    const viewport = track.getBoundingClientRect();
+    const racer = token.getBoundingClientRect();
+    if (racer.left >= viewport.left + 12 && racer.right <= viewport.left + track.clientWidth - 12) return;
+    track.scrollTo({
+      left: track.scrollLeft + racer.left - viewport.left + (racer.width - track.clientWidth) / 2,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+    });
+  }, [selectedPlayerId]);
+
   const goalRow = grid.goalRow > 0 ? grid.goalRow : grid.height - 1;
   const totalRows = goalRow + 1; // 0 to goalRow inclusive
 
@@ -78,7 +94,7 @@ export function ArenaTrackView({
       // If player has explicit x in range, use it; otherwise spread evenly
       const xPct = ((idx + 0.5) / count) * 100;
       const progress = Math.min(goalRow, Math.max(0, p.pos.y));
-      const yPct = (progress / goalRow) * 100;
+      const yPct = (progress / (goalRow || 1)) * 100;
       map.set(p.playerId, { xPct, yPct });
     });
     return map;
@@ -86,6 +102,11 @@ export function ArenaTrackView({
 
   return (
     <div className="arena-track-container card">
+      <div className="arena-broadcast-header">
+        <div><p className="broadcast-eyebrow">The main stage</p><h2>Arena track</h2></div>
+        <span>{players.length} racers / {mode === "teams" ? "Teams" : "Free for all"}</span>
+      </div>
+      <p id="arena-scroll-hint" className="arena-scroll-hint">Select a racer to highlight their standing. Scroll across the track to follow every lane.</p>
       {/* Track Header / Goal Banner */}
       <div className="arena-goal-arch">
         <div className="checkered-line" />
@@ -98,9 +119,10 @@ export function ArenaTrackView({
       </div>
 
       {/* Main Track Stage */}
-      <div className="arena-track-stage">
+      <div ref={trackScrollRef} className="arena-track-scroll" tabIndex={0} role="region" aria-label="Arena race lanes" aria-describedby="arena-scroll-hint">
+      <div className="arena-track-stage" style={{ minWidth: Math.max(600, sortedPlayers.length * 200 + 96) }}>
         {/* Lane dividers and row milestone lines */}
-        <div className="arena-grid-background">
+        <div className="arena-grid-background" aria-hidden="true">
           {Array.from({ length: totalRows }).map((_, rIdx) => {
             const rowNumber = totalRows - 1 - rIdx;
             const isGoal = rowNumber === goalRow;
@@ -110,7 +132,7 @@ export function ArenaTrackView({
               <div
                 key={rowNumber}
                 className={`track-row-line ${isGoal ? "row-goal" : isStart ? "row-start" : ""}`}
-                style={{ top: `${(rIdx / (totalRows - 1)) * 100}%` }}
+                style={{ top: `${16 + (rIdx / (totalRows - 1 || 1)) * 68}%` }}
               >
                 <span className="row-milestone-badge">
                   {isGoal ? "🏁 GOAL" : isStart ? "START" : `Row ${rowNumber}`}
@@ -142,7 +164,7 @@ export function ArenaTrackView({
         </div>
 
         {/* SVG Attack Beam Overlay */}
-        <svg className="arena-attack-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <svg className="arena-attack-overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           <defs>
             <linearGradient id="attackBeamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="#ef4444" stopOpacity="0.8" />
@@ -168,9 +190,9 @@ export function ArenaTrackView({
             // Convert CSS percentages to SVG coordinates
             // In SVG viewBox 0-100, Y is 0 at top and 100 at bottom
             const x1 = pFrom.xPct;
-            const y1 = 100 - (pFrom.yPct * 0.85 + 7.5);
+            const y1 = 100 - (pFrom.yPct * 0.68 + 16);
             const x2 = pTo.xPct;
-            const y2 = 100 - (pTo.yPct * 0.85 + 7.5);
+            const y2 = 100 - (pTo.yPct * 0.68 + 16);
 
             const isFreeze = atk.type === "freeze";
             const strokeGrad = isFreeze ? "url(#freezeBeamGrad)" : "url(#attackBeamGrad)";
@@ -249,17 +271,16 @@ export function ArenaTrackView({
             const meta = getCharacterMeta(p.characterId);
             const isSelected = selectedPlayerId === p.playerId;
             const hpPct = Math.max(0, Math.min(100, (p.hp / (p.maxHp || 45)) * 100));
-            const hpColor = hpPct > 50 ? "#22c55e" : hpPct > 25 ? "#f59e0b" : "#ef4444";
+            const hpColor = hpPct > 50 ? "#8bd5ae" : hpPct > 25 ? "#dfc47e" : "#ff9587";
 
-            // Y coordinate: 0% is bottom, 100% is top goal
-            // In CSS, bottom: calc(7% + yPct * 0.82)
-            const bottomPercent = 7 + pos.yPct * 0.82;
+            const bottomPercent = 16 + pos.yPct * 0.68;
 
             const playerFloatingTexts = floatingTexts.filter((f) => f.playerId === p.playerId);
 
             return (
               <div
                 key={p.playerId}
+                ref={isSelected ? selectedTokenRef : undefined}
                 className={`racer-token-container ${isSelected ? "selected" : ""} ${
                   !p.alive ? "eliminated" : ""
                 } ${p.frozen ? "frozen" : ""} ${p.goalReached ? "goal-reached" : ""}`}
@@ -267,9 +288,15 @@ export function ArenaTrackView({
                   left: `${pos.xPct}%`,
                   bottom: `${bottomPercent}%`,
                 }}
-                onClick={() => onSelectPlayer(p.playerId)}
                 title={`${p.name} — ${p.hp}/${p.maxHp} HP — Streak ${p.streak}`}
               >
+                <button
+                  type="button"
+                  className="racer-select"
+                  aria-label={`Select ${p.name}, ${p.hp}/${p.maxHp} HP, step ${p.pos.y}/${goalRow}, streak ${p.streak}${mode === "teams" && p.team ? `, team ${p.team}` : ""}${p.goalReached ? `, finished rank ${p.finishRank}` : !p.alive ? ", eliminated" : p.frozen ? ", frozen" : ", racing"}`}
+                  aria-pressed={isSelected}
+                  onClick={() => onSelectPlayer(p.playerId)}
+                />
                 {/* Floating Damage / Combat Text */}
                 {playerFloatingTexts.map((ft) => (
                   <div key={ft.id} className="floating-combat-text" style={{ color: ft.color }}>
@@ -340,6 +367,8 @@ export function ArenaTrackView({
             );
           })}
         </div>
+        {players.length === 0 && <div className="arena-empty"><strong>The track is ready.</strong><span>Racers appear here when the match starts.</span></div>}
+      </div>
       </div>
 
       {/* Track Footer: Start Line */}

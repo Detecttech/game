@@ -35,12 +35,13 @@ export function LeaderboardStandings({
       <div className="standings-header">
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <span style={{ fontSize: "1.2rem" }}>🏅</span>
-          <h3 style={{ margin: 0, fontSize: "1.05rem" }}>Live Racer Standings & Vitals</h3>
+          <h2 style={{ margin: 0, fontSize: "1.05rem" }}>Live Standings</h2>
         </div>
         <span className="muted" style={{ fontSize: "0.8rem" }}>
           Goal: Row {goalRow}
         </span>
       </div>
+      <p className="standings-hint">Select a racer to follow on the track.</p>
 
       <div className="standings-list">
         {rankedPlayers.length === 0 ? (
@@ -51,16 +52,18 @@ export function LeaderboardStandings({
             const meta = getCharacterMeta(p.characterId);
             const isSelected = selectedPlayerId === p.playerId;
             const hpPct = Math.max(0, Math.min(100, (p.hp / (p.maxHp || 45)) * 100));
-            const hpColor = hpPct > 50 ? "#22c55e" : hpPct > 25 ? "#f59e0b" : "#ef4444";
+            const hpColor = hpPct > 50 ? "#236b4b" : hpPct > 25 ? "#895b0d" : "#b83e1c";
             const progressPct = Math.round((Math.min(goalRow, p.pos.y) / (goalRow || 1)) * 100);
 
             return (
-              <div
+              <button
+                type="button"
                 key={p.playerId}
                 className={`standings-item ${isSelected ? "selected" : ""} ${!p.alive ? "eliminated" : ""}`}
+                aria-pressed={isSelected}
                 onClick={() => onSelectPlayer(p.playerId)}
               >
-                <div className="standings-rank">
+                <span className="standings-rank">
                   {p.goalReached && rank === 1 ? (
                     <span className="rank-badge rank-1">🥇 1st</span>
                   ) : p.goalReached && rank === 2 ? (
@@ -70,16 +73,16 @@ export function LeaderboardStandings({
                   ) : (
                     <span className="rank-badge rank-num">#{rank}</span>
                   )}
-                </div>
+                </span>
 
-                <div className="standings-char-icon" style={{ background: meta.badgeBg, borderColor: meta.border }}>
+                <span className="standings-char-icon" style={{ background: meta.badgeBg, borderColor: meta.border }} aria-hidden="true">
                   {p.alive ? meta.icon : "💀"}
-                </div>
+                </span>
 
-                <div className="standings-info">
-                  <div className="standings-name-row">
+                <span className="standings-info">
+                  <span className="standings-name-row">
                     <span className="standings-player-name">{p.name}</span>
-                    <span className="standings-char-name" style={{ color: meta.color }}>
+                    <span className="standings-char-name">
                       {meta.name}
                     </span>
                     {mode === "teams" && p.team && (
@@ -87,14 +90,14 @@ export function LeaderboardStandings({
                     )}
                     {p.streak >= 2 && <span className="streak-tag">🔥 {p.streak} streak</span>}
                     {p.frozen && <span className="frozen-tag">❄️ Frozen</span>}
-                  </div>
+                  </span>
 
                   {/* HP Bar */}
-                  <div className="standings-bar-container">
-                    <div className="standings-bar-fill" style={{ width: `${hpPct}%`, background: hpColor }} />
-                  </div>
+                  <span className="standings-bar-container" aria-hidden="true">
+                    <span className="standings-bar-fill" style={{ width: `${hpPct}%`, background: hpColor }} />
+                  </span>
 
-                  <div className="standings-stats-row">
+                  <span className="standings-stats-row">
                     <span style={{ color: hpColor, fontWeight: 600, fontSize: "0.8rem" }}>
                       {p.hp}/{p.maxHp} HP
                     </span>
@@ -104,9 +107,9 @@ export function LeaderboardStandings({
                     <span className="muted" style={{ fontSize: "0.8rem" }}>
                       {p.goalReached ? "🏁 Finished" : !p.alive ? "Eliminated" : "Racing"}
                     </span>
-                  </div>
-                </div>
-              </div>
+                  </span>
+                </span>
+              </button>
             );
           })
         )}

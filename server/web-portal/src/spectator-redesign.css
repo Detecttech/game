@@ -1,0 +1,846 @@
+.spectator-redesign {
+  --bg: #fffdf7;
+  --bg-subtle: #f3efe5;
+  --text: #16252b;
+  --border: #d8d3c6;
+  --accent: #b83e1c;
+  --accent-bg: #f9e7dc;
+  color: #16252b;
+  line-height: 1.5;
+  color-scheme: light;
+}
+
+.live-spectator-page.spectator-redesign {
+  max-width: 1680px;
+  min-width: 0;
+  padding: clamp(12px, 2vw, 28px);
+}
+
+.spectator-redesign.spectator-connect {
+  max-width: 660px;
+  padding: clamp(20px, 4vw, 48px);
+}
+
+.spectator-redesign .card,
+.spectator-redesign .spectator-top-bar {
+  background: #fffdf7;
+  color: #16252b;
+  border: 1px solid #d8d3c6;
+  border-radius: 12px;
+  box-shadow: 0 3px 0 #16252b08;
+}
+
+.spectator-redesign .card {
+  margin-bottom: 0;
+}
+
+.spectator-redesign :is(h1, h2, h3, h4, label, legend) {
+  color: #16252b;
+}
+
+.spectator-redesign :is(h1, h2) {
+  letter-spacing: -0.035em;
+}
+
+.spectator-redesign .broadcast-eyebrow {
+  margin: 0 0 6px;
+  color: #6f4d39;
+  font: 700 0.68rem/1.5 ui-monospace, monospace;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.spectator-redesign :is(.muted, .deck-subtitle, .standings-hint, .standings-char-name) {
+  color: #586260;
+  opacity: 1;
+}
+
+.spectator-redesign :is(.btn, .chip-btn, .btn-close) {
+  min-height: 44px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+  font-weight: 650;
+  box-shadow: none;
+}
+
+.spectator-redesign .btn,
+.spectator-redesign .chip-btn {
+  background: #fffdf7;
+  color: #16252b;
+  border: 1px solid #a5aaa1;
+  border-radius: 7px;
+  padding: 10px 14px;
+}
+
+.spectator-redesign .btn:hover:not(:disabled),
+.spectator-redesign .chip-btn:hover:not(:disabled) {
+  background: #f3efe5;
+  border-color: #16252b;
+  filter: none;
+  transform: none;
+}
+
+.spectator-redesign .btn.btn-primary,
+.spectator-redesign .btn.btn-hazard-fire {
+  background: #b83e1c;
+  border-color: #b83e1c;
+  color: #fffdf7;
+}
+
+.spectator-redesign .btn.btn-primary:hover:not(:disabled),
+.spectator-redesign .btn.btn-hazard-fire:hover:not(:disabled) {
+  background: #922e13;
+}
+
+.spectator-redesign .btn.btn-danger {
+  color: #a32f20;
+  border-color: #c68e7e;
+  background: #fffdf7;
+}
+
+.spectator-redesign .btn.btn-sudden-gold {
+  background: #ead294;
+  border-color: #b39856;
+  color: #16252b;
+}
+
+.spectator-redesign .chip-btn.active {
+  background: #f9e7dc;
+  border-color: #b83e1c;
+  color: #942d13;
+}
+
+.spectator-redesign :is(.btn, .chip-btn):disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spectator-redesign :is(button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid #b83e1c;
+  outline-offset: 3px;
+}
+
+.spectator-redesign :is(input, select, textarea) {
+  min-width: 0;
+  max-width: 100%;
+  background: #fffdf7;
+  border-color: #909b95;
+  color: #16252b;
+  accent-color: #b83e1c;
+}
+
+.spectator-redesign input::placeholder {
+  color: #65716d;
+}
+
+.spectator-redesign input:not([type="radio"]):not([type="range"]) {
+  min-height: 44px;
+}
+
+.spectator-redesign input[type="radio"] {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+}
+
+.spectator-redesign .error-text {
+  color: #a32f20;
+  overflow-wrap: anywhere;
+}
+
+.spectator-redesign .spectator-top-bar {
+  border-top: 4px solid #b83e1c;
+  padding: 20px;
+  gap: 20px;
+}
+
+.spectator-redesign .spectator-title {
+  font-size: clamp(1.35rem, 2vw, 1.9rem);
+}
+
+.spectator-redesign .spectator-subtitle {
+  display: block;
+  color: #586260;
+  opacity: 1;
+}
+
+.spectator-redesign .connection-dot {
+  margin-right: 6px;
+  box-shadow: none;
+}
+
+.spectator-redesign .status-badge {
+  background: #eee9de;
+  color: #586260;
+  border: 1px solid #aaa99b;
+  letter-spacing: 0.06em;
+}
+
+.spectator-redesign .status-badge.status-active {
+  color: #236b4b;
+  background: #e3efe4;
+  border-color: #669379;
+}
+
+.spectator-redesign .status-badge.status-lobby {
+  color: #795314;
+  background: #f6edce;
+  border-color: #b59d60;
+}
+
+.spectator-redesign .status-badge.status-completed {
+  color: #16252b;
+  background: #e2e8e4;
+  border-color: #7c918a;
+}
+
+.spectator-redesign .monitor-connect-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.spectator-redesign .monitor-connect-form label {
+  grid-column: 1 / -1;
+}
+
+.spectator-redesign :is(.monitor-invite, .monitor-lobby) {
+  padding: clamp(16px, 2vw, 28px);
+  margin-bottom: 20px;
+}
+
+.spectator-redesign :is(.monitor-invite, .monitor-lobby) h2 {
+  margin: 0 0 16px;
+  font-size: 1.4rem;
+}
+
+.spectator-redesign .monitor-invite-codes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.spectator-redesign .monitor-invite-codes > div {
+  flex: 1 1 200px;
+  padding: 14px 18px;
+  background: #f3efe5;
+  border: 1px solid #d8d3c6;
+  border-left: 3px solid #b83e1c;
+  border-radius: 6px;
+}
+
+.spectator-redesign .monitor-invite-codes strong {
+  display: block;
+  overflow-wrap: anywhere;
+  font: 750 clamp(1.8rem, 3vw, 2.5rem)/1.3 ui-monospace, monospace;
+  letter-spacing: 0.06em;
+}
+
+.spectator-redesign .monitor-invite-codes span {
+  color: #586260;
+  font-size: 0.8rem;
+}
+
+.spectator-redesign .monitor-readiness {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 12px 16px;
+  background: #edf0e7;
+  border-left: 3px solid #457558;
+}
+
+.spectator-redesign .monitor-readiness-warning {
+  color: #8c421e;
+}
+
+.spectator-redesign .monitor-ready-badge {
+  color: #236b4b;
+  background: #e3efe4;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.spectator-redesign .table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #d8d3c6;
+  border-radius: 8px;
+}
+
+.spectator-redesign .table-scroll table {
+  width: 100%;
+  min-width: 560px;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.spectator-redesign .table-scroll :is(th, td) {
+  padding: 13px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e7e2d6;
+}
+
+.spectator-redesign .table-scroll th {
+  background: #f3efe5;
+  color: #586260;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.spectator-redesign :is(.countdown-alert-banner, .sudden-question-alert-banner, .match-completed-banner) {
+  margin-bottom: 20px;
+  background: #f7edce;
+  color: #16252b;
+  border: 1px solid #b59d60;
+  border-left-width: 5px;
+  box-shadow: none;
+  animation: none;
+  flex-wrap: wrap;
+}
+
+.spectator-redesign :is(.countdown-seconds, .sq-timer) {
+  color: #a32f20;
+  font-variant-numeric: tabular-nums;
+}
+
+.spectator-redesign .sq-reward-tag {
+  color: #795314;
+}
+
+.spectator-redesign .sq-badge {
+  white-space: normal;
+}
+
+.spectator-redesign .teacher-intervention-deck {
+  padding: 18px;
+  margin-bottom: 20px;
+}
+
+.spectator-redesign :is(.deck-header, .deck-status-badges, .damage-chips, .monitor-sudden-controls) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.spectator-redesign .deck-header {
+  border-color: #d8d3c6;
+}
+
+.spectator-redesign .deck-title h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: normal;
+}
+
+.spectator-redesign .int-card-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.spectator-redesign :is(.standings-header, .combat-feed-header) h2 {
+  letter-spacing: normal;
+}
+
+.spectator-redesign .deck-cooldown-badge {
+  color: #795314;
+  background: #f7edce;
+  border-color: #b59d60;
+}
+
+.spectator-redesign .intervention-buttons-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.spectator-redesign .intervention-card.card-fire,
+.spectator-redesign .intervention-card.card-sudden {
+  background: #f8f4eb;
+  border: 1px solid #d8d3c6;
+  border-top: 3px solid #b83e1c;
+  border-radius: 7px;
+}
+
+.spectator-redesign .intervention-card.card-sudden {
+  border-top-color: #b39856;
+}
+
+.spectator-redesign .int-card-header p {
+  color: #586260;
+  opacity: 1;
+}
+
+.spectator-redesign .spectator-grid-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+  gap: 20px;
+}
+
+.spectator-redesign :is(.spectator-track-column, .spectator-side-column, .int-card-controls) {
+  min-width: 0;
+}
+
+.spectator-redesign .spectator-side-column {
+  display: grid;
+  gap: 20px;
+}
+
+.spectator-redesign .arena-track-container.card {
+  background: #16252b;
+  border: 1px solid #32474a;
+  color: #fffdf7;
+  padding: 0;
+  box-shadow: 0 8px 24px #16252b18;
+}
+
+.spectator-redesign .arena-broadcast-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 20px 24px 8px;
+}
+
+.spectator-redesign .arena-broadcast-header h2 {
+  margin: 0;
+  color: #fffdf7;
+  font-size: 1.5rem;
+}
+
+.spectator-redesign .arena-broadcast-header .broadcast-eyebrow {
+  color: #dfc47e;
+}
+
+.spectator-redesign .arena-broadcast-header > span,
+.spectator-redesign .arena-scroll-hint {
+  color: #b9ccca;
+  font-size: 0.78rem;
+}
+
+.spectator-redesign .arena-scroll-hint {
+  padding: 0 24px 18px;
+  margin: 0;
+}
+
+.spectator-redesign .arena-goal-arch {
+  background: #1d3035;
+  border-bottom: 1px solid #b39856;
+}
+
+.spectator-redesign .checkered-line {
+  height: 4px;
+  opacity: 0.35;
+}
+
+.spectator-redesign .goal-banner-content {
+  padding: 12px;
+  text-align: center;
+}
+
+.spectator-redesign .goal-title {
+  color: #dfc47e;
+  font: 700 0.78rem/1.5 ui-monospace, monospace;
+  letter-spacing: 0.09em;
+  text-shadow: none;
+}
+
+.spectator-redesign .arena-track-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-color: #80a6a4 #16252b;
+  scrollbar-width: auto;
+  scroll-padding-inline: 24px;
+}
+
+.spectator-redesign .arena-track-stage {
+  height: clamp(480px, 65vh, 640px);
+  background: radial-gradient(ellipse at 50% 0, #29444a 0, #142329 75%);
+}
+
+.spectator-redesign :is(.arena-racers-layer, .track-lanes-columns, .hazard-fireball-rain) {
+  inset: 0 48px;
+}
+
+.spectator-redesign .arena-attack-overlay {
+  left: 48px;
+  width: calc(100% - 96px);
+}
+
+.spectator-redesign .track-lane-column {
+  border-right: 1px solid #91c4c21f;
+}
+
+.spectator-redesign .track-lane-column:nth-child(odd) {
+  background: #9ad5cd04;
+}
+
+.spectator-redesign .track-row-line {
+  border-color: #9ab6b333;
+  padding-right: 2px;
+}
+
+.spectator-redesign .track-row-line.row-goal {
+  border-color: #dfc47e88;
+}
+
+.spectator-redesign .track-row-line.row-start {
+  border-color: #80d4d188;
+}
+
+.spectator-redesign .row-milestone-badge {
+  color: #b9ccca;
+  font-size: 0.6rem;
+}
+
+.spectator-redesign .lane-header-tag {
+  margin-top: 18px;
+}
+
+.spectator-redesign .racer-token-container {
+  width: 168px;
+  scroll-margin-inline: 28px;
+}
+
+.spectator-redesign .racer-select {
+  position: absolute;
+  inset: -4px;
+  z-index: 2;
+  width: calc(100% + 8px);
+  border: 0;
+  padding: 0;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.spectator-redesign .racer-avatar-card {
+  width: 168px;
+  min-width: 168px;
+  max-width: 168px;
+  min-height: 68px;
+  padding: 8px;
+  background: #1c3036;
+  color: #fffdf7;
+  backdrop-filter: none;
+}
+
+.spectator-redesign .racer-token-container:hover .racer-avatar-card {
+  transform: translateY(-2px);
+}
+
+.spectator-redesign .racer-token-container.eliminated .racer-avatar-card {
+  opacity: 1;
+}
+
+.spectator-redesign .racer-status-pill.frozen-pill {
+  background: #80d4d1;
+  color: #16252b;
+  box-shadow: none;
+  animation: none;
+}
+
+.spectator-redesign .racer-token-container.selected .racer-select {
+  outline: 2px solid #dfc47e;
+  outline-offset: 1px;
+}
+
+.spectator-redesign .racer-select:focus-visible,
+.spectator-redesign .arena-track-scroll:focus-visible {
+  outline: 3px solid #80d4d1;
+  outline-offset: -3px;
+}
+
+.spectator-redesign .racer-token-container.selected .racer-select:focus-visible {
+  outline: 3px solid #80d4d1;
+  outline-offset: 3px;
+}
+
+.spectator-redesign .racer-avatar-icon {
+  flex-shrink: 0;
+}
+
+.spectator-redesign .racer-name {
+  font-size: 0.85rem;
+}
+
+.spectator-redesign .racer-step-marker {
+  font-size: 0.72rem;
+  color: #b9ccca;
+}
+
+.spectator-redesign .arena-start-bar {
+  background: #1d3035;
+  border-top: 1px solid #80a6a4;
+  padding: 12px;
+  color: #80d4d1;
+  font: 700 0.72rem/1.5 ui-monospace, monospace;
+}
+
+.spectator-redesign .arena-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  color: #b9ccca;
+  pointer-events: none;
+}
+
+.spectator-redesign .arena-empty strong {
+  color: #dfc47e;
+  font-size: 1.5rem;
+}
+
+.spectator-redesign :is(.standings-header, .combat-feed-header) {
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #d8d3c6;
+}
+
+.spectator-redesign :is(.standings-header, .combat-feed-header) > div {
+  flex-wrap: wrap;
+}
+
+.spectator-redesign .standings-hint {
+  font-size: 0.78rem;
+  margin: 0 0 12px;
+}
+
+.spectator-redesign .standings-list {
+  max-height: 540px;
+  overflow-y: auto;
+  padding: 4px;
+  margin: -4px;
+}
+
+.spectator-redesign .standings-item {
+  flex-shrink: 0;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: #16252b;
+  background: #fffdf7;
+  border: 1px solid #d8d3c6;
+  border-radius: 7px;
+  padding: 12px 8px;
+}
+
+.spectator-redesign .standings-item:hover,
+.spectator-redesign .standings-item.selected {
+  background: #f9e7dc;
+  border-color: #b83e1c;
+  transform: none;
+}
+
+.spectator-redesign .standings-item.selected {
+  box-shadow: inset 3px 0 #b83e1c;
+}
+
+.spectator-redesign .standings-item.eliminated {
+  opacity: 1;
+  background: #efeee8;
+}
+
+.spectator-redesign :is(.standings-bar-container, .standings-bar-fill) {
+  display: block;
+}
+
+.spectator-redesign :is(.standings-rank, .standings-char-icon) {
+  flex-shrink: 0;
+}
+
+.spectator-redesign .standings-stats-row {
+  flex-wrap: wrap;
+  gap: 2px 8px;
+}
+
+.spectator-redesign .standings-player-name {
+  overflow-wrap: anywhere;
+}
+
+.spectator-redesign .streak-tag,
+.spectator-redesign .attack-arrow {
+  color: #a13f19;
+}
+
+.spectator-redesign .frozen-tag,
+.spectator-redesign .freeze-arrow {
+  color: #176772;
+}
+
+.spectator-redesign .team-tag.team-a {
+  color: #235ba2;
+  background: #e5edf9;
+}
+
+.spectator-redesign .team-tag.team-b {
+  color: #a32f20;
+  background: #f8e3dc;
+}
+
+.spectator-redesign .combat-event-count {
+  color: #586260;
+  background: #f3efe5;
+  border: 1px solid #d8d3c6;
+  font-size: 0.7rem;
+}
+
+.spectator-redesign .combat-feed-list {
+  max-height: 360px;
+  padding: 4px;
+  margin: -4px;
+}
+
+.spectator-redesign .combat-event-item {
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  background: #f8f4eb;
+  border-color: #d8d3c6;
+  flex-shrink: 0;
+}
+
+.spectator-redesign :is(.combat-event-time, .hp-remaining, .combat-feed-empty) {
+  color: #586260;
+  opacity: 1;
+}
+
+.spectator-redesign .combat-event-time {
+  font: 600 0.68rem/1.5 ui-monospace, monospace;
+}
+
+.spectator-redesign .combat-event-body {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.spectator-redesign .spectator-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(580px, calc(100% - 32px));
+  max-height: calc(100dvh - 48px);
+  margin: auto;
+  overflow-y: auto;
+  padding: clamp(16px, 3vw, 28px);
+  color: #16252b;
+  background: #fffdf7;
+  border: 1px solid #a5aaa1;
+  box-shadow: 0 24px 80px #0006;
+}
+
+.spectator-redesign .spectator-dialog::backdrop {
+  background: #0d1b22c9;
+  backdrop-filter: blur(4px);
+}
+
+.spectator-redesign .modal-header {
+  gap: 12px;
+  border-color: #d8d3c6;
+}
+
+.spectator-redesign .modal-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  letter-spacing: normal;
+  color: #16252b;
+}
+
+.spectator-redesign .btn-close {
+  min-width: 44px;
+  color: #16252b;
+  opacity: 1;
+}
+
+.spectator-redesign .spectator-dialog fieldset {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.spectator-redesign .spectator-dialog legend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.spectator-redesign .monitor-question-sources {
+  display: grid;
+  gap: 12px;
+}
+
+.spectator-redesign .modal-footer {
+  flex-wrap: wrap;
+}
+
+.live-spectator-page.spectator-redesign.fullscreen-mode {
+  max-width: none;
+  width: 100%;
+  height: 100dvh;
+  padding: clamp(12px, 2vw, 32px);
+  background: #eee9de;
+  color: #16252b;
+  overflow: auto;
+}
+
+@media (max-width: 1150px) {
+  .spectator-redesign .spectator-grid-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .spectator-redesign .spectator-side-column {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .spectator-redesign :is(.intervention-buttons-grid, .spectator-side-column) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .spectator-redesign .spectator-top-bar {
+    padding: 16px;
+  }
+
+  .spectator-redesign .spectator-controls-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .spectator-redesign .monitor-invite-codes > .btn {
+    width: 100%;
+  }
+
+  .spectator-redesign .arena-broadcast-header {
+    padding-inline: 16px;
+  }
+
+  .spectator-redesign .arena-scroll-hint {
+    padding-inline: 16px;
+  }
+
+  .spectator-redesign .monitor-connect-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spectator-redesign *,
+  .spectator-redesign *::before,
+  .spectator-redesign *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

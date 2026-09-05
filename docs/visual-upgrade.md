@@ -40,6 +40,20 @@ The browser screenshot exposed a framing mistake: fitting the entire stadium int
 
 ## Verification Commands
 
+### Teacher Studio Redesign
+
+The React teacher portal now uses a consistent tournament/editorial theme: ink navigation, paper-colored workspaces, burnt-orange actions, and local SVG arena artwork. Login, dashboard, class and question management, match setup, leaderboard, and live monitoring retain their existing routes and APIs.
+
+- Dashboard counts and recent matches come from the existing APIs; no illustrative statistics are presented as real activity.
+- Mobile navigation, contained table scrolling, content-responsive question editing, labeled forms, keyboard racer selection, and native-dialog focus handling are included.
+- Large spectator rosters use horizontally scrollable lanes. Selecting a racer reveals their lane without scrolling the whole page.
+- The paper theme is deliberate and consistent across operating-system color preferences; projector mode keeps a separate dark arena presentation. Reduced-motion preferences are respected.
+- Sampled local browser checks covered 320px, 390px, 1024px, and 1440px widths, with additional intermediate-width editor and full-roster checks. HTTP/WebSocket fixtures used fictional data. Automated accessibility results do not establish full WCAG conformance or replace live assistive-technology testing.
+
+This redesign changes the teacher website only, not Unity gameplay. Build the portal with `npm --prefix server/web-portal run build`, then package/deploy its output. A new Unity build is not required for these website-only changes; prior Unity source changes still require their own build when not yet deployed.
+
+### Build and Test
+
 Run from the repository root with Unity `6000.5.7f1` (`UNITY` is the editor executable path). Use Node 20 for the server, matching the Dockerfile:
 
 ```bash

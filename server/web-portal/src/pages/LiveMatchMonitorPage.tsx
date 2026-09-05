@@ -13,6 +13,7 @@ import type {
 import { CombatFeed } from "../components/CombatFeed";
 import type { CombatEvent } from "../components/CombatFeed";
 import { LeaderboardStandings } from "../components/LeaderboardStandings";
+import "../spectator-redesign.css";
 import {
   playAdvanceSound,
   playAttackSound,
@@ -102,6 +103,23 @@ export function LiveMatchMonitorPage() {
   const [hazardCooldown, setHazardCooldown] = useState<boolean>(false);
   const [suddenCooldown, setSuddenCooldown] = useState<boolean>(false);
   const [showCustomModal, setShowCustomModal] = useState<boolean>(false);
+  const customDialogRef = useRef<HTMLDialogElement | null>(null);
+  const soundControlRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (!showCustomModal) return;
+    const dialog = customDialogRef.current;
+    const previousFocus = document.activeElement;
+    const fallbackFocus = soundControlRef.current;
+    dialog?.showModal();
+    return () => {
+      dialog?.close();
+      const target = previousFocus instanceof HTMLElement && previousFocus.isConnected && !previousFocus.matches(":disabled")
+        ? previousFocus
+        : fallbackFocus;
+      if (target?.isConnected) target.focus({ preventScroll: true });
+    };
+  }, [showCustomModal]);
 
   // Custom Sudden Question Form
   const [customSource, setCustomSource] = useState<"random" | "custom">("random");
@@ -798,11 +816,17 @@ export function LiveMatchMonitorPage() {
 
   if (!matchIdParam) {
     return (
-      <div className="page" style={{ maxWidth: 460 }}>
+      <div className="page spectator-redesign spectator-connect">
+        <p className="broadcast-eyebrow">Teacher workspace / Broadcast desk</p>
         <h1>Live Match Spectator & Monitor</h1>
         <p className="muted">Enter the numeric match ID from Match Setup to watch the live match in real-time.</p>
-        <div className="card" style={{ display: "flex", gap: "10px", marginTop: "1rem" }}>
+        <div className="card monitor-connect-form">
+          <label htmlFor="monitor-match-id">Match ID</label>
           <input
+            id="monitor-match-id"
+            inputMode="numeric"
+            aria-invalid={!!inputError}
+            aria-describedby={inputError ? "monitor-input-error" : undefined}
             placeholder="Match ID (e.g. 1)"
             value={matchIdInput}
             onChange={(e) => setMatchIdInput(e.target.value)}
@@ -813,19 +837,20 @@ export function LiveMatchMonitorPage() {
             Watch Match
           </button>
         </div>
-        {inputError && <p className="error-text">{inputError}</p>}
+        {inputError && <p id="monitor-input-error" className="error-text" role="alert">{inputError}</p>}
       </div>
     );
   }
 
   return (
-    <div ref={monitorContainerRef} className={`live-spectator-page ${isFullscreen ? "fullscreen-mode" : ""}`}>
+    <div ref={monitorContainerRef} className={`live-spectator-page spectator-redesign ${isFullscreen ? "fullscreen-mode" : ""}`}>
       {/* Top Header Bar */}
       <div className="spectator-top-bar">
         <div className="spectator-title-group">
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <span style={{ fontSize: "1.5rem" }}>🏟️</span>
             <div>
+              <p className="broadcast-eyebrow">Classroom colosseum / Broadcast desk</p>
               <h1 className="spectator-title">
                 Live Match #{matchIdParam}
                 <span className={`status-badge status-${status}`}>{connected ? status.toUpperCase() : status === "completed" ? "COMPLETED (OFFLINE)" : connecting ? "CONNECTING" : "OFFLINE"}</span>
@@ -842,8 +867,11 @@ export function LiveMatchMonitorPage() {
         <div className="spectator-controls-group">
           {!connected && status !== "completed" && <button className="btn" onClick={() => setRetryAttempt((n) => n + 1)} disabled={connecting}>Retry</button>}
           <button
+            ref={soundControlRef}
             className="btn btn-tool"
             onClick={toggleMute}
+            aria-pressed={!muted}
+            aria-label={muted ? "Sound Off: Unmute sound effects" : "Sound On: Mute sound effects"}
             title={muted ? "Unmute sound effects" : "Mute sound effects"}
           >
             {muted ? "🔇 Sound Off" : "🔊 Sound On"}
@@ -852,6 +880,8 @@ export function LiveMatchMonitorPage() {
           <button
             className="btn btn-tool"
             onClick={toggleFullscreen}
+            aria-pressed={isFullscreen}
+            aria-label={isFullscreen ? "Exit Fullscreen" : "Projector Fullscreen"}
             title="Toggle Fullscreen (for Projector / Smartboard)"
           >
             {isFullscreen ? "🗗 Exit Fullscreen" : "⛶ Projector Fullscreen"}
@@ -879,18 +909,19 @@ export function LiveMatchMonitorPage() {
       {connectionError && <p className="error-text" role="alert">{connectionError}</p>}
 
       {status !== "completed" && (status === "lobby" || !connected) && (
-        <div className="card">
-          <h2>Invite students{roster ? ` to ${roster.name}` : ""}</h2>
+        <section className="card monitor-invite" aria-labelledby="monitor-invite-title">
+          <p className="broadcast-eyebrow">01 / Invite your class</p>
+          <h2 id="monitor-invite-title">Invite students{roster ? ` to ${roster.name}` : ""}</h2>
           {detailsError ? <p className="error-text" role="alert">{detailsError} <button className="btn" onClick={() => setRetryAttempt((n) => n + 1)}>Retry details</button></p> : !roster && !connectionError && <p role="status">Loading invitation details...</p>}
-          <div className="row" style={{ gap: "2rem" }}>
-            <div>Class code<strong style={{ display: "block", fontSize: "1.75rem", letterSpacing: "0.08em" }}>{roster?.class_code ?? "--"}</strong></div>
-            <div>Match join code<strong style={{ display: "block", fontSize: "1.75rem", letterSpacing: "0.08em" }}>{match?.join_code ?? "--"}</strong></div>
+          <div className="monitor-invite-codes">
+            <div><span>Class code</span><strong>{roster?.class_code ?? "--"}</strong></div>
+            <div><span>Match join code</span><strong>{match?.join_code ?? "--"}</strong></div>
             <button className="btn btn-primary" disabled={!joinLink} onClick={copyJoinLink}>Copy student link</button>
           </div>
           {joinLink && <div className="field" style={{ marginTop: "1rem" }}><label htmlFor="student-link">Student link (no PIN or login token)</label><input id="student-link" readOnly value={joinLink} onFocus={(e) => e.currentTarget.select()} /></div>}
           {copyMessage && <p role="status">{copyMessage}</p>}
           <p className="muted">Students open the link, sign in, choose a character{mode === "teams" ? " and a team" : ""}, then select Ready. Only you can start the match.</p>
-        </div>
+        </section>
       )}
 
       {/* Countdown Alert Banner */}
@@ -919,18 +950,20 @@ export function LiveMatchMonitorPage() {
 
       {/* Lobby State Table (if pre-match) */}
       {status === "lobby" && lobby && (
-        <div className="card" style={{ marginBottom: "1.25rem" }}>
-          <h2>Racers in Lobby ({lobby.length})</h2>
-          <p role="status"><strong>{readyCount} / {lobby.length} ready with a character picked.</strong> At least 2 are required to start.</p>
-          {excludedCount > 0 && <p className="muted">{excludedCount} student(s) will be excluded if you start before they are ready with a character picked.</p>}
+        <section className="card monitor-lobby" aria-labelledby="monitor-lobby-title">
+          <p className="broadcast-eyebrow">02 / Check readiness, then start</p>
+          <h2 id="monitor-lobby-title">Racers in Lobby ({lobby.length})</h2>
+          <p className="monitor-readiness" role="status"><strong>{readyCount} / {lobby.length} ready with a character picked.</strong> At least 2 are required to start.</p>
+          {excludedCount > 0 && <p className="monitor-readiness-warning">{excludedCount} student(s) will be excluded if you start before they are ready with a character picked.</p>}
           {lobby.length === 0 && <p className="muted">Waiting for students to join using the link or codes above.</p>}
-          <table style={{ width: "100%", marginTop: "0.5rem" }}>
+          <div className="table-scroll" role="region" aria-label="Lobby readiness" tabIndex={0}>
+          <table>
             <thead>
               <tr>
-                <th>Student Name</th>
-                <th>Hero Pick</th>
-                <th>Team</th>
-                <th>Ready State</th>
+                <th scope="col">Student Name</th>
+                <th scope="col">Hero Pick</th>
+                <th scope="col">Team</th>
+                <th scope="col">Ready State</th>
               </tr>
             </thead>
             <tbody>
@@ -941,16 +974,17 @@ export function LiveMatchMonitorPage() {
                   <td>{p.team ?? <span className="muted">—</span>}</td>
                   <td>
                     {p.ready && p.characterId ? (
-                      <span style={{ color: "#22c55e", fontWeight: 700 }}>✓ READY</span>
+                      <span className="monitor-ready-badge">✓ READY</span>
                     ) : (
-                      <span className="muted">Not ready</span>
+                      <span className="muted">{!p.characterId ? "Choosing a character" : "Not ready"}</span>
                     )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </section>
       )}
 
       {/* Sudden Question Active Alert Banner */}
@@ -974,7 +1008,7 @@ export function LiveMatchMonitorPage() {
             <div className="deck-title">
               <span className="deck-icon">🎮</span>
               <div>
-                <strong>Teacher Match Controls & Interventions</strong>
+                <h2>Teacher Match Controls & Interventions</h2>
                 <span className="deck-subtitle">Influence the live colosseum in real-time</span>
               </div>
             </div>
@@ -990,7 +1024,7 @@ export function LiveMatchMonitorPage() {
               <div className="int-card-header">
                 <span className="int-icon">🔥</span>
                 <div>
-                  <h4>Fireball Rain (Low Effect)</h4>
+                  <h3>Fireball Rain (Low Effect)</h3>
                   <p>Send low-damage fireballs raining on all living racers</p>
                 </div>
               </div>
@@ -1001,6 +1035,7 @@ export function LiveMatchMonitorPage() {
                       key={dmg}
                       type="button"
                       className={`chip-btn ${hazardDamage === dmg ? "active" : ""}`}
+                      aria-pressed={hazardDamage === dmg}
                       onClick={() => setHazardDamage(dmg)}
                     >
                       {dmg} HP {dmg === 5 ? "(Light)" : dmg === 8 ? "(Medium)" : "(Spicy)"}
@@ -1023,12 +1058,12 @@ export function LiveMatchMonitorPage() {
               <div className="int-card-header">
                 <span className="int-icon">⚡</span>
                 <div>
-                  <h4>Sudden Question Event</h4>
+                  <h3>Sudden Question Event</h3>
                   <p>Push an instant high-stakes question granting 35 DMG Mega Attacks</p>
                 </div>
               </div>
               <div className="int-card-controls">
-                <div style={{ display: "flex", gap: "8px" }}>
+                <div className="monitor-sudden-controls">
                   <button
                     type="button"
                     className="btn btn-sudden-gold"
@@ -1056,19 +1091,23 @@ export function LiveMatchMonitorPage() {
 
       {/* Custom Sudden Question Modal */}
       {showCustomModal && (
-        <div className="modal-backdrop" onClick={() => setShowCustomModal(false)}>
-          <div className="modal-content card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 540 }}>
+          <dialog
+            ref={customDialogRef}
+            className="modal-content card spectator-dialog"
+            aria-labelledby="custom-question-title"
+            onCancel={(event) => { event.preventDefault(); setShowCustomModal(false); }}
+          >
             <div className="modal-header">
-              <h3>⚡ Configure Sudden Question</h3>
-              <button className="btn-close" onClick={() => setShowCustomModal(false)}>
+              <h2 id="custom-question-title">⚡ Configure Sudden Question</h2>
+              <button className="btn-close" aria-label="Close sudden question dialog" onClick={() => setShowCustomModal(false)}>
                 ✕
               </button>
             </div>
             <div className="modal-body" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               {/* Question Source */}
-              <div>
-                <label style={{ fontWeight: 600, display: "block", marginBottom: "6px" }}>Question Source</label>
-                <div style={{ display: "flex", gap: "10px" }}>
+              <fieldset>
+                <legend>Question Source</legend>
+                <div className="monitor-question-sources">
                   <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer" }}>
                     <input
                       type="radio"
@@ -1088,22 +1127,23 @@ export function LiveMatchMonitorPage() {
                     Write Custom Question On-The-Fly
                   </label>
                 </div>
-              </div>
+              </fieldset>
 
               {/* Custom Question Inputs */}
               {customSource === "custom" && (
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   <div>
-                    <label style={{ fontSize: "0.85rem", fontWeight: 600 }}>Question Text</label>
+                    <label htmlFor="custom-question-text" style={{ fontSize: "0.85rem", fontWeight: 600 }}>Question Text</label>
                     <input
+                      id="custom-question-text"
                       placeholder="e.g. What is the powerhouse of the cell?"
                       value={customText}
                       onChange={(e) => setCustomText(e.target.value)}
                       style={{ width: "100%", marginTop: "4px" }}
                     />
                   </div>
-                  <div>
-                    <label style={{ fontSize: "0.85rem", fontWeight: 600 }}>Answer Choices (Select the correct one):</label>
+                  <fieldset>
+                    <legend>Answer Choices (Select the correct one):</legend>
                     <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "4px" }}>
                       {customChoices.map((choice, idx) => (
                         <div key={idx} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -1113,9 +1153,11 @@ export function LiveMatchMonitorPage() {
                             checked={customCorrectIndex === idx}
                             onChange={() => setCustomCorrectIndex(idx)}
                             title="Mark as correct answer"
+                            aria-label={`Mark choice ${idx + 1} as correct`}
                           />
                           <input
                             placeholder={`Choice ${idx + 1}`}
+                            aria-label={`Choice ${idx + 1}`}
                             value={choice}
                             onChange={(e) => {
                               const next = [...customChoices];
@@ -1127,13 +1169,13 @@ export function LiveMatchMonitorPage() {
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </fieldset>
                 </div>
               )}
 
               {/* Reward Selection */}
-              <div>
-                <label style={{ fontWeight: 600, display: "block", marginBottom: "6px" }}>Reward for Correct Answer</label>
+              <fieldset>
+                <legend>Reward for Correct Answer</legend>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   <label
                     style={{
@@ -1216,15 +1258,16 @@ export function LiveMatchMonitorPage() {
                     </div>
                   </label>
                 </div>
-              </div>
+              </fieldset>
 
               {/* Damage override slider if mega_attack */}
               {customRewardType === "mega_attack" && (
                 <div>
-                  <label style={{ fontSize: "0.85rem", fontWeight: 600 }}>
+                  <label htmlFor="custom-attack-damage" style={{ fontSize: "0.85rem", fontWeight: 600 }}>
                     Attack Damage: <strong>{customDamage} DMG</strong>
                   </label>
                   <input
+                    id="custom-attack-damage"
                     type="range"
                     min="25"
                     max="45"
@@ -1249,8 +1292,7 @@ export function LiveMatchMonitorPage() {
                 🚀 Launch Sudden Question to Everyone
               </button>
             </div>
-          </div>
-        </div>
+          </dialog>
       )}
 
       {/* Main Live Match Layout: Arena Track (Left) & Standings/Combat (Right) */}
@@ -1285,7 +1327,7 @@ export function LiveMatchMonitorPage() {
             <div className="card" style={{ padding: "0.85rem 1rem", fontSize: "0.88rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
                 <span>📝</span>
-                <strong>Current Classroom Question</strong>
+                <h2 style={{ margin: 0, fontSize: "inherit", fontWeight: 700, letterSpacing: "normal" }}>Current Classroom Question</h2>
               </div>
               <p style={{ margin: "4px 0", fontWeight: 600 }}>{question.text}</p>
               <ul style={{ margin: "4px 0 0", paddingLeft: "1.2rem", fontSize: "0.82rem", opacity: 0.85 }}>

@@ -25,19 +25,19 @@ export function CombatFeed({ events, onClear }: CombatFeedProps) {
       <div className="combat-feed-header">
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <span style={{ fontSize: "1.2rem" }}>⚔️</span>
-          <h3 style={{ margin: 0, fontSize: "1.05rem" }}>Live Combat & Match Feed</h3>
-          <span className="badge" style={{ fontSize: "0.75rem", background: "rgba(124, 58, 237, 0.15)", color: "var(--accent)" }}>
+          <h2 id="combat-feed-title" style={{ margin: 0, fontSize: "1.05rem" }}>Match Feed</h2>
+          <span className="badge combat-event-count">
             {events.length} events
           </span>
         </div>
         {events.length > 0 && onClear && (
-          <button className="btn" style={{ padding: "2px 8px", fontSize: "0.75rem" }} onClick={onClear}>
+          <button className="btn" aria-label="Clear match feed" onClick={onClear}>
             Clear
           </button>
         )}
       </div>
 
-      <div className="combat-feed-list">
+      <div className="combat-feed-list" role="log" aria-labelledby="combat-feed-title" tabIndex={0} aria-relevant="additions">
         {events.length === 0 ? (
           <div className="combat-feed-empty">
             <span>🏟️ Waiting for match actions...</span>
@@ -49,18 +49,18 @@ export function CombatFeed({ events, onClear }: CombatFeedProps) {
 
             return (
               <div key={ev.id} className={`combat-event-item event-${ev.type}`}>
-                <div className="combat-event-time">
+                <time className="combat-event-time" dateTime={new Date(ev.timestamp).toISOString()}>
                   {new Date(ev.timestamp).toLocaleTimeString([], { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-                </div>
+                </time>
 
                 <div className="combat-event-body">
-                  {ev.type === "attack" && (
+                  {ev.type === "attack" && ev.attackerName && (
                     <div className="combat-attack-line">
                       <span className="badge-char" style={{ borderColor: attackerMeta?.border }}>
                         {attackerMeta?.icon} <strong>{ev.attackerName}</strong>
                       </span>
                       <span className="attack-arrow">
-                        ⚔️ <strong style={{ color: "#ef4444" }}>-{ev.damage} HP</strong> ➔
+                        ⚔️ <strong>-{ev.damage} HP</strong> ➔
                       </span>
                       <span className="badge-char" style={{ borderColor: targetMeta?.border }}>
                         {targetMeta?.icon} <strong>{ev.targetName}</strong>
@@ -77,7 +77,7 @@ export function CombatFeed({ events, onClear }: CombatFeedProps) {
                         {attackerMeta?.icon} <strong>{ev.attackerName}</strong>
                       </span>
                       <span className="freeze-arrow">
-                        ❄️ <strong style={{ color: "#06b6d4" }}>FROZE</strong> ➔
+                        ❄️ <strong>FROZE</strong> ➔
                       </span>
                       <span className="badge-char" style={{ borderColor: targetMeta?.border }}>
                         {targetMeta?.icon} <strong>{ev.targetName}</strong>
@@ -92,7 +92,7 @@ export function CombatFeed({ events, onClear }: CombatFeedProps) {
                       </span>
                       <strong>{ev.attackerName}</strong> reached the goal line!{" "}
                       <span className="badge" style={{ background: "#f59e0b", color: "#000", fontWeight: 700 }}>
-                        {ev.rank === 1 ? "1st PLACE WINNER!" : `${ev.rank}th Place`}
+                        {ev.rank === 1 ? "1st PLACE WINNER!" : ev.rank === 2 ? "2nd Place" : ev.rank === 3 ? "3rd Place" : `${ev.rank}th Place`}
                       </span>
                     </div>
                   )}
@@ -104,14 +104,14 @@ export function CombatFeed({ events, onClear }: CombatFeedProps) {
                     </div>
                   )}
 
-                  {ev.type === "bonus_move" && (
+                  {ev.type === "bonus_move" && ev.attackerName && (
                     <div className="combat-bonus-line">
                       <span>⚡</span>
                       <strong>{ev.attackerName}</strong> gained bonus momentum and dashed forward!
                     </div>
                   )}
 
-                  {(ev.type === "advance" || ev.type === "system") && (
+                  {(ev.type === "advance" || ev.type === "system" || ((ev.type === "attack" || ev.type === "bonus_move") && !ev.attackerName)) && (
                     <div className="combat-generic-line">{ev.text}</div>
                   )}
                 </div>
